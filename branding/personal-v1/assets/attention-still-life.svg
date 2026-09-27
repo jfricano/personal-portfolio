@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 640" fill="none">
+<title>A little room for curiosity</title><desc>An original editorial still life: an open notebook, a growing branch, a small orange sun, and a line that wanders from one thought to the next. Symbolic artwork, not a depiction of Jason's belongings.</desc>
+<defs><pattern id="grain" width="19" height="17" patternUnits="userSpaceOnUse"><circle cx="3" cy="4" r=".65" fill="#302B28" opacity=".11"/><circle cx="13" cy="12" r=".4" fill="#302B28" opacity=".15"/></pattern></defs>
+<!-- Broad planes behave like cut paper, while the drawn lines retain their small irregularities. -->
+<path d="M73 195c11-93 110-151 223-150 132 0 260 88 287 209 28 122-44 248-181 285C229 586 68 483 60 353c-3-60 5-116 13-158Z" fill="#E8DDCD"/>
+<path d="M113 399c107-38 259-25 414 28l59 99c-150 55-339 51-502-16Z" fill="#AFA9CB"/>
+<path d="M110 418c92-33 271-29 424 22" stroke="#302B28" stroke-width="2" stroke-linecap="round"/>
+<path d="M534 125c24 28 21 67-8 87-23 16-65 9-77-19-12-29 0-62 29-77 19-9 41-6 56 9Z" fill="#B95C3B"/>
+<path d="m474 88-5-14m68 26 10-15m15 56 19-4m-123 89-10 14m91-10 11 13" stroke="#B95C3B" stroke-width="3" stroke-linecap="round"/>
+<!-- The branch is a living line, with leaf silhouettes rather than a botanical claim. -->
+<path d="M443 418c-13-68-6-140-29-222-6-23-16-45-28-64" stroke="#302B28" stroke-width="5" stroke-linecap="round"/>
+<path d="M417 218c-40 4-72-28-65-58 35 3 59 19 65 58Z" fill="#738474"/>
+<path d="M424 252c-7-49 12-83 46-91 6 37-11 70-46 91Z" fill="#302B28"/>
+<path d="M433 304c-43-2-74-29-74-65 38 0 67 25 74 65Z" fill="#C9A64C"/>
+<path d="M435 339c0-44 24-79 63-81-4 40-25 69-63 81Z" fill="#738474"/>
+<path d="M396 155c-35-4-57-31-53-63 28 4 50 24 53 63Z" fill="#B95C3B"/>
+<path d="M449 435c-12-44-5-68-4-81 17 3 29 2 43-1 5 29 4 54-8 82-8 10-23 10-31 0Z" fill="#F5F0E7" stroke="#302B28" stroke-width="3"/>
+<path d="M444 355c12 7 31 7 44-2m-37 39c11 7 23 8 36 3" stroke="#302B28" stroke-width="2"/>
+<!-- Open notebook: no invented handwriting; only a diagram of attention. -->
+<path d="m119 378 175-36 168 99-167 96-182-126Z" fill="#302B28"/>
+<path d="m118 370 177-37 166 102-168 92-180-123Z" fill="#F5F0E7" stroke="#302B28" stroke-width="3" stroke-linejoin="round"/>
+<path d="m295 334-4 178M120 392l172 126 164-88" stroke="#302B28" stroke-width="2" stroke-linecap="round"/>
+<path d="M126 367c59-28 111-38 169-33l-3 179c-52-46-107-87-173-112Z" fill="#FAF7EE" stroke="#302B28" stroke-width="2" stroke-linejoin="round"/>
+<path d="M295 334c69 15 117 45 163 94-55 17-112 45-166 85Z" fill="#EEE7D9" stroke="#302B28" stroke-width="2" stroke-linejoin="round"/>
+<path d="m159 382 52-7m-40 22 70-6m-46 28 32-4" stroke="#B1A799" stroke-width="3" stroke-linecap="round"/>
+<path d="M331 397c-9-11-1-23 11-21 11 1 13 13 5 18-10 6-12 14-5 19 13 12 33-7 39 6 6 14-22 23-25 12" stroke="#B95C3B" stroke-width="3" stroke-linecap="round"/>
+<circle cx="354" cy="447" r="3" fill="#B95C3B"/>
+<path d="m259 372-8 97 10 9 13-95Z" fill="#C9A64C" stroke="#302B28" stroke-width="2" stroke-linejoin="round"/>
+<path d="m251 469 10 9-1 14Z" fill="#302B28"/>
+<!-- A wandering line links things without making a technical circuit. -->
+<path d="M99 274c-26-27-21-67 8-75 29-8 51 22 36 46-12 21-36 33-29 56 8 26 48 9 53-10 10-37 31-59 57-37 31 25-1 66 18 79" stroke="#302B28" stroke-width="3" stroke-linecap="round"/>
+<path d="M198 195c8-15 15-29 31-35m-21 1 22-2-3 20" stroke="#302B28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M277 156c-19-14-33-9-33 5 0 12 19 26 29 30 12-10 23-24 17-32-4-6-8-6-13-3Z" fill="#B95C3B"/>
+<path d="M486 487c25-12 48-10 59 2 11 13 2 26-15 24-21-3-21-23-7-29 25-10 49 15 61 2" stroke="#302B28" stroke-width="2.5" stroke-linecap="round"/>
+<path d="m127 472-5 16m-6-10 17 4m411-194 6 12m-12-1 16-7" stroke="#302B28" stroke-width="2" stroke-linecap="round"/>
+<path d="M73 195c11-93 110-151 223-150 132 0 260 88 287 209 28 122-44 248-181 285C229 586 68 483 60 353c-3-60 5-116 13-158Z" fill="url(#grain)"/>
+</svg>
