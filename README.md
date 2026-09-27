@@ -33,3 +33,7 @@ The homepage now links to four complete case studies: StreamOtter, Personal Trea
 The static output excludes local workflow documents, artwork provenance notes and the full-size original artwork PNG. Source provenance stays in the repository. No analytics, runtime services or external fonts are required.
 
 See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for scope and evidence. Public deployment, final domain metadata and search indexing require a separate launch decision. A static host must be configured to use `404.html` for missing pages; this project does not configure a hosting provider.
+
+## License
+
+This personal website is open source under the [MIT License](LICENSE).

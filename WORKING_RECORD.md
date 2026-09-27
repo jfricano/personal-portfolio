@@ -20,3 +20,5 @@ Stage: review-ready locally; PR creation awaits repository destination. No remot
 
 Follow-up: owner approved source links for every project, explicitly including proprietary iYosi. Added homepage source destinations for StreamOtter, Lontra and all three iYosi repositories; Treasury already linked. Added API/iOS/Android source links to iYosi case study. All three iYosi URLs returned 200 without authentication. Repository licensing/visibility unchanged.
 Follow-up validation: npm run check (94 references/7 pages), git diff --check, and Chrome's 30 page/viewport combinations all passed after source-link additions.
+
+Repository publication authorized: Jason requested a new public GitHub repository named personal-portfolio with the MIT license. Preparing main plus codex/personal-portfolio-v1 for a reviewable PR containing the approved site and five case studies. Website deployment and PR merge are not part of this publication action.
