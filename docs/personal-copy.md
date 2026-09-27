@@ -186,3 +186,5 @@ Omit LinkedIn until the exact profile is confirmed.
 - No claims of scale, business results, testimonials, or downloadable applications beyond the existing brief's evidence.
 
 Homepage work overview: source repository links belong on the individual case studies; retain case-study, demo, package and live-site destinations in the overview. The introduction now carries section number 00, per the merged design update.
+
+Footer: link “Orca Solutions” in the founder credit to https://github.com/orca-solutions.

@@ -36,3 +36,5 @@ Section 02 external project links now open in a new tab with noopener/noreferrer
 Project labels changed from 01–05 to A–E in homepage section 02 (Treasury, StreamOtter, Lontra, iYosi, Orca), per owner request. Section numbering remains unchanged. npm run check and git diff --check passed.
 
 Contact invitation updated at owner request to “A project, a question, a new theory of quantum gravity.” Homepage and copy source synchronized; static checks and diff whitespace checks passed. Local preview rebuilt.
+
+Footer founder credit now links Orca Solutions to the owner-specified GitHub organization. Destination returned HTTP 200. Static and whitespace checks passed; included in contact-copy PR #7.
