@@ -22,3 +22,5 @@ Follow-up: owner approved source links for every project, explicitly including p
 Follow-up validation: npm run check (94 references/7 pages), git diff --check, and Chrome's 30 page/viewport combinations all passed after source-link additions.
 
 Repository publication authorized: Jason requested a new public GitHub repository named personal-portfolio with the MIT license. Preparing main plus codex/personal-portfolio-v1 for a reviewable PR containing the approved site and five case studies. Website deployment and PR merge are not part of this publication action.
+
+GitHub Pages deployment preparation: isolated codex/github-pages worktree based on merged main e35ed92; original development checkout untouched. Added build/check and Pages deployment workflow, production canonical metadata/sitemap, and an absolute project base for nested 404 recovery. User explicitly authorized deployment; this includes integrating the bounded hosting configuration into main. Live verification follows the Actions deployment.

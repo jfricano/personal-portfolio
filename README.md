@@ -37,3 +37,9 @@ See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for sco
 ## License
 
 This personal website is open source under the [MIT License](LICENSE).
+
+## GitHub Pages hosting
+
+Public destination: https://jfricano.github.io/personal-portfolio/.
+
+The Pages workflow validates PRs and deploys main after successful checks. It builds `dist/`, then runs `node scripts/prepare-pages.mjs` to add production canonical URLs, sitemap, robots.txt and nested-404 recovery. Local preview stays noindex. For a manual redeploy, run the Deploy GitHub Pages workflow against main. Roll back a bad release by reverting its commit on main; the previous content is then rebuilt and redeployed.
