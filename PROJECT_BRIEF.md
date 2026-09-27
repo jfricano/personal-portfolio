@@ -9,3 +9,7 @@ Acceptance: preserve the approved JF mark, palette, illustration and biography-f
 Non-goals: public deployment, analytics, CMS, contact backend, new paid services, invented biography or performance claims. No public domain supplied: retain noindex and defer canonical URLs/sitemap until launch destination exists.
 
 Authority: implement, test, commit and prepare requested PR. No website deployment or merge authorized. Repository publication to the public MIT-licensed jfricano/personal-portfolio repository was authorized in the design task; integrated PR #1 is open. Existing user changes are the approved implementation baseline and will be included, not discarded.
+
+## GitHub Pages release authorization
+
+Jason authorized deployment of the merged main branch to GitHub Pages and assigned this task DevOps ownership. This supersedes the prior no-deployment constraint. Publish to https://jfricano.github.io/personal-portfolio/ using GitHub Actions; no custom domain or paid hosting. Deploy only main; PRs validate without deploying. Local preview remains noindex; the deployment artifact includes canonical URLs and a sitemap.
