@@ -1,6 +1,6 @@
 # Jason Fricano portfolio direction
 
-This repository currently contains a design brief and two responsive, static mockups. They are a review surface for the site's voice, hierarchy, and visual language, not a published portfolio.
+This repository currently contains a design brief and two responsive, static mockups. They are a review surface for the site's voice, hierarchy, and visual language, not a published portfolio. The first attempt is preserved in Git commit `24692e3` on the `design/personal-portfolio` branch; the current files show the second iteration, **The Practice of Paying Attention**.
 
 ## Review
 
@@ -13,6 +13,7 @@ The `mockups/assets/` images are copies of existing project assets, used only to
 ## Current editorial decisions
 
 - Lead with **Jason**, the person a client meets and hires. Present **Orca Solutions** as his software studio in the About section and case study credits.
-- Show five pieces of work: developer infrastructure, a live demonstration, a private finance product, mobile apps backed by a shared service, and the Orca Solutions company site.
+- Show four software products as selected work and the in-development Orca Solutions company site as a distinct studio note.
 - Give each project a short outcome-oriented summary and a deeper case study. Keep launch state explicit until each public destination is live.
 - Keep external calls to action accurate. Some URLs and personal details are awaiting Jason's confirmation; they are recorded in the brief rather than guessed.
+- Let Jason's curiosity and care come through in short observations and a few true personal details, with real photos or artifacts added only if he chooses them.
