@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Design mockup for the personal portfolio of Jason Fricano, attorney and software builder.">
+  <title>Jason Fricano — Portfolio concept</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="retool.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="index.html" aria-label="Jason Fricano, home">Jason Fricano<span class="dot">.</span></a>
+      <nav class="header-nav" aria-label="Main navigation">
+        <a href="#work">Work</a>
+        <a class="nav-about" href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a class="nav-cta" href="#contact">Let's talk <span aria-hidden="true">↗</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="shell hero" aria-labelledby="hero-heading">
+      <div class="hero-kicker"><span class="eyebrow">Jason Fricano / attorney &amp; software builder</span><span class="hero-index">A personal index of useful things · 2026</span></div>
+      <h1 id="hero-heading">I like figuring<br>things out. <span class="hero-small">I like making</span><br class="hero-break"><em>things that help.</em></h1>
+      <div class="hero-bottom">
+        <p class="lead">I'm curious about how people and systems work. I follow that curiosity from a question to a useful tool—and stay with the details until it works.</p>
+        <div class="hero-actions"><a class="button" href="#work">See what I've made <span aria-hidden="true">↘</span></a><a class="text-link" href="#about">A bit more about me <span aria-hidden="true">↗</span></a></div>
+      </div>
+      <div class="attention-line" aria-hidden="true"><svg viewBox="0 0 400 120" preserveAspectRatio="none"><path d="M3 64 C54 35 84 93 132 69 S212 20 241 54 S314 115 396 25"/></svg><span>keep following the question ↗</span></div>
+    </section>
+
+    <section class="section" id="work" aria-labelledby="work-heading">
+      <div class="shell">
+        <div class="section-heading"><div class="eyebrow">01 / Selected work</div><div><h2 id="work-heading">A few things I've made.</h2><p>Four different questions, followed all the way into software. The studio site that brings the work together is below.</p></div></div>
+        <div class="work-list">
+          <article class="project">
+            <div class="project-copy">
+              <div class="project-meta"><span class="project-number">01</span><span>Developer infrastructure</span><span>Release candidate</span></div>
+              <h3>StreamOtter</h3>
+              <p class="description">A TypeScript toolkit for bringing live Kafka-backed state to the browser—and showing clearly when that state goes stale.</p>
+              <p class="project-question"><span>What caught my attention</span> A live screen can look right while telling the wrong story.</p>
+              <p class="project-role">My role: product design, architecture, and implementation</p>
+              <div class="project-links">
+                <a class="text-link" href="streamotter.html">Read the case study <span aria-hidden="true">↗</span></a>
+                <a class="text-link" href="https://www.npmjs.com/package/streamotter">View on npm <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <div class="project-art art-stream"><img src="assets/streamotter-logo.png" alt="StreamOtter otter and wordmark" loading="lazy"></div>
+          </article>
+
+          <article class="project">
+            <div class="project-copy">
+              <div class="project-meta"><span class="project-number">02</span><span>Web application</span><span>In development</span></div>
+              <h3>Lontra Creek</h3>
+              <p class="description">A fictional river-otter field station with real Kafka and StreamOtter underneath. It turns a library's promises into something people can watch and test.</p>
+              <p class="project-question"><span>What I wanted to test</span> Could a made-up creek expose real-world failures?</p>
+              <p class="project-role">My role: concept, system design, and full-stack build</p>
+              <div class="project-links"><span class="text-link" aria-label="Public demo link will be added when Lontra Creek launches">Public demo coming at launch</span></div>
+            </div>
+            <div class="project-art art-lontra" role="img" aria-label="Concept illustration for Lontra Creek showing a live field station reading beside a winding creek">
+              <div class="creek-trace" aria-hidden="true"><span class="station station-one"></span><span class="station station-two"></span><span class="station station-three"></span></div>
+              <div class="field-card"><div class="field-top"><span>LC / FIELD STATION</span><span class="field-live">CONCEPT</span></div><strong>Lontra Creek</strong><div class="field-reading"><span>Cedar Riffle</span><b>3.42 <small>ft</small></b></div><div class="field-foot">STAGE RISING <span>↗</span> &nbsp; · &nbsp; REV 2048</div></div>
+            </div>
+          </article>
+
+          <article class="project">
+            <div class="project-copy">
+              <div class="project-meta"><span class="project-number">03</span><span>Desktop &amp; web app</span><span>Live demo</span></div>
+              <h3>Personal Treasury</h3>
+              <p class="description">A private household finance app that turns paycheck plans into account transfers, monthly reconciliation, and a traceable history.</p>
+              <p class="project-question"><span>The starting point</span> A spreadsheet full of rules deserved a clearer, safer home.</p>
+              <p class="project-role">My role: product rules, experience, and implementation</p>
+              <div class="project-links">
+                <a class="text-link" href="https://jfricano.github.io/personal-treasury/#/dashboard">Try the browser demo <span aria-hidden="true">↗</span></a>
+                <a class="text-link" href="https://github.com/jfricano/personal-treasury">View source <span aria-hidden="true">↗</span></a>
+              </div>
+            </div>
+            <div class="project-art art-treasury"><img src="assets/treasury-dashboard.png" alt="Personal Treasury demo dashboard with account allocations, transfers, and reconciliation status" loading="lazy"></div>
+          </article>
+
+          <article class="project">
+            <div class="project-copy">
+              <div class="project-meta"><span class="project-number">04</span><span>iOS &amp; Android</span><span>Pilot</span></div>
+              <h3>iYosi</h3>
+              <p class="description">Two mobile clients and a shared API for finding and correcting information about designated and reported smoking areas in Metro Manila.</p>
+              <p class="project-question"><span>The human question</span> How can a map be honest about what people know—and what they don't?</p>
+              <p class="project-role">My role: product concept, platform design, and implementation</p>
+              <div class="project-links"><a class="text-link" href="https://jfricano.github.io/iyosi-landing/">Explore the landing preview <span aria-hidden="true">↗</span></a></div>
+            </div>
+            <div class="project-art art-iyosi" aria-label="iYosi app icon beside a schematic mobile map">
+              <div class="iyosi-composition"><img src="assets/iyosi-icon.png" alt="iYosi location-pin app icon" loading="lazy"><div class="mini-phone" aria-hidden="true"><div class="speaker"></div><div class="map-lines"></div><div class="phone-line"></div><div class="phone-line short"></div></div></div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="studio-section" aria-labelledby="studio-heading"><div class="shell studio-grid"><div class="eyebrow">A note about Orca</div><div><h2 id="studio-heading">The work has a home, too.</h2><p>Orca Solutions is the software studio I founded to build and publish these projects. Its own website is in development; here, the focus stays on the person behind the work.</p><span class="studio-status">Orca Solutions company website · in development</span></div><div class="studio-note-mark" aria-hidden="true">↗<span>in the making</span></div></div></section>
+
+    <section class="return-section" aria-labelledby="return-heading"><div class="shell"><div class="eyebrow" id="return-heading">02 / Things I keep returning to</div><div class="return-grid"><div><span>questions</span><span>useful tools</span></div><div><span>people</span><span>systems</span></div><div><span>care</span><span>precision</span></div><div><span>learning</span><span>sharing</span></div></div><p class="return-caption">The work moves faster with agentic tools. The judgment, review, and responsibility stay with me.</p></div></section>
+
+    <section class="section" id="about" aria-labelledby="about-heading">
+      <div class="shell about-grid">
+        <div class="about-note"><span>Field note / elsewhere</span> A run, the garden, a car that needs attention, a playlist that can jump from Patsy Cline to Radiohead.</div>
+        <div class="about-copy">
+          <div class="eyebrow">03 / About Jason</div>
+          <h2 id="about-heading">Paying attention is a practice.</h2>
+          <p>I'm an attorney with a strong developer streak. I almost became a developer; instead, making things stayed beside a legal career I'm happy in. What began as a side quest has grown into a serious body of software work.</p>
+          <p>I like learning how other people think, exploring odd ideas in physics and philosophy, and turning messy problems into tools that help. The common thread is curiosity paired with care.</p>
+          <p>When I build, I ask careful questions, explain the choices, and stay with the details from first idea to working application.</p>
+          <a class="text-link" href="https://github.com/jfricano">See my work on GitHub <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact-section" id="contact" aria-labelledby="contact-heading">
+      <div class="shell contact-grid">
+        <div><div class="eyebrow">04 / Contact</div><h2 id="contact-heading">What are you wondering about?</h2><p>Tell me the rough version of your idea. The interesting conversations often start before anyone knows exactly what to build.</p></div>
+        <div class="contact-info"><a href="https://github.com/jfricano">GitHub <span aria-hidden="true">↗</span></a><span>LinkedIn <span aria-hidden="true">↗</span></span><span class="pending">LinkedIn and direct contact links will be added before launch.</span></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="shell footer-inner"><span>Jason Fricano · Attorney &amp; software builder</span><span>Founder, Orca Solutions</span><span>Portfolio concept · September 2026</span></div></footer>
+</body>
+</html>

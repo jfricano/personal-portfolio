@@ -1,0 +1,11 @@
+dist/
+.DS_Store
+
+# Local agent workflow references
+/AGENTS.md
+/CLAUDE.md
+/SOFTWARE_OPERATING_GUIDE.md
+/SOFTWARE_OWNERSHIP_GUIDE.md
+/HANDOFF_TEMPLATES.md
+/software ownershipguide.md
+/handoff templates.md
