@@ -30,3 +30,7 @@ GitHub Pages deployment preparation: isolated codex/github-pages worktree based 
 Copy refinement: based on latest main including design PR #4's section-00 numbering. Removed repeated attorney introduction and “also”; replaced agentic-process ending with a collaborator-focused promise of clarity and confidence. Removed repository source links from homepage Work only; case studies retain them. Updated copy source. Static checks (110/eight pages), browser checks (36 combinations and navigation) and diff whitespace checks passed. Prepared as a separate review PR; no merge/deploy performed by this task.
 
 Section 03 now uses the shared aside-label/index markup: rust italic numeral, separate uppercase label, no slash. Mobile spacing applies to the whole label group. npm run check and git diff --check passed.
+
+Section 02 external project links now open in a new tab with noopener/noreferrer; all five local case-study links retain same-tab navigation. Four external links updated. Static check passed 110 references/eight pages and git diff --check passed. Follow-up branch created from main after PR #5 merged.
+
+Project labels changed from 01–05 to A–E in homepage section 02 (Treasury, StreamOtter, Lontra, iYosi, Orca), per owner request. Section numbering remains unchanged. npm run check and git diff --check passed.
