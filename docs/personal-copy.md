@@ -130,7 +130,7 @@ Eyebrow: **02 / A little about me**
 
 Headline: **A life with a few open tabs.**
 
-> I'm an attorney, and I care about that work. I also like making things. Software nearly became my first career; it stayed with me, and what began as a side pursuit has grown into a serious body of work.
+> I like making things. Software nearly became my first career; it stayed with me, and what began as a side pursuit has grown into a serious body of work.
 >
 > I like learning how people think. I like an odd idea in physics or philosophy, a run, time in the garden, and figuring out what a car needs. The playlist might wander from Patsy Cline to Radiohead. There's plenty to pay attention to.
 >
@@ -146,7 +146,7 @@ Link: See my work on GitHub
 
 Use a short note within About or alongside work, rather than a long separate methodology section:
 
-> I ask careful questions, explain my choices, and carry the work from first idea to working application. Agentic tools help me move faster. I own the judgment, review, and responsibility.
+> I ask careful questions, explain my choices, and carry the work from first idea to working application. You’ll know where things stand, understand the decisions along the way, and have something useful you feel confident making your own.
 
 ## Contact
 
@@ -184,3 +184,5 @@ Omit LinkedIn until the exact profile is confirmed.
 - Do not frame hobbies as productivity techniques. Garden, music, running, and cars belong here because Jason is a person.
 - Preserve release labels and distinguish concept art from product screens. Verify current product state before publication.
 - No claims of scale, business results, testimonials, or downloadable applications beyond the existing brief's evidence.
+
+Homepage work overview: source repository links belong on the individual case studies; retain case-study, demo, package and live-site destinations in the overview. The introduction now carries section number 00, per the merged design update.
