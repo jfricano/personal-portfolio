@@ -17,3 +17,6 @@ Verification: npm run check passed 94 assertions across 7 pages; automated insta
 Local candidate: http://127.0.0.1:4176 (npm server running); original 4175 process left intact. Restart with PORT=4176 npm run dev. Recovery: rebuild from source with npm run build; no live deployment to roll back.
 
 Stage: review-ready locally; PR creation awaits repository destination. No remote exists; jfricano/personal-portfolio returned 404. Do not create a repository or select exposure without the owner's destination input. No publication or merge performed.
+
+Follow-up: owner approved source links for every project, explicitly including proprietary iYosi. Added homepage source destinations for StreamOtter, Lontra and all three iYosi repositories; Treasury already linked. Added API/iOS/Android source links to iYosi case study. All three iYosi URLs returned 200 without authentication. Repository licensing/visibility unchanged.
+Follow-up validation: npm run check (94 references/7 pages), git diff --check, and Chrome's 30 page/viewport combinations all passed after source-link additions.

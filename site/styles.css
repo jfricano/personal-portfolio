@@ -12,3 +12,5 @@
 .project .project-links{flex-wrap:wrap}
 
 .system-art h2.label{font-family:var(--sans);font-weight:500;letter-spacing:.15em;line-height:1.5}
+
+.case-end .project-links{flex-wrap:wrap}
