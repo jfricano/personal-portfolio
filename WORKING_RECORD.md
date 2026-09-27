@@ -22,3 +22,5 @@ Follow-up: owner approved source links for every project, explicitly including p
 Follow-up validation: npm run check (94 references/7 pages), git diff --check, and Chrome's 30 page/viewport combinations all passed after source-link additions.
 
 Repository publication authorized: Jason requested a new public GitHub repository named personal-portfolio with the MIT license. Preparing main plus codex/personal-portfolio-v1 for a reviewable PR containing the approved site and five case studies. Website deployment and PR merge are not part of this publication action.
+
+Orca integration complete: preserved design commits 70bcf8b and 05e7811, added homepage source link, synchronized scope and extended browser checks. All 36 viewport/page combinations and Orca round-trip navigation passed. PR #1 is the integrated review unit; this task owns the V1 branch. Design task will use separate worktrees. Local preview rebuilt on 4176. No merge or website deployment authorized.

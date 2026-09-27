@@ -32,3 +32,5 @@ Candidate remains noindex and is not publicly deployed. No domain/canonical meta
 - `npm run check` passes 110 references/alternatives across 8 pages, including landmark and unique-ID checks.
 - Browser-inspected the case study and artwork at desktop and 390px; no horizontal overflow measured at 390px or 320px. All three case-study images loaded.
 - Followed the case-study return link to homepage entry 05, confirming its case-study and live-site destinations.
+
+Integrated Orca follow-up: Chrome automation now checks six content pages at six widths (36 combinations), plus homepage → Orca case study → homepage #orca. All passed with image loading, keyboard, reduced motion and 404 recovery. Static checks pass 110 references across eight pages.

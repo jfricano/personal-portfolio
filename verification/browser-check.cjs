@@ -1,11 +1,12 @@
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');
 (async()=>{const browser=await chromium.launch({headless:true,...(process.env.CHROME_PATH ? {executablePath:process.env.CHROME_PATH} : {})});const page=await browser.newPage();let checks=0; const errors=[];page.on('pageerror',e=>errors.push(e.message));
-for(const width of [320,390,640,768,1440,1920]) for(const route of ['','streamotter.html','personal-treasury.html','lontra-creek.html','iyosi.html']){
+for(const width of [320,390,640,768,1440,1920]) for(const route of ['','streamotter.html','personal-treasury.html','lontra-creek.html','iyosi.html','orca-solutions.html']){
  await page.setViewportSize({width,height:1000}); await page.goto(`${process.env.PREVIEW_URL || 'http://127.0.0.1:4176'}/`+route);await page.evaluate(()=>document.fonts.ready); await page.evaluate(async()=>{for(const img of document.images){img.loading="eager";await img.decode();}});
  const state=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,broken:[...document.images].filter(i=>!i.complete||i.naturalWidth===0).map(i=>i.src)}));if(state.overflow||state.broken.length)throw Error(JSON.stringify({width,route,...state})); checks++;
 }
 await page.setViewportSize({width:1440,height:1000});await page.goto(`${process.env.PREVIEW_URL || 'http://127.0.0.1:4176'}/`);await page.screenshot({path:'/tmp/portfolio-v1-desktop.png',fullPage:true});await page.keyboard.press('Tab');if(await page.locator(':focus').innerText()!=='Skip to content')throw Error('Skip link not first');await page.keyboard.press('Enter');
 await page.locator('nav a[href="#work"]').click();if(!page.url().endsWith('#work'))throw Error('Work navigation');
+await page.locator('#orca a[href="orca-solutions.html"]').click();if(!page.url().endsWith('/orca-solutions.html'))throw Error('Orca case study navigation');await page.getByRole('link',{name:'← Back to the work'}).click();if(!page.url().endsWith('#orca'))throw Error('Orca return navigation');
 await page.emulateMedia({reducedMotion:'reduce'});if(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollBehavior)!=='auto')throw Error('Reduced motion');
 const response=await page.goto(`${process.env.PREVIEW_URL || 'http://127.0.0.1:4176'}/missing/nested/page`);if(response.status()!==404)throw Error('Missing route status');await page.getByRole('link',{name:'Back to the homepage'}).click();if(new URL(page.url()).pathname!=='/index.html')throw Error('404 recovery');
 await page.setViewportSize({width:390,height:844});await page.goto(`${process.env.PREVIEW_URL || 'http://127.0.0.1:4176'}/`);await page.screenshot({path:'/tmp/portfolio-v1-mobile.png',fullPage:true});
