@@ -26,9 +26,9 @@ The existing mockups and design brief remain below as historical context. Produc
 
 ## V1 review candidate
 
-The homepage now links to four complete case studies: StreamOtter, Personal Treasury, Lontra Creek and iYosi. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
+The homepage now links to five complete case studies: StreamOtter, Personal Treasury, Lontra Creek, iYosi and Orca Solutions. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
 
-`npm run check` validates all seven shipped HTML pages, including the identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
+`npm run check` validates all eight shipped HTML pages, including the identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
 
 The static output excludes local workflow documents, artwork provenance notes and the full-size original artwork PNG. Source provenance stays in the repository. No analytics, runtime services or external fonts are required.
 
