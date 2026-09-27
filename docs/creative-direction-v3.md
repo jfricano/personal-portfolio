@@ -33,3 +33,9 @@ The copywriter brings conversational rhythm, grounded detail and a little dry hu
 Run `npm run dev` and open http://127.0.0.1:4175. Run `npm run check` to build and validate local destinations, anchors and image alternatives. Build output is a standalone `dist/` directory.
 
 Before public launch, revalidate product release states and destinations, choose the public domain/canonical metadata, and perform the final publication review. Brand-direction approval is complete. These do not block local design review.
+
+## Orca Solutions portfolio addition
+
+Jason requested Orca Solutions as the fifth portfolio example, linking its published GitHub Pages website. This supersedes the earlier instruction to present it only as a studio note. `site/orca-solutions.html` uses the shared case-study frame and documents the company positioning, Signal identity, project disclosures, static implementation, and current published state. The homepage now includes numbered entry 05 with case-study and live-site links.
+
+The published site was inspected directly in the browser for this update. Its current index contains StreamOtter, Lontra Creek, Roost, and iYosi. Local company assets were copied into `site/assets/`; the case-study figure is explicitly captioned as an identity composition rather than a screenshot. The personal site's approved branding stays in the surrounding frame.

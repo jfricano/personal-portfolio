@@ -14,3 +14,12 @@
 .system-art h2.label{font-family:var(--sans);font-weight:500;letter-spacing:.15em;line-height:1.5}
 
 .case-end .project-links{flex-wrap:wrap}
+
+/* Orca's identity lives inside the shared personal case-study frame. */
+.orca-case-figure{margin:0}
+.orca-case-art{display:grid;grid-template-columns:.85fr 1.15fr;align-items:center;background:#eeeae1;overflow:hidden}
+.orca-case-identity{padding:48px 0 48px 48px;position:relative;z-index:1}
+.orca-case-identity>img{width:min(250px,100%);height:auto}
+.orca-case-identity>p{font-size:clamp(25px,3.2vw,44px);font-weight:600;letter-spacing:-.045em;line-height:1.1;margin:35px 0 24px}
+.orca-case-sculpture{width:100%;height:auto;mix-blend-mode:multiply}
+@media(max-width:700px){.orca-case-art{grid-template-columns:1fr}.orca-case-identity{padding:28px 28px 0}.orca-case-identity>img{width:190px}.orca-case-identity>p{font-size:32px;margin:25px 0 18px}.orca-case-sculpture{margin-top:20px}}
