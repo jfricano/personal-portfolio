@@ -154,7 +154,7 @@ Eyebrow: **03 / Say hello**
 
 Headline: **What's on your mind?**
 
-> A project, a question, an idea that isn't quite an idea yet. Tell me the rough version. We can start there.
+> A project, a question, a new theory of quantum gravity. Tell me the rough version. We can start there.
 
 Primary action: **Write to Jason ↗**
 
