@@ -34,3 +34,7 @@ Section 03 now uses the shared aside-label/index markup: rust italic numeral, se
 Section 02 external project links now open in a new tab with noopener/noreferrer; all five local case-study links retain same-tab navigation. Four external links updated. Static check passed 110 references/eight pages and git diff --check passed. Follow-up branch created from main after PR #5 merged.
 
 Project labels changed from 01–05 to A–E in homepage section 02 (Treasury, StreamOtter, Lontra, iYosi, Orca), per owner request. Section numbering remains unchanged. npm run check and git diff --check passed.
+
+Contact invitation updated at owner request to “A project, a question, a new theory of quantum gravity.” Homepage and copy source synchronized; static checks and diff whitespace checks passed. Local preview rebuilt.
+
+Footer founder credit now links Orca Solutions to the owner-specified GitHub organization. Destination returned HTTP 200. Static and whitespace checks passed; included in contact-copy PR #7.

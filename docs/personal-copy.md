@@ -154,7 +154,7 @@ Eyebrow: **03 / Say hello**
 
 Headline: **What's on your mind?**
 
-> A project, a question, an idea that isn't quite an idea yet. Tell me the rough version. We can start there.
+> A project, a question, a new theory of quantum gravity. Tell me the rough version. We can start there.
 
 Primary action: **Write to Jason ↗**
 
@@ -186,3 +186,5 @@ Omit LinkedIn until the exact profile is confirmed.
 - No claims of scale, business results, testimonials, or downloadable applications beyond the existing brief's evidence.
 
 Homepage work overview: source repository links belong on the individual case studies; retain case-study, demo, package and live-site destinations in the overview. The introduction now carries section number 00, per the merged design update.
+
+Footer: link “Orca Solutions” in the founder credit to https://github.com/orca-solutions.
