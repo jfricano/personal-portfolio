@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="StreamOtter case study mockup for Jason Fricano's personal portfolio.">
+  <title>StreamOtter — Jason Fricano portfolio concept</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header"><div class="shell header-inner"><a class="brand" href="index.html" aria-label="Jason Fricano, home">Jason Fricano<span class="dot">.</span></a><nav class="header-nav" aria-label="Main navigation"><a href="index.html#work">Work</a><a class="nav-about" href="index.html#about">About</a><a href="index.html#contact">Contact</a><a class="nav-cta" href="index.html#contact">Let's talk <span aria-hidden="true">↗</span></a></nav></div></header>
+  <main id="main">
+    <div class="shell breadcrumb"><a href="index.html#work">← All work</a> / StreamOtter</div>
+    <section class="shell case-hero" aria-labelledby="case-title">
+      <div><div class="eyebrow"><span class="rule"></span> Case study 01 / Developer infrastructure</div><h1 id="case-title">Live data you can <em>trust.</em></h1><p class="lead">StreamOtter makes it simpler to get Kafka-backed state into a browser—and harder for a disconnected screen to quietly pretend it is current.</p></div>
+      <aside class="case-facts" aria-label="Project facts"><dl><dt>Project</dt><dd>StreamOtter</dd><dt>Role</dt><dd>Product design, architecture, implementation</dd><dt>Shape</dt><dd>TypeScript library, gateway, CLI, browser SDK</dd><dt>Status</dt><dd>Release candidate on npm</dd></dl></aside>
+    </section>
+    <div class="shell"><div class="case-image"><img src="assets/streamotter-logo.png" alt="StreamOtter's otter illustration and wordmark"></div><p class="image-caption">The library's current project identity. The final case study should add a workbench or application screenshot here.</p></div>
+    <section class="shell story-grid"><div class="eyebrow">The problem</div><div class="story-copy"><h2>A live screen needs to know when it isn't live.</h2><p>Streaming data often looks simple in a demo: subscribe, receive an update, render it. The difficult part is what happens around that happy path—a restart, an interrupted connection, a slow browser, or a change in who is allowed to see the data.</p><p>I wanted a developer experience that made those conditions visible and manageable, while still getting a useful page running quickly.</p></div></section>
+    <section class="shell story-grid"><div class="eyebrow">The decisions</div><div class="story-copy"><h2>Design the guarantees into the interface.</h2><p>Browsers subscribe to named <strong>state channels</strong> instead of raw Kafka topics. A view begins with an authoritative snapshot and then receives ordered full-state updates. The client reports whether that view is live, stale, synchronizing, or needs to resync, so an application can display the truth.</p><p>Application-owned handlers control authentication, authorization, mapping, and snapshots. The CLI, local workbench, and browser SDK turn the architecture into a workflow a developer can actually follow.</p><div class="flow" aria-label="StreamOtter delivery sequence"><div class="flow-card"><span class="flow-number">01 / DEFINE</span><h3>State channels</h3><p>Name the view and decide what each audience may receive.</p></div><div class="flow-card"><span class="flow-number">02 / SYNC</span><h3>Snapshot first</h3><p>Start from authoritative state before applying later revisions.</p></div><div class="flow-card"><span class="flow-number">03 / SHOW</span><h3>Honest status</h3><p>Let the UI say whether its data is live or stale.</p></div></div></div></section>
+    <section class="shell story-grid"><div class="eyebrow">The proof</div><div class="story-copy"><h2>From package to working application.</h2><p>StreamOtter is published as a release candidate on npm with a CLI, gateway, local workbench, and browser client. The repository includes getting-started guides, a reference example, implementation status, and verification results.</p><p>Lontra Creek is the next level of proof: a separate web application that consumes the published package through a real Kafka pipeline. Its simulated watershed is fictional; the delivery system is real. The public hosted demo is still in development.</p><a class="text-link" href="index.html#work">See Lontra Creek in selected work <span aria-hidden="true">↗</span></a></div></section>
+    <section class="shell story-grid"><div class="eyebrow">Current state</div><div class="story-copy"><h2>Useful now. Still evolving.</h2><p>The npm release is a candidate, and the API may change before version 0.1.0. The case study should keep that limit visible and link to the current implementation status rather than implying broader production adoption or a finished hosted demonstration.</p></div></section>
+    <div class="shell case-end"><div><div class="eyebrow">Explore the project</div><h2>See the code, the package, and the decisions behind it.</h2></div><div class="case-end-links"><a class="button" href="https://www.npmjs.com/package/streamotter">View on npm <span aria-hidden="true">↗</span></a><a class="text-link" href="https://github.com/jfricano/StreamOtter">Read the source <span aria-hidden="true">↗</span></a></div></div>
+  </main>
+  <footer class="site-footer"><div class="shell footer-inner"><span>Jason Fricano · Attorney &amp; software builder</span><span>Founder, Orca Solutions</span><span><a href="index.html#work">Back to all work ↑</a></span></div></footer>
+</body>
+</html>
