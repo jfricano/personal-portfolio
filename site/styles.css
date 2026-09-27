@@ -23,3 +23,6 @@
 .orca-case-identity>p{font-size:clamp(25px,3.2vw,44px);font-weight:600;letter-spacing:-.045em;line-height:1.1;margin:35px 0 24px}
 .orca-case-sculpture{width:100%;height:auto;mix-blend-mode:multiply}
 @media(max-width:700px){.orca-case-art{grid-template-columns:1fr}.orca-case-identity{padding:28px 28px 0}.orca-case-identity>img{width:190px}.orca-case-identity>p{font-size:32px;margin:25px 0 18px}.orca-case-sculpture{margin-top:20px}}
+
+/* The introduction is section zero, using the shared section-number style. */
+.hero-top{align-items:baseline;gap:20px}.hero-top .aside-label{margin-bottom:0}
