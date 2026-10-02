@@ -14,7 +14,7 @@ Open http://127.0.0.1:4175. The identity board is at http://127.0.0.1:4175/brand
 
 ## Source and direction
 
-- `site/`: homepage, StreamOtter case study and shared CSS.
+- `site/`: homepage, five case studies, project screenshots and shared CSS.
 - `branding/personal-v1/`: The Turn F/J mark, wordmark, favicon, board and usage notes.
 - `artwork/`: original generated illustration, compressed delivery image, exact prompt and provenance.
 - `docs/creative-direction-v3.md`: creative rationale and role boundaries.
@@ -26,7 +26,7 @@ The existing mockups and design brief remain below as historical context. Produc
 
 ## V1 review candidate
 
-The homepage now links to five complete case studies: StreamOtter, Personal Treasury, Lontra Creek, iYosi and Orca Solutions. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
+The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, iYosi and Orca Solutions. StreamOtter links to separate toolkit and demo-site case studies, for five case studies overall. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
 
 `npm run check` validates all eight shipped HTML pages, including the identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
 

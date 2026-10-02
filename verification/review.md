@@ -34,3 +34,15 @@ Candidate remains noindex and is not publicly deployed. No domain/canonical meta
 - Followed the case-study return link to homepage entry 05, confirming its case-study and live-site destinations.
 
 Integrated Orca follow-up: Chrome automation now checks six content pages at six widths (36 combinations), plus homepage → Orca case study → homepage #orca. All passed with image loading, keyboard, reduced motion and 404 recovery. Static checks pass 110 references across eight pages.
+
+## Four-project revision — October 2, 2026
+
+- Static build/reference validation: `npm run check` passed 116 checks across eight HTML pages; `git diff --check` passed.
+- CUA browser verification: six content pages at widths 320, 390, 640, 768, 1440 and 1920 (36 combinations), with no horizontal overflow. Desktop/tablet use a two-column project grid; phone uses one column. All five case studies show the core technology list. All four homepage images loaded after keyboard traversal. Local browser logs were empty.
+- Verified both StreamOtter case-study links, each return to homepage #streamotter, Work navigation, Orca round trip, first-tab skip/focus, and nested missing-page/home recovery. The 404 response status was not measured: the sandboxed curl probe could not connect to the elevated local server.
+- Direct public-browser inspection confirmed connected, changing live readings on StreamOtter.dev and the guided field station; existing iYosi/Orca GitHub Pages links redirected to iyosi.app/orcasolutions.dev. Screenshot assets are real captures from October 2. iYosi remains an illustrative landing preview; StreamOtter remains a release candidate.
+- Technology lists checked against sibling manifests and code, not inferred from screenshots. Independent read-only reviewer `/root/revision_review` found no blocking or material source/asset/documentation issue.
+- Reusable `verification/browser-check.cjs` gained four-card geometry and dual StreamOtter navigation assertions; `node --check` passed. The CLI browser harness was not run; the actual checks above used CUA. Native browser zoom, screen readers and fresh reduced-motion emulation were not exercised; unchanged CSS retains reduced-motion handling.
+- Desktop grid and mobile case-study previews are saved in `verification/previews/`. Local candidate only; no commit, push, merge or deployment.
+
+Final visual review: `/root/revision_review` inspected the desktop 2×2 grid, stacked mobile projects and demo case-study reflow; no blocking or material visual findings. Interactive checks were performed by the lead, not independently repeated.

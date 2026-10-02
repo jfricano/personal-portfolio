@@ -39,3 +39,11 @@ Before public launch, revalidate product release states and destinations, choose
 Jason requested Orca Solutions as the fifth portfolio example, linking its published GitHub Pages website. This supersedes the earlier instruction to present it only as a studio note. `site/orca-solutions.html` uses the shared case-study frame and documents the company positioning, Signal identity, project disclosures, static implementation, and current published state. The homepage now includes numbered entry 05 with case-study and live-site links.
 
 The published site was inspected directly in the browser for this update. Its current index contains StreamOtter, Lontra Creek, Roost, and iYosi. Local company assets were copied into `site/assets/`; the case-study figure is explicitly captioned as an identity composition rather than a screenshot. The personal site's approved branding stays in the surrounding frame.
+
+## Four-project revision — October 2, 2026
+
+Jason requested a 2×2 screenshot grid using the existing Personal Treasury / StreamOtter row as the reference. The four selected entries are Personal Treasury, StreamOtter, iYosi, and Orca Solutions, lettered A–D in that order. On small screens the grid becomes one column.
+
+StreamOtter has two distinct local case-study destinations: toolkit (`streamotter.html`) and demo site (`lontra-creek.html`). The latter keeps its established URL for compatibility and appears under the StreamOtter name. Lontra Creek remains the fictional setting described in the demo narrative. StreamOtter.dev is the live toolkit and demo destination. Keep the npm release-candidate distinction.
+
+Use actual public screenshots for StreamOtter, iYosi, and Orca beside the existing fictional-data Treasury dashboard. Caption iYosi as a landing preview, not a released mobile app. Every case study includes a short list of core technologies verified against project source. This request supplies scope and design-direction approval for the bounded revision; release acceptance is still pending.
