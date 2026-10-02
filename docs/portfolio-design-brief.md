@@ -4,7 +4,7 @@
 
 **Date:** September 27, 2026
 
-**Status:** second concept iteration; first attempt preserved in Git commit `24692e3`
+**Status:** historical second concept iteration; first attempt preserved in Git commit `24692e3`. The approved v3 direction and its October 2, 2026 four-project revision supersede the project grouping, layout, and release labels below. See `creative-direction-v3.md` for the current implementation direction.
 
 ## 1. What the site needs to do
 

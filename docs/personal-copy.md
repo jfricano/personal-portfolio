@@ -42,39 +42,19 @@ Intro:
 
 ### StreamOtter
 
-Category: Developer toolkit
+Category: Developer toolkit & demo
 
-Status: Release candidate
+Status: Release candidate · demo live
 
 Description:
 
-> A TypeScript toolkit that brings live Kafka-backed data into a browser—and makes it clear when the information goes stale.
-
-Marginal observation:
-
-> A screen ought to know when it's out of date.
+> A TypeScript toolkit that brings live Kafka-backed data into a browser—and makes it clear when the information goes stale. A fictional creek puts the real pipeline to work.
 
 Role: Product design, architecture & implementation
 
-Links: Read the case study / View on npm
+Links: Toolkit case study / Demo site case study / Visit StreamOtter (https://streamotter.dev/)
 
-### Lontra Creek
-
-Category: Interactive field station
-
-Status: In development · not yet hosted
-
-Description:
-
-> A fictional otter research station with a real streaming pipeline underneath. A small, invented world for putting StreamOtter through its paces.
-
-Marginal observation:
-
-> An imaginary creek. Some very real failure modes.
-
-Role: Concept, system design & full-stack build
-
-Unlinked status line: Public demo coming at launch
+One homepage entry covers both the reusable toolkit and its hosted demonstration. The demo case study retains `lontra-creek.html` for existing links but is presented as **StreamOtter demo site**. Lontra Creek is the fictional watershed within that demonstration, not a separate selected project.
 
 ### Personal Treasury
 
