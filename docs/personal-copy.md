@@ -84,7 +84,7 @@ Description:
 
 > A native Mac app that brings battery readings, seven-day history, and useful details into the menu bar.
 
-Link: Landing preview (https://orca-solutions.github.io/stat-batt/)
+Links: Case study (`statbatt.html`) / Landing preview (https://orca-solutions.github.io/stat-batt/)
 
 The landing screenshot uses illustrative readings. StatBatt occupies selected-work entry C. iYosi moves to the additional portfolio beside Vespa; its existing case study remains available at `iyosi.html`.
 
