@@ -33,3 +33,7 @@ Acceptance: refresh the iYosi homepage image and case-study design evidence; pre
 ## Selected-work swap — October 2, 2026
 
 Owner requested swapping iYosi and StatBatt: StatBatt becomes selected-work entry C, and iYosi becomes the second /moreprojects/ entry beside Vespa. Preserve the responsive grids, external new-tab behavior and accurate development/pilot status. Reuse existing screenshots and retain the iYosi case-study URL. Update PR #10 for owner review; no merge/deployment authorized in this step.
+
+## StatBatt case study — October 2, 2026
+
+Owner requested a full StatBatt case study using the existing visual language. Include a grounded narrative, principal technologies, illustrative landing screenshot, design/implementation decisions and explicit local-candidate status. Link from featured entry C in the same tab; external landing links open separately. Proprietary code remains unlinked. Prepare a new review PR because #10 is merged; owner retains acceptance/merge.

@@ -88,3 +88,13 @@ Owner superseded the preceding gallery placement: StatBatt now occupies selected
 Verification: npm run check passed 131 local references/anchors/image alternatives across nine pages; git diff --check passed. CUA inspected both affected grids at 320, 390, 768 and 1440px: one/two columns as appropriate, loaded screenshots, no horizontal overflow. Clicks confirmed separate tabs for the StatBatt main-card destination and iYosi gallery destination. Viewport override reset. Evidence: verification/previews/statbatt-selected-work.jpg and moreprojects-iyosi.jpg. Source/visual self-review found no material issue; no independent follow-up review claimed for this bounded card swap. Native zoom, screen readers and app tests were not run.
 
 Branch codex/moreprojects-statbatt; update existing review PR #10. Preserve the four pre-existing custom-domain edits unstaged. Owner retains acceptance and merge for Actions deployment.
+
+## StatBatt case study — October 2, 2026
+
+Added site/statbatt.html and a same-tab Case study link on homepage entry C. Existing case-study typography, facts, technology list, screenshot, three-step overview and five story sections frame the project around context, honest missing readings, local history and bounded charging actions. Claims grounded in stat-batt/apps/statbatt/README.md, Package.swift, docs/IMPLEMENTATION_STATUS.md and the latest build7/build8 WORKING_RECORD entries. Current native80/100 app-path success on one configuration supersedes the older public landing FAQ; no broad hardware compatibility, cutoff, custom-control or public-download claim made. No sibling files changed or private source link published.
+
+Verification: npm run check passes146 references across10pages; git diff --check passes. CUA inspected320/390/768/1440px with no overflow and loaded screenshots. Phone workflow diagram stacks; desktop uses three columns. Homepage to case study and return to #statbatt confirmed in the same tab; landing CTA opens another tab. Viewport reset, preview left at the introduction. Screenshots: verification/previews/statbatt-case-{desktop,mobile,intro}.jpg. Native zoom, screen readers and native app tests were not run for this content-only change.
+
+Independent read-only review by actual agent /root/v1_review found no material findings, verified12source references/anchors and dimensions, and checked claims against current app records. Reviewer performed no browser, app or hardware checks.
+
+PR #10 was already merged at84561e3. New branch codex/statbatt-case-study starts at that main baseline. The four earlier custom-domain edits remain unstaged. Prepare a fresh PR for owner acceptance; no merge, deployment, new cost or monitoring initiated.
