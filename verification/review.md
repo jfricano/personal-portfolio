@@ -56,3 +56,5 @@ Final visual review: `/root/revision_review` inspected the desktop 2×2 grid, st
 - Independent source/asset review: /root/v1_review, no unresolved material findings. Review did not repeat live public or local interactions.
 
 Clean-route follow-up: gallery now ships at /moreprojects/ (site/moreprojects/index.html). CUA confirmed bare-path redirect, loaded assets and that Vespa opens a new tab. HTTP assertions passed for normal/query/encoded-slash redirects, gallery/root assets (200) and nested missing-page recovery (404). Shared-asset recursive build checks pass; root-only publication pass preserves nested noindex and sitemap exclusion. Independent reviewer cleared the route changes after the redirect safety fix.
+
+StatBatt card: npm run check passed 132 references/nine pages; whitespace checks passed. Public landing loaded; fresh screenshot saved. Four-width CUA inspection confirms two desktop cards and mobile stacking, no overflow, loaded images, and a new tab on StatBatt click. Swift/SwiftUI/SQLite caption verified from sibling source. No native app changes or test execution.
