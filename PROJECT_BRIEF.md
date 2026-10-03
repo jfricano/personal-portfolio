@@ -29,3 +29,7 @@ Jason accepted the revised local candidate (“this looks good”) and requested
 Owner requested the current iyosi.app design reflected in the portfolio and a separate collection for additional projects, beginning with vespa.orcasolutions.dev. Approved layout: two screenshot cards per row at wider widths, one per row on phones, using the existing personal identity and styles. Each screenshot links to its site, with a brief principal-technology caption. No incoming homepage or navigation link requested.
 
 Acceptance: refresh the iYosi homepage image and case-study design evidence; preserve illustrative/pilot distinctions; create /moreprojects/ with Vespa first and a verified HTML/CSS/JavaScript caption; keep the gallery noindex and out of the sitemap even in production; verify responsive rendering and direct-share navigation. Unlisted means discoverable by its URL, not authenticated private access. Prepare a review PR; merge stays with Jason. Earlier custom-domain preparation remains separate.
+
+## Selected-work swap — October 2, 2026
+
+Owner requested swapping iYosi and StatBatt: StatBatt becomes selected-work entry C, and iYosi becomes the second /moreprojects/ entry beside Vespa. Preserve the responsive grids, external new-tab behavior and accurate development/pilot status. Reuse existing screenshots and retain the iYosi case-study URL. Update PR #10 for owner review; no merge/deployment authorized in this step.
