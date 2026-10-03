@@ -46,6 +46,6 @@ The Pages workflow validates PRs and deploys main after successful checks. It bu
 
 ## Additional portfolio
 
-`portfolio.html` is a direct-share collection for work beyond the homepage, starting with Vespa Law. It uses two screenshot cards per row on larger screens and one on phones. A card links to the project site; its caption lists principal technologies. Add new entries to `site/portfolio.html` and screenshot assets to `site/assets/`.
+`/moreprojects/` is a direct-share collection for work beyond the homepage, starting with Vespa Law. It uses two screenshot cards per row on larger screens and one on phones. A card links to the project site; its caption lists principal technologies. Add new entries to `site/moreprojects/index.html` and screenshot assets to `site/assets/`.
 
-Local review: http://127.0.0.1:4176/portfolio.html. No homepage or navigation link is added. Production preparation retains its noindex metadata and excludes it from the sitemap. The page is unlisted, not access-controlled. The iYosi screenshot and case study now reflect the redesigned iyosi.app landing site.
+Local review: http://127.0.0.1:4176/moreprojects/. No homepage or navigation link is added. Production preparation retains its noindex metadata and excludes it from the sitemap. The page is unlisted, not access-controlled. The iYosi screenshot and case study now reflect the redesigned iyosi.app landing site.

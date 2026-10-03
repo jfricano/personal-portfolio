@@ -8,9 +8,15 @@ const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-
 const server = http.createServer(async (req, res) => {
   if (!['GET', 'HEAD'].includes(req.method)) return res.writeHead(405, {Allow:'GET, HEAD'}).end();
   try {
-    const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
-    const file = path.resolve(directory, `.${pathname === '/' ? '/index.html' : pathname}`);
-    if (!file.startsWith(directory + path.sep) || !(await stat(file)).isFile()) throw Error('Not found');
+    const url = new URL(req.url, 'http://localhost');
+    const pathname = decodeURIComponent(url.pathname);
+    let file = path.resolve(directory, `.${pathname === '/' ? '/index.html' : pathname}`);
+    if (!file.startsWith(directory + path.sep)) throw Error('Not found');
+    if ((await stat(file)).isDirectory()) {
+      if (!pathname.endsWith('/')) return res.writeHead(301, {Location: `${url.pathname}/${url.search}`}).end();
+      file = path.join(file, 'index.html');
+    }
+    if (!(await stat(file)).isFile()) throw Error('Not found');
     const data = await readFile(file);
     res.writeHead(200, {'Content-Type':types[path.extname(file)] || 'application/octet-stream','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});
     res.end(req.method === 'HEAD' ? undefined : data);

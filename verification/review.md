@@ -54,3 +54,5 @@ Final visual review: `/root/revision_review` inspected the desktop 2×2 grid, st
 - Production noindex/sitemap/homepage-link assertions passed for portfolio.html; no authentication is implemented.
 - CUA gallery checks at 320, 390, 640, 768, 1440, 1920px: images loaded, no horizontal overflow, one column on phones / two on larger screens. Phone gallery and iYosi inspected, gallery return link works and keyboard focus is visible. Native zoom and screen readers not exercised.
 - Independent source/asset review: /root/v1_review, no unresolved material findings. Review did not repeat live public or local interactions.
+
+Clean-route follow-up: gallery now ships at /moreprojects/ (site/moreprojects/index.html). CUA confirmed bare-path redirect, loaded assets and that Vespa opens a new tab. HTTP assertions passed for normal/query/encoded-slash redirects, gallery/root assets (200) and nested missing-page recovery (404). Shared-asset recursive build checks pass; root-only publication pass preserves nested noindex and sitemap exclusion. Independent reviewer cleared the route changes after the redirect safety fix.
