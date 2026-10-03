@@ -4,6 +4,8 @@ import path from 'node:path';
 const base = 'https://jfricano.github.io/personal-portfolio/';
 const directory = path.join(root, 'dist');
 const urls = [];
+// Direct-share collection: keep its noindex metadata and omit it from the sitemap.
+const unlistedPages = new Set(['portfolio.html']);
 for (const name of await readdir(directory)) {
   if (!name.endsWith('.html')) continue;
   const file = path.join(directory, name);
@@ -11,7 +13,7 @@ for (const name of await readdir(directory)) {
   if (name === '404.html') {
     // A missing nested URL must still resolve CSS, identity assets and home links.
     html = html.replace('<head>', `<head><base href="${base}">`);
-  } else {
+  } else if (!unlistedPages.has(name)) {
     const url = new URL(name === 'index.html' ? '' : name, base).href;
     html = html.replace('<meta name="robots" content="noindex, nofollow">', '');
     html = html.replace('</head>', `<link rel="canonical" href="${url}"><meta property="og:url" content="${url}"></head>`);

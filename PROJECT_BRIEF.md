@@ -23,3 +23,9 @@ Acceptance: four entries lettered A–D; real, captioned screenshots; two workin
 ## Revision acceptance and PR authority — October 2, 2026
 
 Jason accepted the revised local candidate (“this looks good”) and requested committing it to a PR so he can merge for redeployment. Authority covers commit, branch push and PR publication to jfricano/personal-portfolio. Jason retains the merge; the existing main-branch Pages workflow handles redeployment after merge. The pre-existing custom-domain preparation remains separate from this portfolio revision.
+
+## iYosi refresh and additional portfolio — October 2, 2026
+
+Owner requested the current iyosi.app design reflected in the portfolio and a separate collection for additional projects, beginning with vespa.orcasolutions.dev. Approved layout: two screenshot cards per row at wider widths, one per row on phones, using the existing personal identity and styles. Each screenshot links to its site, with a brief principal-technology caption. No incoming homepage or navigation link requested.
+
+Acceptance: refresh the iYosi homepage image and case-study design evidence; preserve illustrative/pilot distinctions; create portfolio.html with Vespa first and a verified HTML/CSS/JavaScript caption; keep the gallery noindex and out of the sitemap even in production; verify responsive rendering and direct-share navigation. Unlisted means discoverable by its URL, not authenticated private access. Prepare a review PR; merge stays with Jason. Earlier custom-domain preparation remains separate.

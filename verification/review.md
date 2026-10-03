@@ -46,3 +46,11 @@ Integrated Orca follow-up: Chrome automation now checks six content pages at six
 - Desktop grid and mobile case-study previews are saved in `verification/previews/`. Local candidate only; no commit, push, merge or deployment.
 
 Final visual review: `/root/revision_review` inspected the desktop 2×2 grid, stacked mobile projects and demo case-study reflow; no blocking or material visual findings. Interactive checks were performed by the lead, not independently repeated.
+
+## iYosi redesign and additional portfolio — October 2, 2026
+
+- Fresh public iYosi screenshot and narrative reflect “Find the place. Check the status.” and the illustrative sample app, preserving the pilot state. Vespa screenshot depicts the public fictional law-firm concept; caption technology grounded in its static source and README.
+- npm run check: 130 references/anchors/image alternatives across nine pages; git diff --check passed.
+- Production noindex/sitemap/homepage-link assertions passed for portfolio.html; no authentication is implemented.
+- CUA gallery checks at 320, 390, 640, 768, 1440, 1920px: images loaded, no horizontal overflow, one column on phones / two on larger screens. Phone gallery and iYosi inspected, gallery return link works and keyboard focus is visible. Native zoom and screen readers not exercised.
+- Independent source/asset review: /root/v1_review, no unresolved material findings. Review did not repeat live public or local interactions.

@@ -43,3 +43,9 @@ This personal website is open source under the [MIT License](LICENSE).
 Public destination: https://jfricano.github.io/personal-portfolio/.
 
 The Pages workflow validates PRs and deploys main after successful checks. It builds `dist/`, then runs `node scripts/prepare-pages.mjs` to add production canonical URLs, sitemap, robots.txt and nested-404 recovery. Local preview stays noindex. For a manual redeploy, run the Deploy GitHub Pages workflow against main. Roll back a bad release by reverting its commit on main; the previous content is then rebuilt and redeployed.
+
+## Additional portfolio
+
+`portfolio.html` is a direct-share collection for work beyond the homepage, starting with Vespa Law. It uses two screenshot cards per row on larger screens and one on phones. A card links to the project site; its caption lists principal technologies. Add new entries to `site/portfolio.html` and screenshot assets to `site/assets/`.
+
+Local review: http://127.0.0.1:4176/portfolio.html. No homepage or navigation link is added. Production preparation retains its noindex metadata and excludes it from the sitemap. The page is unlisted, not access-controlled. The iYosi screenshot and case study now reflect the redesigned iyosi.app landing site.

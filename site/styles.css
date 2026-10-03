@@ -39,3 +39,20 @@
 @media(max-width:1000px){.case-technologies{grid-template-columns:.7fr 2fr;gap:35px}}
 @media(max-width:700px){.case-technologies{grid-template-columns:1fr;gap:16px}.project-art.site-art{padding:18px 18px 48px}}
 .case-screenshot{margin:0 0 40px}.case-screenshot img{width:100%;height:auto}
+
+/* Additional work uses the same two-column rhythm as selected work. */
+.portfolio-archive{padding-bottom:90px;min-height:70vh}
+.archive-intro{padding:55px 0 58px}
+.archive-intro h1{font-size:clamp(54px,7.6vw,105px);margin:22px 0 28px}
+.archive-intro h1 em{color:var(--rust)}
+.archive-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:56px 48px}
+.archive-project{min-width:0}
+.archive-project figure{margin:0}
+.archive-destination{display:block;text-decoration:none}
+.archive-destination img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:top;border:1px solid var(--line)}
+.archive-destination h2{display:flex;align-items:baseline;justify-content:space-between;gap:20px;font-family:var(--sans);font-size:28px;font-weight:500;letter-spacing:-.04em;line-height:1.2;margin:20px 0 10px}
+.archive-destination h2 span{font-size:20px;color:var(--rust)}
+.archive-project figcaption{font-size:14px;color:var(--muted);line-height:1.6}
+.archive-context{font-size:12px}
+@media(max-width:1000px){.archive-grid{column-gap:28px}}
+@media(max-width:700px){.portfolio-archive{padding-bottom:60px}.archive-intro{padding:35px 0 40px}.archive-intro .breadcrumb{margin-bottom:30px}.archive-grid{grid-template-columns:1fr;gap:40px}.archive-destination h2{font-size:25px}}
