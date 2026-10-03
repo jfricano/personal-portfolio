@@ -4,6 +4,7 @@ import path from 'node:path';
 const base = 'https://jfricano.github.io/personal-portfolio/';
 const directory = path.join(root, 'dist');
 const urls = [];
+// Only root pages are public; /moreprojects/ retains noindex and stays out of the sitemap.
 for (const name of await readdir(directory)) {
   if (!name.endsWith('.html')) continue;
   const file = path.join(directory, name);

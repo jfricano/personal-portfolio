@@ -14,12 +14,18 @@ export async function build() {
     });
   }
   await cp(path.join(root, 'mockups/assets'), path.join(out, 'assets'), { recursive: true });
-  for (const name of await readdir(out)) {
-    if (!/\.(html|css)$/.test(name)) continue;
-    const file = path.join(out, name);
-    const text = await readFile(file, 'utf8');
-    await writeFile(file, text.replaceAll('../mockups/assets/', 'assets/').replaceAll('../branding/', 'branding/').replaceAll('../artwork/', 'artwork/'));
+  async function rewriteReferences(directory) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const file = path.join(directory, entry.name);
+      if (entry.isDirectory()) { await rewriteReferences(file); continue; }
+      if (!/\.(html|css)$/.test(entry.name)) continue;
+      const prefix = path.relative(directory, out).split(path.sep).join('/');
+      const text = await readFile(file, 'utf8');
+      await writeFile(file, text.replace(/(?:\.\.\/)+(mockups\/assets|branding|artwork)\//g, (_, folder) =>
+        `${prefix ? prefix + '/' : ''}${folder === 'mockups/assets' ? 'assets' : folder}/`));
+    }
   }
+  await rewriteReferences(out);
   console.log('Built standalone site in dist/');
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) await build();
