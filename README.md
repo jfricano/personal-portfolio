@@ -1,6 +1,6 @@
 # Jason Fricano — personal website
 
-The latest implementation is **There’s always more to notice**: a human-first editorial site with an original personal identity, illustrated artwork, revised copy, selected projects and a StreamOtter case study. Jason approved this branding and design direction on September 27, 2026, including the integrated JF mark and its knife-edge terminals. It is the current implementation baseline, not publicly deployed.
+The latest implementation is **There’s always more to notice**: a human-first editorial site with an original personal identity, illustrated artwork, revised copy, selected projects and case studies. Jason approved this branding and design direction on September 27, 2026, including the integrated JF mark and its knife-edge terminals. It is the current design baseline. The GitHub Pages workflow described below deploys merged main; a local or feature checkout alone does not establish the currently deployed revision.
 
 ## Preview
 
@@ -14,7 +14,7 @@ Open http://127.0.0.1:4175. The identity board is at http://127.0.0.1:4175/brand
 
 ## Source and direction
 
-- `site/`: homepage, five case studies, project screenshots and shared CSS.
+- `site/`: homepage, six retained case studies, additional-project gallery, project screenshots and shared CSS.
 - `branding/personal-v1/`: The Turn F/J mark, wordmark, favicon, board and usage notes.
 - `artwork/`: original generated illustration, compressed delivery image, exact prompt and provenance.
 - `docs/creative-direction-v3.md`: creative rationale and role boundaries.
@@ -22,17 +22,17 @@ Open http://127.0.0.1:4175. The identity board is at http://127.0.0.1:4175/brand
 - `docs/fine-art-advisory.md`: identity critique.
 - `verification/review.md`: checks performed and limitations.
 
-The existing mockups and design brief remain below as historical context. Product release claims still need revalidation before launch; the public domain and canonical URLs have not been supplied. Pages are intentionally marked noindex for this review build.
+The existing mockups and design brief remain below as historical context. Product release claims need revalidation before a new publication. Local builds are intentionally marked noindex; production metadata uses the base URL configured in `scripts/prepare-pages.mjs`.
 
 ## V1 review candidate
 
-The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, iYosi and Orca Solutions. StreamOtter links to separate toolkit and demo-site case studies, for five case studies overall. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
+The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, StatBatt and Orca Solutions. StreamOtter links to separate toolkit and demo-site case studies. iYosi appears beside Vespa Law at `/moreprojects/`; its case-study URL remains available. Six case studies remain in the source, including StatBatt. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
 
-`npm run check` validates all eight shipped HTML pages, including the identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
+`npm run check` validates all ten shipped HTML pages, including the additional-project gallery, identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
 
 The static output excludes local workflow documents, artwork provenance notes and the full-size original artwork PNG. Source provenance stays in the repository. No analytics, runtime services or external fonts are required.
 
-See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for scope and evidence. Public deployment, final domain metadata and search indexing require a separate launch decision. A static host must be configured to use `404.html` for missing pages; this project does not configure a hosting provider.
+See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for scope and evidence. GitHub Pages hosting is configured by the workflow below. Pending feature changes follow the recorded acceptance and merge process. Other static hosts must be configured to use `404.html` for missing pages.
 
 ## License
 
@@ -46,6 +46,6 @@ The Pages workflow validates PRs and deploys main after successful checks. It bu
 
 ## Additional portfolio
 
-`/moreprojects/` is a direct-share collection for work beyond the homepage, starting with Vespa Law. It uses two screenshot cards per row on larger screens and one on phones. A card links to the project site; its caption lists principal technologies. Add new entries to `site/moreprojects/index.html` and screenshot assets to `site/assets/`.
+`/moreprojects/` is a direct-share collection for work beyond the homepage, including Vespa Law and iYosi. It uses two screenshot cards per row on larger screens and one on phones. A card links to the project site; its caption lists principal technologies. Add new entries to `site/moreprojects/index.html` and screenshot assets to `site/assets/`.
 
 Local review: http://127.0.0.1:4176/moreprojects/. No homepage or navigation link is added. Production preparation retains its noindex metadata and excludes it from the sitemap. The page is unlisted, not access-controlled. The iYosi screenshot and case study now reflect the redesigned iyosi.app landing site.
