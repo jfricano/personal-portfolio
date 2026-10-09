@@ -58,10 +58,16 @@
 @media(max-width:700px){.portfolio-archive{padding-bottom:60px}.archive-intro{padding:35px 0 40px}.archive-intro .breadcrumb{margin-bottom:30px}.archive-grid{grid-template-columns:1fr;gap:40px}.archive-destination h2{font-size:25px}}
 
 /* Workout software is shown at the phone width used beside a gym bench. */
-.getfit-art img{width:auto;max-width:100%;height:100%;object-fit:contain}
+.phone-trio{display:flex;justify-content:center;gap:12px;width:100%;height:100%;min-width:0}
+.getfit-art .phone-trio img{width:calc((100% - 24px)/3);max-width:130px;height:100%;object-fit:contain;box-shadow:none}
 .case-followup{margin-top:22px}
 .case-technologies>.case-caption{grid-column:1/-1;margin-top:0}
 .case-screenshot.phone-screenshot{display:grid;justify-items:center;gap:16px;background:var(--lavender);padding:28px}
-.phone-screenshot img{width:min(100%,375px);height:auto}
+.phone-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;width:min(100%,1050px)}
+.phone-screenshot img{width:100%;height:auto;box-shadow:0 7px 24px #302b2820}
+.phone-view-label{font-size:12px;text-align:center;margin-top:14px;color:var(--muted)}
 .phone-screenshot .case-caption{max-width:650px;text-align:center;margin-top:0}
 .brand-case{text-transform:none}
+
+@media(max-width:1000px){.project-art.getfit-art{padding-bottom:62px}}
+@media(max-width:700px){.phone-gallery{grid-template-columns:1fr;max-width:375px;gap:30px}.case-screenshot.phone-screenshot{padding:22px}.phone-trio{gap:8px}.getfit-art .phone-trio img{width:calc((100% - 16px)/3)}}
