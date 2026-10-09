@@ -88,7 +88,7 @@ Case-study opening retains the personal origin, then adds: “And then I adapted
 
 Links: Case study (`getfit.html`) / Open GetFit v1 (https://getfit.orcasolutions.dev/) / Explore the source (https://github.com/Orca-Solutions/get-fit).
 
-Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live GetFit v1 views—generated workout plan, training calendar, and movement guide—with no workout history shown. Present them together on the homepage, larger in the case study, and stacked on phones. Label them as v1 references until a running bellos interface is available. Each view opens in a large scrollable viewer with a dimmed backdrop, Close button, Escape/outside-click dismissal, and keyboard focus restoration; include a short invitation to enlarge. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
+Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live GetFit v1 views—generated workout plan, training calendar, and movement guide—with no workout history shown. Present them together on the homepage, larger in the case study, and stacked on phones. Label them as v1 references until a running bellos interface is available. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
 
 ### StatBatt — archived project
 

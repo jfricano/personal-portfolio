@@ -59,8 +59,7 @@
 
 /* Workout software is shown at the phone width used beside a gym bench. */
 .phone-trio{display:flex;justify-content:center;gap:12px;width:100%;height:100%;min-width:0}
-.phone-trio .screenshot-link{display:block;width:calc((100% - 24px)/3);max-width:130px;height:100%;min-width:0}
-.getfit-art .phone-trio img{width:100%;max-width:100%;height:100%;object-fit:contain;box-shadow:none}
+.getfit-art .phone-trio img{width:calc((100% - 24px)/3);max-width:130px;height:100%;object-fit:contain;box-shadow:none}
 .case-followup{margin-top:22px}
 .case-technologies>.case-caption{grid-column:1/-1;margin-top:0}
 .case-screenshot.phone-screenshot{display:grid;justify-items:center;gap:16px;background:var(--lavender);padding:28px}
@@ -71,21 +70,4 @@
 .brand-case{text-transform:none}
 
 @media(max-width:1000px){.project-art.getfit-art{padding-bottom:62px}}
-@media(max-width:700px){.phone-gallery{grid-template-columns:1fr;max-width:375px;gap:30px}.case-screenshot.phone-screenshot{padding:22px}.phone-trio{gap:8px}.phone-trio .screenshot-link{width:calc((100% - 16px)/3)}}
-
-/* Phone captures open at a readable width; tall views scroll within the dialog. */
-.screenshot-link{display:block;cursor:zoom-in;border-radius:2px}
-.screenshot-link:focus-visible{outline:3px solid var(--rust);outline-offset:5px}
-.screenshot-viewer{width:min(760px,calc(100% - 32px));max-width:none;max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);padding:0;border:1px solid var(--line);background:var(--paper);color:var(--ink);overflow:hidden;box-shadow:0 16px 60px #0005}
-.screenshot-viewer[open]{display:flex;flex-direction:column}
-.screenshot-viewer::backdrop{background:#171411aa}
-.screenshot-viewer-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;flex-shrink:0;border-bottom:1px solid var(--line)}
-.screenshot-viewer-title{font-family:var(--sans);font-size:15px;font-weight:500;line-height:1.4}
-.screenshot-viewer-note{font-size:11px;line-height:1.4;color:var(--muted);margin-top:4px}
-.screenshot-viewer-close{font:inherit;font-size:14px;padding:10px 12px;min-height:44px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;flex-shrink:0}
-.screenshot-viewer-close:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
-.screenshot-viewer-body{min-height:0;overflow:auto;padding:20px;overscroll-behavior:contain}
-.screenshot-viewer-body:focus-visible{outline:2px solid var(--rust);outline-offset:-2px}
-.screenshot-viewer-image{width:100%;height:auto}
-body.screenshot-open{overflow:hidden}
-@media(max-width:700px){.screenshot-viewer{width:calc(100% - 16px);max-height:calc(100dvh - 16px)}.screenshot-viewer-header{padding:12px;gap:10px}.screenshot-viewer-body{padding:12px}.screenshot-viewer-title{font-size:14px}}
+@media(max-width:700px){.phone-gallery{grid-template-columns:1fr;max-width:375px;gap:30px}.case-screenshot.phone-screenshot{padding:22px}.phone-trio{gap:8px}.getfit-art .phone-trio img{width:calc((100% - 16px)/3)}}
