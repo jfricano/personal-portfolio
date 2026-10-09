@@ -74,19 +74,25 @@ Role: Product rules, experience & implementation
 
 Links: Try the browser demo / View source
 
-### StatBatt
+### GetFit
 
-Category: macOS app
+Category: Personal workout app
 
-Status: In development
+Status: Open source · hosted app
 
 Description:
 
-> A native Mac app that brings battery readings, seven-day history, and useful details into the menu bar.
+> A personal workout planner and log with four-week training blocks, rotating intensity, and progression from recorded sets. Open source, so someone else can make it their own.
 
-Links: Case study (`statbatt.html`) / Landing preview (https://orca-solutions.github.io/stat-batt/)
+Links: Case study (`getfit.html`) / Open GetFit (https://getfit.orcasolutions.dev/) / Explore the source (https://github.com/Orca-Solutions/get-fit)
 
-The landing screenshot uses illustrative readings. StatBatt occupies selected-work entry C. iYosi moves to the additional portfolio beside Vespa; its existing case study remains available at `iyosi.html`.
+GetFit occupies selected-work entry C. Its screenshot shows the actual local interface with a generated plan and no workout history. The case study highlights periodization rules, equipment-aware selection, logged progression, portable data, and MIT-licensed customization. Core technologies: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite. The hosted app at `getfit.orcasolutions.dev` was verified over HTTPS and in the browser on October 8, 2026; homepage and case-study CTAs now link to it.
+
+### StatBatt — archived project
+
+Status: Archived · No release planned
+
+StatBatt is removed from selected work and retained as a records entry at `/moreprojects/#statbatt`. Its existing case study remains at `statbatt.html`, with archive status and links back to the gallery. Its landing screenshot uses illustrative readings. Both the gallery and archived case study retain noindex metadata and stay out of the sitemap. They are unlisted, not authenticated.
 
 ### iYosi — additional portfolio
 
