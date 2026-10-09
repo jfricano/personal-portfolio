@@ -68,11 +68,11 @@ Description:
 
 Marginal observation:
 
-> Where did it go? There should be a clear answer.
+> Where did it go? There should be a clear answer. Try the sample site or download the free macOS app there.
 
 Role: Product rules, experience & implementation
 
-Links: Try the browser demo / View source
+Links: Demo & free macOS app (https://pt.orcasolutions.dev/) / View source. The sample site provides the browser demo with fictional data and a free local macOS preview for Apple Silicon, with installation notes.
 
 ### GetFit → bellos
 
