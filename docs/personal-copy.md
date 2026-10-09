@@ -74,19 +74,21 @@ Role: Product rules, experience & implementation
 
 Links: Try the browser demo / View source
 
-### GetFit
+### GetFit → bellos
 
-Category: Personal workout app
+Category: From personal tool to product
 
-Status: Open source · hosted app
+Status: GetFit live · bellos in development
 
 Description:
 
-> A personal workout planner and log with four-week training blocks, rotating intensity, and progression from recorded sets. Open source, so someone else can make it their own.
+> A personal workout planner, now growing into bellos: a commercial phone-first app built around the Accordion method. The original source remains open.
 
-Links: Case study (`getfit.html`) / Open GetFit (https://getfit.orcasolutions.dev/) / Explore the source (https://github.com/Orca-Solutions/get-fit)
+Case-study opening retains the personal origin, then adds: “And then I adapted it. The source is still available.” bellos is always lowercase. Its name keeps the sound of bellows and drops the w to reflect simplicity and good design. Explain Accordion Training’s heavier/narrower and lighter/more-varied sessions, and Earned Load as the progression rule. Keep the working GetFit app distinct from the planned commercial product; accounts, service, and the revised design are in development.
 
-GetFit occupies selected-work entry C. Its screenshot shows the actual local interface with a generated plan and no workout history. The case study highlights periodization rules, equipment-aware selection, logged progression, portable data, and MIT-licensed customization. Core technologies: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite. The hosted app at `getfit.orcasolutions.dev` was verified over HTTPS and in the browser on October 8, 2026; homepage and case-study CTAs now link to it.
+Links: Case study (`getfit.html`) / Open GetFit v1 (https://getfit.orcasolutions.dev/) / Explore the source (https://github.com/Orca-Solutions/get-fit).
+
+Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live GetFit v1 views—generated workout plan, training calendar, and movement guide—with no workout history shown. Present them together on the homepage, larger in the case study, and stacked on phones. Label them as v1 references until a running bellos interface is available. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
 
 ### StatBatt — archived project
 

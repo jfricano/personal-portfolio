@@ -26,7 +26,7 @@ The existing mockups and design brief remain below as historical context. Produc
 
 ## V1 review candidate
 
-The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, GetFit and Orca Solutions. StreamOtter links to separate toolkit and demo-site case studies. iYosi and the archived StatBatt record appear alongside Vespa Law at `/moreprojects/`. Seven case studies remain in the source, including the retained iYosi and StatBatt URLs. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
+The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, GetFit → bellos and Orca Solutions. StreamOtter links to separate toolkit and demo-site case studies. iYosi and the archived StatBatt record appear alongside Vespa Law at `/moreprojects/`. Seven case studies remain in the source, including the retained iYosi and StatBatt URLs. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
 
 `npm run check` validates all eleven shipped HTML pages, including the additional-project gallery, identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
 
@@ -50,8 +50,8 @@ The Pages workflow validates PRs and deploys main after successful checks. It bu
 
 Local review: http://127.0.0.1:4176/moreprojects/. No homepage or navigation link is added. Production preparation retains noindex metadata on the gallery and `statbatt.html`, and excludes both from the sitemap. The page is unlisted, not access-controlled. The iYosi screenshot and case study now reflect the redesigned iyosi.app landing site.
 
-## GetFit and archived StatBatt
+## GetFit → bellos and archived StatBatt
 
-GetFit is the personal workout app in selected-work C, with a case study covering four-week periodization, equipment-aware selection, progression from logs, and open-source customization. Its public repository carries an MIT license. The hosted app is at https://getfit.orcasolutions.dev/. Its screenshot shows an actual isolated local preview with a generated plan and no workout history.
+Selected-work C follows open-source GetFit into bellos, the commercial phone-first version in development. The case study covers the Accordion method, progression from logs, open-source customization, and the gym use case behind the phone-first design. GetFit’s public repository remains MIT-licensed, and its v1 app is at https://getfit.orcasolutions.dev/. Three portrait screenshots show the live v1 app at phone width: a generated workout plan, training calendar, and movement guide. They appear together on the homepage and larger in the case study, stacking on phones. No workout history is shown; the images are explicitly v1 references until a running bellos interface is ready. The existing `getfit.html` route is retained.
 
 StatBatt has no release planned. Its implementation record remains at `statbatt.html` through `/moreprojects/`, without homepage promotion. These archive pages are unlisted and accessible by URL.
