@@ -82,9 +82,9 @@ Status: GetFit live · bellos in development
 
 Description:
 
-> A personal workout planner, now growing into bellos: a commercial phone-first app built around the Accordion method. The original source remains open.
+> A personal workout planner, now growing into bellos: a commercial phone-first app built around Accordion Training™. The original source remains open.
 
-Case-study opening retains the personal origin, then adds: “And then I adapted it. The source is still available.” bellos is always lowercase. Its name keeps the sound of bellows and drops the w to reflect simplicity and good design. Explain Accordion Training’s heavier/narrower and lighter/more-varied sessions, and Earned Load as the progression rule. Keep the working GetFit app distinct from the planned commercial product; accounts, service, and the revised design are in development.
+Case-study opening retains the personal origin, then adds: “And then I adapted it. The source is still available.” bellos is always lowercase. Its name keeps the sound of bellows and drops the w to reflect simplicity and good design. Use “Accordion Training™ by bellos” for the case-study method heading. Explain Accordion Training’s heavier/narrower and lighter/more-varied sessions, and Earned Load as the progression rule. Keep the working GetFit app distinct from the planned commercial product; accounts, service, and the revised design are in development.
 
 Links: Case study (`getfit.html`) / Open GetFit v1 (https://getfit.orcasolutions.dev/) / Explore the source (https://github.com/Orca-Solutions/get-fit).
 
