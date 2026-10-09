@@ -42,19 +42,19 @@ Intro:
 
 ### StreamOtter
 
-Category: Developer toolkit & demo
+Category: Developer toolkit & game
 
-Status: Release candidate · demo live
+Status: Release candidate · game in development
 
 Description:
 
-> A TypeScript toolkit that brings live Kafka-backed data into a browser—and makes it clear when the information goes stale. A fictional creek puts the real pipeline to work.
+> A TypeScript toolkit for live Kafka-backed browser state. A field station and a small Lontra Creek game put its delivery model to work.
 
 Role: Product design, architecture & implementation
 
-Links: Toolkit case study / Demo site case study / Visit StreamOtter (https://streamotter.dev/)
+Links: Toolkit case study / Game case study / Visit StreamOtter (https://streamotter.dev/)
 
-One homepage entry covers both the reusable toolkit and its hosted demonstration. The demo case study retains `lontra-creek.html` for existing links but is presented as **StreamOtter demo site**. Lontra Creek is the fictional watershed within that demonstration, not a separate selected project.
+One homepage entry covers the reusable toolkit, its hosted field station, and Pup Patrol, a separate React game. Pair the StreamOtter banner with a local game capture. Link the game case at `pup-patrol.html`; the toolkit and game pages also link to the field-station case. lontracreek.com is planned, not yet live. Label the game capture as recording mode and the React hooks as prerelease. The demo case study retains `lontra-creek.html` for existing links but is presented as **StreamOtter demo site**. Lontra Creek is the fictional watershed within that demonstration, not a separate selected project.
 
 ### Personal Treasury
 
@@ -84,11 +84,11 @@ Description:
 
 > A personal workout planner, now growing into bellos: a commercial phone-first app built around Accordion Training™. The original source remains open.
 
-Case-study opening retains the personal origin, then adds: “And then I adapted it. The source is still available.” bellos is always lowercase. Its name keeps the sound of bellows and drops the w to reflect simplicity and good design. Use “Accordion Training™ by bellos” for the case-study method heading. Explain Accordion Training’s heavier/narrower and lighter/more-varied sessions, and Earned Load as the progression rule. Keep the working GetFit app distinct from the planned commercial product; accounts, service, and the revised design are in development.
+Case-study opening retains the personal origin, then adds: “And then I adapted it. The source is still available.” bellos is always lowercase. Its name keeps the sound of bellows and drops the w to reflect simplicity and good design. Keep the case study focused on what, how, and why Jason built it: durable logs, inspectable plans, modular implementation, open-source adaptation, and phone-first gym use. Omit the training-method section and planning diagram. Keep the working GetFit app distinct from the planned commercial product; accounts, service, and the revised design are in development.
 
 Links: Case study (`getfit.html`) / Open GetFit v1 (https://getfit.orcasolutions.dev/) / Explore the source (https://github.com/Orca-Solutions/get-fit).
 
-Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live GetFit v1 views—generated workout plan, training calendar, and movement guide—with no workout history shown. Present them together on the homepage, larger in the case study, and stacked on phones. Label them as v1 references until a running bellos interface is available. Each view opens in a large scrollable viewer with a dimmed backdrop, Close button, Escape/outside-click dismissal, and keyboard focus restoration; include a short invitation to enlarge. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
+Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live GetFit v1 views—generated workout plan, training calendar, and movement guide—with no workout history shown. Present them as static images together on the homepage, larger in the case study, and stacked on phones. Label them as v1 references until a running bellos interface is available. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
 
 ### StatBatt — archived project
 

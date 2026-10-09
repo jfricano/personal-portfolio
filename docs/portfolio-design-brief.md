@@ -65,11 +65,11 @@ Keep the first release small and polished:
 
 ```text
 Home
-├── Work (four selected products)
-│   ├── StreamOtter case study
-│   ├── Lontra Creek case study
+├── Work (four selected projects)
 │   ├── Personal Treasury case study
-│   └── iYosi case study
+│   ├── StreamOtter toolkit, field-station, and game case studies
+│   ├── GetFit → bellos case study
+│   └── Orca Solutions case study
 ├── Orca Solutions studio note / future company-site link
 ├── Things I keep returning to (section on Home)
 ├── About (section on Home)
@@ -81,7 +81,7 @@ Header: `Jason Fricano` at left; `Work`, `About`, `Contact` at right. A restrain
 ### Homepage order
 
 1. **Introduction:** a human sentence rather than a capability claim, followed by a two-sentence introduction and `See what I've made`.
-2. **Selected work:** four products. Start with StreamOtter and Lontra Creek as a connected proof pair, then Personal Treasury and iYosi as breadth. Each entry includes one short marginal observation about the question Jason was trying to answer, the project status, and a direct destination when one exists. Vary the scale and placement of real product imagery.
+2. **Selected work:** four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, GetFit → bellos, and Orca Solutions. StreamOtter remains one card, pairing the toolkit banner with a Lontra Creek game capture. Each entry includes one short marginal observation about the question Jason was trying to answer, the project status, and a direct destination when one exists. Vary the scale and placement of real product imagery.
 3. **Orca Solutions:** a distinct studio note, making its in-development company website visible without placing it on equal footing with the four products or making Jason's page read like company marketing.
 4. **Things I keep returning to:** four very short word pairs—questions / useful tools, people / systems, care / precision, learning / sharing. A sentence explains that agentic tools increase speed while Jason owns judgment, review, and responsibility.
 5. **About:** brief personal story. Jason almost became a developer; building remained a happy side quest alongside a legal career he values. A small field note mentions a run, garden, car maintenance, and his wide-ranging music taste. These details add texture without turning the page into a hobby inventory. Add a real portrait only when a photograph Jason likes is available.
@@ -96,7 +96,7 @@ Every case study should use the same five-part structure: **problem → role and
 | Project | What the homepage entry should say | Proof to show | Primary destination | Current editorial state |
 | --- | --- | --- | --- | --- |
 | **StreamOtter** | A TypeScript toolkit that gets live Kafka-backed state into a browser and makes stale data visible. | Architecture diagram, delivery-state example, CLI/workbench view, npm package, docs. | [npm package](https://www.npmjs.com/package/streamotter); [source](https://github.com/jfricano/StreamOtter). | Repo describes `0.1.0-rc` release candidates; label it **release candidate** until that changes. |
-| **Lontra Creek** | A fictional otter research station built to demonstrate StreamOtter against a real Kafka pipeline. | Field station screen, guided failure scenario, distinction between simulated world and real pipeline. | Planned `streamotter.app` destination; confirm that the site is live before linking. | Repo says production stack proven in CI, **not yet hosted**. Do not imply the public demo works yet. |
+| **Lontra Creek / Pup Patrol** | Two consumers under the StreamOtter card: a fictional field station and a small React game. | Field-station screen and local game capture; distinguish the real Kafka pipeline from recorded gameplay. | Field station at [StreamOtter.dev](https://streamotter.dev/); game case at `pup-patrol.html`. | Field station live; game uses prerelease React hooks, with lontracreek.com planned and not yet hosted. |
 | **Personal Treasury** | A private household finance app that turns paycheck plans into transfers, reconciliation, and traceable debt history. | Current dashboard and reconciliation screenshots, one-minute demo, exact-money and privacy decisions. | [Browser demo & free macOS app](https://pt.orcasolutions.dev/); [source](https://github.com/jfricano/personal-treasury). | Demo is live with fictional data and offers a free local macOS preview for Apple Silicon; distinguish it from the private and Mac builds. |
 | **iYosi** | iOS and Android pilot apps, backed by a shared API, for finding and correcting information about designated and reported smoking areas in Metro Manila. | Mobile screens, status labels, moderation flow, platform differences. | [Landing preview](https://jfricano.github.io/iyosi-landing/). | Label as **pilot / in development**. The landing preview uses illustrative places; store links are pending. |
 | **Orca Solutions website** | The company presence for Jason's software studio: its work, method, and published products from the studio's point of view. | Site design, information architecture, studio story, and finished public page when available. | Public URL to be added after launch. | **In development.** Present as a separate studio note now; expand it when the site is real. |
