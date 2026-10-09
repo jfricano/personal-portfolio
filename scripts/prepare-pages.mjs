@@ -4,7 +4,8 @@ import path from 'node:path';
 const base = 'https://jfricano.github.io/personal-portfolio/';
 const directory = path.join(root, 'dist');
 const urls = [];
-// Only root pages are public; /moreprojects/ retains noindex and stays out of the sitemap.
+// /moreprojects/ and archived case studies retain noindex and stay out of the sitemap.
+const archivedPages = new Set(['statbatt.html']);
 for (const name of await readdir(directory)) {
   if (!name.endsWith('.html')) continue;
   const file = path.join(directory, name);
@@ -12,7 +13,7 @@ for (const name of await readdir(directory)) {
   if (name === '404.html') {
     // A missing nested URL must still resolve CSS, identity assets and home links.
     html = html.replace('<head>', `<head><base href="${base}">`);
-  } else {
+  } else if (!archivedPages.has(name)) {
     const url = new URL(name === 'index.html' ? '' : name, base).href;
     html = html.replace('<meta name="robots" content="noindex, nofollow">', '');
     html = html.replace('</head>', `<link rel="canonical" href="${url}"><meta property="og:url" content="${url}"></head>`);

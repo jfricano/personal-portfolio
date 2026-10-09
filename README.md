@@ -14,7 +14,7 @@ Open http://127.0.0.1:4175. The identity board is at http://127.0.0.1:4175/brand
 
 ## Source and direction
 
-- `site/`: homepage, six retained case studies, additional-project gallery, project screenshots and shared CSS.
+- `site/`: homepage, seven retained case studies, additional-project gallery, project screenshots and shared CSS.
 - `branding/personal-v1/`: The Turn F/J mark, wordmark, favicon, board and usage notes.
 - `artwork/`: original generated illustration, compressed delivery image, exact prompt and provenance.
 - `docs/creative-direction-v3.md`: creative rationale and role boundaries.
@@ -26,9 +26,9 @@ The existing mockups and design brief remain below as historical context. Produc
 
 ## V1 review candidate
 
-The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, StatBatt and Orca Solutions. StreamOtter links to separate toolkit and demo-site case studies. iYosi appears beside Vespa Law at `/moreprojects/`; its case-study URL remains available. Six case studies remain in the source, including StatBatt. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
+The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, GetFit and Orca Solutions. StreamOtter links to separate toolkit and demo-site case studies. iYosi and the archived StatBatt record appear alongside Vespa Law at `/moreprojects/`. Seven case studies remain in the source, including the retained iYosi and StatBatt URLs. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
 
-`npm run check` validates all ten shipped HTML pages, including the additional-project gallery, identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
+`npm run check` validates all eleven shipped HTML pages, including the additional-project gallery, identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
 
 The static output excludes local workflow documents, artwork provenance notes and the full-size original artwork PNG. Source provenance stays in the repository. No analytics, runtime services or external fonts are required.
 
@@ -46,6 +46,12 @@ The Pages workflow validates PRs and deploys main after successful checks. It bu
 
 ## Additional portfolio
 
-`/moreprojects/` is a direct-share collection for work beyond the homepage, including Vespa Law and iYosi. It uses two screenshot cards per row on larger screens and one on phones. A card links to the project site; its caption lists principal technologies. Add new entries to `site/moreprojects/index.html` and screenshot assets to `site/assets/`.
+`/moreprojects/` is a direct-share collection for work beyond the homepage, including Vespa Law, iYosi, and the archived StatBatt record. It uses two screenshot cards per row on larger screens and one on phones. A card links to the project site or archived case study; its caption lists principal technologies. Add new entries to `site/moreprojects/index.html` and screenshot assets to `site/assets/`.
 
-Local review: http://127.0.0.1:4176/moreprojects/. No homepage or navigation link is added. Production preparation retains its noindex metadata and excludes it from the sitemap. The page is unlisted, not access-controlled. The iYosi screenshot and case study now reflect the redesigned iyosi.app landing site.
+Local review: http://127.0.0.1:4176/moreprojects/. No homepage or navigation link is added. Production preparation retains noindex metadata on the gallery and `statbatt.html`, and excludes both from the sitemap. The page is unlisted, not access-controlled. The iYosi screenshot and case study now reflect the redesigned iyosi.app landing site.
+
+## GetFit and archived StatBatt
+
+GetFit is the personal workout app in selected-work C, with a case study covering four-week periodization, equipment-aware selection, progression from logs, and open-source customization. Its public repository carries an MIT license. The hosted app is at https://getfit.orcasolutions.dev/. Its screenshot shows an actual isolated local preview with a generated plan and no workout history.
+
+StatBatt has no release planned. Its implementation record remains at `statbatt.html` through `/moreprojects/`, without homepage promotion. These archive pages are unlisted and accessible by URL.
