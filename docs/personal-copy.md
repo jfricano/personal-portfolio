@@ -48,13 +48,13 @@ Status: Release candidate · game in development
 
 Description:
 
-> A TypeScript toolkit for live Kafka-backed browser state. A field station and a small Lontra Creek game put its delivery model to work.
+> A TypeScript toolkit for live Kafka-backed browser state. A field station and a small Lontra Creek game (pictured above) put its delivery model to work.
 
 Role: Product design, architecture & implementation
 
 Links: Toolkit case study / Game case study / Visit StreamOtter (https://streamotter.dev/)
 
-One homepage entry covers the reusable toolkit, its hosted field station, and Pup Patrol, a separate React game. Pair the flowing-stream visualization from StreamOtter’s live front page with a local game capture. Link the game case at `pup-patrol.html`; the toolkit and game pages also link to the field-station case. lontracreek.com is planned, not yet live. Label the game capture as recording mode and the React hooks as prerelease. The demo case study retains `lontra-creek.html` for existing links but is presented as **StreamOtter demo site**. Lontra Creek is the fictional watershed within that demonstration, not a separate selected project.
+One homepage entry covers the reusable toolkit, its hosted field station, and Pup Patrol, a separate React game. Pair the flowing-stream field-station visualization, with its surrounding light margin, with a local game capture. Link the game case at `pup-patrol.html`; the toolkit and game pages also link to the field-station case. lontracreek.com is planned, not yet live. Label the game capture as recording mode and the React hooks as prerelease. The demo case study retains `lontra-creek.html` for existing links but is presented as **StreamOtter demo site**. Lontra Creek is the fictional watershed within that demonstration, not a separate selected project.
 
 ### Personal Treasury
 
