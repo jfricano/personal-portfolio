@@ -59,3 +59,7 @@ StatBatt has no release planned. Its implementation record remains at `statbatt.
 ## Pup Patrol on Lontra Creek
 
 `pup-patrol.html` covers the game as another StreamOtter consumer: React subscriptions, a separate TypeScript engine, canvas rendering, and visible stale-state handling. The homepage still has four cards. Its StreamOtter pair shows the toolkit banner beside actual local gameplay, explicitly labeled recording mode. The game uses prerelease React hooks and is not yet hosted at its planned lontracreek.com destination. The field station remains live at StreamOtter.dev and retains its existing case-study URL.
+
+## Delivery workflow
+
+See [the delivery workflow](docs/WORKFLOW.md) for author verification, focused review of high-risk changes and scoped release authority. Existing project behavior and setup commands above remain authoritative.
