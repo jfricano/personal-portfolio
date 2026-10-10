@@ -1,5 +1,9 @@
 # V1 working record — September 27, 2026
 
+## Workflow adoption — October 9, 2026
+
+Practical workflow v3.0: one delivery owner, proportionate author verification, focused review for high-risk behavior/concrete concerns and delta-based evidence reuse. Existing product requirements, configured signing, recorded permissions and repository protections are preserved. Dated verification/history below retains its original scope; it does not impose a blanket review gate on new routine work. No application merge, deployment or provider acceptance is established by this documentation update.
+
 Stage: implementation and verification on codex/personal-portfolio-v1; base f87e5d3. Lead owns integration. Existing uncommitted approved v3 material preserved.
 
 Actual delegated work: /root/case_studies owns only three new case-study HTML files. /root/v1_review provides independent read-only review. Lead owns navigation, static build/server, checks and delivery.
