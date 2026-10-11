@@ -32,7 +32,7 @@ jobs:
         run: |
           git add site/antilibrary/data/progress.json
           if ! git diff --cached --quiet; then
-            git -c user.name="github-actions[bot]" -c user.email="41898181+github-actions[bot]@users.noreply.github.com" commit -m "Update anti-library progress (#$ISSUE)"
+            git -c user.name="Jason Fricano" -c user.email="44284799+jfricano@users.noreply.github.com" commit -m "Update anti-library progress (#$ISSUE)"
             git push
             # A push made by this workflow does not start other workflows, so redeploy explicitly.
             gh workflow run pages.yml --ref main
