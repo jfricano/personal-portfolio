@@ -1,6 +1,6 @@
 # Anti-library header art
 
-Each list on `/antilibrary/` shows its illustration in the intro, beside the headline, the way the home page shows its still life. It changes with the selected tab and crossfades in when its file exists in `site/antilibrary/art/`; a list without a file shows no picture.
+Each list on `/antilibrary/` shows its illustration at the top of the browser, beside the list tabs, with the search and filters spanning underneath. On phones it moves up between the two intro paragraphs. It changes with the selected tab and crossfades in when its file exists in `site/antilibrary/art/`; a list without a file shows no picture.
 
 | List   | File         |
 |--------|--------------|

@@ -194,7 +194,16 @@
     els.results.innerHTML = html;
   }
 
-  // Each list's illustration lives at art/<list id>.jpg and sits in the intro; a list without one shows no picture.
+  // Each list's illustration lives at art/<list id>.jpg and sits beside the tabs; a list without one shows no
+  // picture. On phones the picture moves up between the two intro paragraphs, where it reads better.
+  const narrow = matchMedia('(max-width: 700px)');
+  function placeArt() {
+    const figure = $('al-art');
+    if (narrow.matches) $('al-intro-body').querySelector('.al-intro-note').before(figure);
+    else $('al-tabs').after(figure);
+  }
+  narrow.addEventListener('change', placeArt);
+  placeArt();
   function showArt() {
     const figure = $('al-art'), image = $('al-art-img');
     figure.classList.remove('is-shown');
