@@ -37,6 +37,8 @@
     const mark = pendingFor(i);
     return Boolean(i.d || (mark !== undefined ? mark : progress[list.id]?.[itemKey(i)]));
   };
+  // Flags such as "Start here" are Jason's own and only show in owner mode.
+  const shownFlags = () => Object.entries(list.flags).filter(([key]) => owner || !(list.privateFlags || []).includes(key));
   const SORTS = {
     shelf: { label: 'Shelf order' },
     title: { label: 'Title A–Z', cmp: (a, b) => a._t.localeCompare(b._t) },
@@ -67,7 +69,7 @@
     if (state.shelf) p.set('shelf', state.shelf);
     if (state.sort !== 'shelf') p.set('sort', state.sort);
     if (state.flags.size) p.set('only', [...state.flags].join(','));
-    if (state.hide) p.set('hide', '1');
+    if (owner && state.hide) p.set('hide', '1');
     const query = p.toString();
     try { history.replaceState(null, '', query ? `?${query}` : location.pathname); } catch {}
   }
@@ -95,10 +97,12 @@
     const sorts = Object.entries(SORTS).filter(([, s]) => !s.year || list.hasYear);
     if (!sorts.some(([key]) => key === state.sort)) state.sort = 'shelf';
     els.sort.innerHTML = sorts.map(([key, s]) => `<option value="${key}"${key === state.sort ? ' selected' : ''}>${key === 'creator' ? `${esc(list.creatorLabel)} A–Z` : s.label}</option>`).join('');
-    for (const key of state.flags) if (!list.flags[key]) state.flags.delete(key);
-    els.flags.innerHTML = '<legend class="label">Only show</legend>' + Object.entries(list.flags).map(([key, label]) =>
+    const flags = shownFlags();
+    for (const key of state.flags) if (!flags.some(([k]) => k === key)) state.flags.delete(key);
+    els.flags.innerHTML = '<legend class="label">Only show</legend>' + flags.map(([key, label]) =>
       `<label class="al-chip al-chip-${esc(key)}"><input type="checkbox" value="${esc(key)}"${state.flags.has(key) ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('') +
-      `<label class="al-chip al-chip-hide"><input type="checkbox" value="" data-hide${state.hide ? ' checked' : ''}><span>Hide ${esc(list.doneLabel.toLowerCase())}</span></label>`;
+      (owner ? `<label class="al-chip al-chip-hide"><input type="checkbox" value="" data-hide${state.hide ? ' checked' : ''}><span>Hide ${esc(list.doneLabel.toLowerCase())}</span></label>` : '');
+    els.flags.hidden = !flags.length && !owner;
     els.q.value = state.q;
   }
   function renderShelves() {
@@ -110,7 +114,7 @@
   function filter() {
     const terms = fold(state.q).split(/\s+/).filter(Boolean);
     visible = items.filter(i => (!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf) &&
-      [...state.flags].every(f => i.f && i.f.includes(f)) && (!state.hide || !isDone(i)) && terms.every(t => i._h.includes(t)));
+      [...state.flags].every(f => i.f && i.f.includes(f)) && (!owner || !state.hide || !isDone(i)) && terms.every(t => i._h.includes(t)));
     const sort = SORTS[state.sort];
     if (sort.cmp) visible = [...visible].sort(sort.cmp);
   }
@@ -121,7 +125,8 @@
     if (state.sort !== 'shelf' && i.s) where.push(splitShelf(i.s)[1]);
     if (i.u) where.push(i.u);
     const done = isDone(i);
-    const tags = (i.f || []).map(f => `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
+    const visibleFlags = new Set(shownFlags().map(([key]) => key));
+    const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
     if (done) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel)}</li>`);
     const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
     const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
@@ -235,7 +240,7 @@
   function setOwner(on) {
     owner = on;
     store.set(OWNER_KEY, on || null);
-    if (list) render();
+    if (list) { renderControls(); render(); writeUrl(); }
   }
   // Drop browser-held marks the published progress already matches.
   function prunePending() {

@@ -15,6 +15,7 @@
    "owned": "On my shelf",
    "star": "Vonnegut frequency"
   },
+  "privateFlags": [],
   "hasYear": false,
   "count": 1033
  },
@@ -33,6 +34,9 @@
   "flags": {
    "start": "Start here"
   },
+  "privateFlags": [
+   "start"
+  ],
   "hasYear": true,
   "count": 832
  },
@@ -54,6 +58,9 @@
    "start": "Start here",
    "path": "Artist path"
   },
+  "privateFlags": [
+   "start"
+  ],
   "hasYear": true,
   "count": 1716
  }

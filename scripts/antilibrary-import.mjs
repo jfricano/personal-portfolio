@@ -2,6 +2,7 @@
 // Usage: node scripts/antilibrary-import.mjs <source-folder>
 // A new list is one more entry in LISTS; sources that are missing are skipped.
 // Links and covers already found by antilibrary-lookup.mjs are kept.
+// Flags marked private only show in owner mode.
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 import path from 'node:path';
 import { root } from './build.mjs';
@@ -20,14 +21,14 @@ const LISTS = [
     fields: { title: 'title', creator: 'director', year: 'year', shelf: 'shelf', sub: 'section', note: 'note', done: 'watched' },
     creatorLabel: 'Director', shelfLabel: 'Shelf', doneLabel: 'Watched',
     search: 'https://en.wikipedia.org/w/index.php?search=', searchSuffix: 'film',
-    flags: { start: { field: 'start_here', label: 'Start here' } },
+    flags: { start: { field: 'start_here', label: 'Start here', private: true } },
   },
   {
     id: 'albums', label: 'Albums', noun: ['album', 'albums'], source: 'music.csv',
     fields: { title: 'album', creator: 'artist', year: 'year', group: 'part', shelf: 'section', sub: 'subsection', note: 'note', done: 'status' },
     creatorLabel: 'Artist', groupLabel: 'Part', shelfLabel: 'Shelf', doneLabel: 'Heard', cover: 'square',
     search: 'https://www.discogs.com/search/?type=all&q=', listen: 'https://open.spotify.com/search/',
-    flags: { start: { field: 'start_here', label: 'Start here' }, path: { field: 'artist_path', label: 'Artist path' } },
+    flags: { start: { field: 'start_here', label: 'Start here', private: true }, path: { field: 'artist_path', label: 'Artist path' } },
     // Artist paths name an artist rather than an album; a few rows carry a whole entry in the artist column.
     transform(r) {
       if (r.album === '(artist path)') return { ...r, album: r.artist, artist: '', artist_path: 'yes' };
@@ -94,6 +95,7 @@ for (const list of LISTS) {
   await writeFile(path.join(out, `${list.id}.json`), JSON.stringify(applyLookups(list.id, items, lookups)));
   const { source, fields: _, transform, ...meta } = list;
   manifest.push({ ...meta, flags: Object.fromEntries(Object.entries(list.flags).map(([key, flag]) => [key, flag.label])),
+    privateFlags: Object.keys(list.flags).filter(key => list.flags[key].private),
     hasYear: items.some(item => item.y), count: items.length });
   console.log(`Imported ${items.length} ${list.noun[1]}`);
 }
