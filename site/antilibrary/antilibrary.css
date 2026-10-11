@@ -61,6 +61,10 @@
 .al-item h3 a:hover .al-ext,.al-item h3 a:focus-visible .al-ext{opacity:1}
 .al-item h3{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.02em;line-height:1.2}
 .al-by{font-size:14px;margin-top:5px}
+.al-genres{font-size:12px;color:var(--rust);margin-top:4px;letter-spacing:.01em}
+.al-more{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:12px}
+.al-more a{color:var(--muted);text-underline-offset:3px}
+.al-more a:hover{color:var(--rust)}
 .al-note{font-size:15px;color:var(--muted);line-height:1.5}
 .al-where{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:8px}
 .al-tags{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px}

@@ -26,7 +26,7 @@ const LISTS = [
     id: 'albums', label: 'Albums', noun: ['album', 'albums'], source: 'music.csv',
     fields: { title: 'album', creator: 'artist', year: 'year', group: 'part', shelf: 'section', sub: 'subsection', note: 'note', done: 'status' },
     creatorLabel: 'Artist', groupLabel: 'Part', shelfLabel: 'Shelf', doneLabel: 'Heard', cover: 'square',
-    search: 'https://en.wikipedia.org/w/index.php?search=', searchSuffix: 'album',
+    search: 'https://www.discogs.com/search/?type=all&q=', listen: 'https://open.spotify.com/search/',
     flags: { start: { field: 'start_here', label: 'Start here' }, path: { field: 'artist_path', label: 'Artist path' } },
     // Artist paths name an artist rather than an album; a few rows carry a whole entry in the artist column.
     transform(r) {

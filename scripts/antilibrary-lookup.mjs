@@ -18,16 +18,21 @@ export async function readLookups() {
   try { return JSON.parse(await readFile(cacheFile, 'utf8')); } catch { return {}; }
 }
 
-// Copies cached links (l) and images (i) onto items in place.
+// Copies cached links (l), images (i), and MusicBrainz details for music onto items in place:
+// the Discogs page becomes the link, with genres (k) and a Rate Your Music page (r) alongside.
 export function applyLookups(listId, items, lookups) {
   for (const item of items) {
-    const hit = lookups[lookupKey(listId, item)];
-    delete item.l; delete item.i;
+    const hit = lookups[lookupKey(listId, item)], details = lookups[detailsKey(listId, item)];
+    delete item.l; delete item.i; delete item.k; delete item.r;
     if (hit?.l) item.l = hit.l;
     if (hit?.i) item.i = hit.i;
+    if (details?.discogs) item.l = details.discogs;
+    if (details?.genres?.length) item.k = details.genres;
+    if (details?.rym) item.r = details.rym;
   }
   return items;
 }
+const detailsKey = (listId, item) => `${listId}-details|${item.t}|${item.c || ''}`;
 
 const fold = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
   .replace(/&/g, ' and ').replace(/\(.*?\)/g, ' ').replace(/[^a-z0-9 ]+/g, ' ').replace(/^\s*(the|a|an)\s+/, '').replace(/\s+/g, ' ').trim();
@@ -166,7 +171,25 @@ async function album(item) {
   return link || image ? { s: source, ...(link && { l: link }), ...(image && { i: image }) } : null;
 }
 
+// MusicBrainz knows each album's Discogs master page (every pressing grouped together), its
+// Rate Your Music page and its genres.
+async function musicbrainzDetails(item) {
+  const path = item.f?.includes('path'), kind = path ? 'artist' : 'release-group';
+  const q = path ? `artist:"${item.t}"` : `releasegroup:"${item.t.split(':')[0]}"${item.c ? ` AND artist:"${item.c.split(/\s*(?:&| and |,)\s*/)[0]}"` : ''}`;
+  const result = await musicbrainz(`https://musicbrainz.org/ws/2/${kind}/?${new URLSearchParams({ query: q, fmt: 'json', limit: '5' })}`);
+  const rows = (result[path ? 'artists' : 'release-groups'] || []).filter(r => r.score >= 85 && sameTitle(path ? r.name : r.title, item.t));
+  const match = rows.find(r => path || r['primary-type'] === 'Album') || rows[0];
+  if (!match) return null;
+  const detail = await musicbrainz(`https://musicbrainz.org/ws/2/${kind}/${match.id}?inc=url-rels+genres&fmt=json`);
+  const urls = (detail.relations || []).map(r => r.url?.resource || '');
+  const discogs = urls.find(u => /discogs\.com\/(master|artist|release)\//.test(u));
+  const rym = urls.find(u => /rateyourmusic\.com\//.test(u));
+  const genres = (detail.genres || []).sort((a, b) => b.count - a.count).slice(0, 3).map(g => g.name);
+  return { mb: `https://musicbrainz.org/${kind}/${match.id}`, ...(discogs && { discogs }), ...(rym && { rym }), genres };
+}
+
 const FINDERS = { books: book, films: film, albums: album };
+const DETAILS = { albums: musicbrainzDetails };
 const LIMITS = { books: 2, films: 4, albums: 3 };
 
 async function run() {
@@ -191,6 +214,16 @@ async function run() {
         if (Date.now() - saved > 30000) { saved = Date.now(); await save(); }
       }
     }));
+    const details = DETAILS[list.id];
+    if (details) {
+      const rest = items.filter(item => !(detailsKey(list.id, item) in lookups) || (retry && !lookups[detailsKey(list.id, item)]));
+      console.log(`${list.id}: fetching MusicBrainz details for ${rest.length}`);
+      for (const item of rest) {
+        try { lookups[detailsKey(list.id, item)] = await details(item); }
+        catch (error) { failed++; console.warn(error.message); }
+        if (Date.now() - saved > 30000) { saved = Date.now(); await save(); }
+      }
+    }
     await writeFile(file, JSON.stringify(applyLookups(list.id, items, lookups)));
     const found = items.filter(item => item.l).length, covers = items.filter(item => item.i).length;
     console.log(`${list.id}: ${found} linked, ${covers} with covers, ${failed} requests failed`);

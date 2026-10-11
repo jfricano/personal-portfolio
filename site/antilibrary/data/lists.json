@@ -48,8 +48,8 @@
   "shelfLabel": "Shelf",
   "doneLabel": "Heard",
   "cover": "square",
-  "search": "https://en.wikipedia.org/w/index.php?search=",
-  "searchSuffix": "album",
+  "search": "https://www.discogs.com/search/?type=all&q=",
+  "listen": "https://open.spotify.com/search/",
   "flags": {
    "start": "Start here",
    "path": "Artist path"
