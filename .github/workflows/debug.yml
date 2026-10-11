@@ -1,0 +1,19 @@
+name: debug
+on: push
+jobs:
+  d:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          cat > d.mjs <<'JS'
+          const UA='jfricano-antilibrary/1.0 (https://github.com/jfricano/personal-portfolio)';
+          const urls = [
+            'https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=American%20Beauty%201999%20film&gsrlimit=6&prop=pageimages%7Cdescription&piprop=thumbnail&pithumbsize=400&pilicense=any&redirects=1&origin=*',
+            'https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=Bob%20Dylan%20musician%20band&gsrlimit=6&prop=pageimages%7Cdescription&piprop=thumbnail&pithumbsize=400&pilicense=any&redirects=1&origin=*',
+            'https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=Alice%20Tom%20Waits%20album&gsrlimit=6&prop=pageimages%7Cdescription&piprop=thumbnail&pithumbsize=400&pilicense=any&redirects=1&origin=*',
+            'https://api.deezer.com/search/album?q=artist%3A%22Tom%20Waits%22%20album%3A%22Alice%22&limit=3',
+            'https://openlibrary.org/search.json?title=A%20Confession&author=tolstoy&limit=3&fields=key,title,author_name,cover_i',
+          ];
+          for (const u of urls) { const r = await fetch(u,{headers:{'User-Agent':UA}}); const t = await r.text(); console.log(`::warning::${r.status} ${t.slice(0,900).replace(/\n/g,' ')}`); }
+          JS
+          node d.mjs
