@@ -19,7 +19,7 @@
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
-  let progress = {}, pending = {}, owner = false;
+  let progress = {}, pending = {}, owner = false, picked = false;
   const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', flags: new Set(), hide: false });
   const state = { list: '', ...blank() };
 
@@ -65,13 +65,15 @@
   }
   function writeUrl() {
     const p = new URLSearchParams();
-    if (list && list.id !== lists[0].id) p.set('list', list.id);
     if (state.q) p.set('q', state.q);
     if (state.group) p.set('part', state.group);
     if (state.shelf) p.set('shelf', state.shelf);
     if (state.sort !== 'shelf') p.set('sort', state.sort);
     if (state.flags.size) p.set('only', [...state.flags].join(','));
     if (owner && state.hide) p.set('hide', '1');
+    // A visit with no list in the URL opens a random one. The list goes into the URL once someone
+    // picks a tab or narrows the view, so a shared link opens the same list.
+    if (list && (picked || p.size)) p.set('list', list.id);
     const query = p.toString();
     try { history.replaceState(null, '', query ? `?${query}` : location.pathname); } catch {}
   }
@@ -204,7 +206,8 @@
   }
 
   async function selectList(id, fromUrl) {
-    list = lists.find(l => l.id === id) || lists[0];
+    list = lists.find(l => l.id === id) || lists[Math.floor(Math.random() * lists.length)];
+    if (!fromUrl || lists.some(l => l.id === id)) picked = true;
     if (!fromUrl) Object.assign(state, blank());
     renderTabs();
     showArt();
