@@ -1,5 +1,6 @@
 // Finds a public page and cover image for each anti-library item, using keyless public APIs:
-// Open Library for books, Wikipedia for films, and Wikipedia plus Deezer artwork for music.
+// Open Library for books, Wikipedia for films. Music uses Wikipedia for the link and Deezer
+// for artwork, then MusicBrainz and the Cover Art Archive for anything still missing.
 // Results are cached in site/antilibrary/data/lookups.json so each title is looked up once.
 // Usage: node scripts/antilibrary-lookup.mjs [--retry]   (--retry re-checks titles with no match)
 import { readFile, writeFile } from 'node:fs/promises';
@@ -105,11 +106,37 @@ async function deezerArt(item) {
   return match && !/\/cover\/\//.test(match.cover_medium) ? { l: match.link, i: match.cover_medium } : match ? { l: match.link } : null;
 }
 
-// The Wikipedia page is the better link; Deezer has the more complete artwork.
+// MusicBrainz asks for at most one request per second.
+let musicbrainzQueue = Promise.resolve();
+const musicbrainz = url => (musicbrainzQueue = musicbrainzQueue.then(() => sleep(1100)).then(() => getJson(url)));
+
+async function musicbrainzArt(item) {
+  const path = item.f?.includes('path');
+  const q = path ? `artist:"${item.t}"` : `releasegroup:"${item.t.split(':')[0]}"${item.c ? ` AND artist:"${item.c.split(/\s*(?:&| and |,)\s*/)[0]}"` : ''}`;
+  const kind = path ? 'artist' : 'release-group';
+  const result = await musicbrainz(`https://musicbrainz.org/ws/2/${kind}/?${new URLSearchParams({ query: q, fmt: 'json', limit: '5' })}`);
+  const rows = result[path ? 'artists' : 'release-groups'] || [];
+  const match = rows.find(r => r.score >= 85 && sameTitle(path ? r.name : r.title, item.t));
+  if (!match) return null;
+  const hit = { l: `https://musicbrainz.org/${kind}/${match.id}` };
+  if (!path) {
+    const cover = `https://coverartarchive.org/release-group/${match.id}/front-250`;
+    const response = await fetch(cover, { method: 'HEAD', redirect: 'follow', headers: { 'User-Agent': UA } }).catch(() => null);
+    if (response?.ok) hit.i = cover;
+  }
+  return hit;
+}
+
+// The Wikipedia page is the better link; Deezer has the more complete artwork; MusicBrainz fills gaps.
 async function album(item) {
-  const [wiki, art] = await Promise.all([wikipediaAlbum(item), deezerArt(item).catch(error => { console.warn(error.message); return null; })]);
-  if (!wiki && !art) return null;
-  return { s: wiki ? 'wikipedia' : 'deezer', l: wiki?.l || art.l, ...((art?.i || wiki?.i) && { i: art?.i || wiki.i }) };
+  const quiet = promise => promise.catch(error => { console.warn(error.message); return null; });
+  const [wiki, art] = await Promise.all([wikipediaAlbum(item), quiet(deezerArt(item))]);
+  let link = wiki?.l || art?.l, image = art?.i || wiki?.i, source = wiki ? 'wikipedia' : art ? 'deezer' : '';
+  if (!image || !link) {
+    const brainz = await quiet(musicbrainzArt(item));
+    if (brainz) { link ||= brainz.l; image ||= brainz.i; source ||= 'musicbrainz'; }
+  }
+  return link || image ? { s: source, ...(link && { l: link }), ...(image && { i: image }) } : null;
 }
 
 const FINDERS = { books: book, films: film, albums: album };
