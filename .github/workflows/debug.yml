@@ -7,7 +7,8 @@ jobs:
       - run: |
           cat > d.mjs <<'JS'
           const UA='jfricano-antilibrary/1.0 (https://github.com/jfricano/personal-portfolio)';
-          const get = async u => { const r = await fetch(u,{headers:{'User-Agent':UA,Accept:'application/json'}}); await new Promise(r=>setTimeout(r,1100)); return r.json(); };
+          const get = async u => { await new Promise(r=>setTimeout(r,1500)); const r = await fetch(u,{headers:{'User-Agent':UA,Accept:'application/json'}}); const t = await r.text(); try { return JSON.parse(t); } catch { console.log(`::warning::bad ${r.status} ${u} ${t.slice(0,300).replace(/\n/g,' ')}`); return {}; } };
+          process.on('unhandledRejection', e => { console.log(`::warning::err ${e && e.stack}`.slice(0,900).replace(/\n/g,' ')); process.exit(0); });
           const s = await get('https://musicbrainz.org/ws/2/release-group/?query=' + encodeURIComponent('releasegroup:"Rain Dogs" AND artist:"Tom Waits"') + '&fmt=json&limit=2');
           const rg = s['release-groups'][0];
           console.log(`::warning::search ${JSON.stringify(rg).slice(0,700)}`);
