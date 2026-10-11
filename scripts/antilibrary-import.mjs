@@ -1,28 +1,47 @@
 // Normalizes anti-library source lists into site/antilibrary/data/.
 // Usage: node scripts/antilibrary-import.mjs <source-folder>
 // A new list is one more entry in LISTS; sources that are missing are skipped.
+// Links and covers already found by antilibrary-lookup.mjs are kept.
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 import path from 'node:path';
 import { root } from './build.mjs';
+import { readLookups, applyLookups } from './antilibrary-lookup.mjs';
 
 const LISTS = [
   {
     id: 'books', label: 'Books', noun: ['book', 'books'], source: 'anti-library.json',
     fields: { title: 'title', creator: 'author', group: 'part', shelf: 'section', note: 'hook' },
     creatorLabel: 'Author', groupLabel: 'Part', shelfLabel: 'Section', doneLabel: 'Read',
+    search: 'https://openlibrary.org/search?q=',
     flags: { owned: { field: 'owned', label: 'On my shelf' }, star: { field: 'star', label: 'Vonnegut frequency' } },
   },
   {
     id: 'films', label: 'Films', noun: ['film', 'films'], source: 'movies.csv',
     fields: { title: 'title', creator: 'director', year: 'year', shelf: 'shelf', sub: 'section', note: 'note', done: 'watched' },
     creatorLabel: 'Director', shelfLabel: 'Shelf', doneLabel: 'Watched',
+    search: 'https://en.wikipedia.org/w/index.php?search=', searchSuffix: 'film',
     flags: { start: { field: 'start_here', label: 'Start here' } },
   },
   {
-    id: 'albums', label: 'Albums', noun: ['album', 'albums'], source: 'albums.csv',
-    fields: { title: 'title', creator: 'artist', year: 'year', shelf: 'shelf', sub: 'section', note: 'note', done: 'heard' },
-    creatorLabel: 'Artist', shelfLabel: 'Shelf', doneLabel: 'Heard',
-    flags: { start: { field: 'start_here', label: 'Start here' } },
+    id: 'albums', label: 'Albums', noun: ['album', 'albums'], source: 'music.csv',
+    fields: { title: 'album', creator: 'artist', year: 'year', shelf: 'section', sub: 'subsection', note: 'note', done: 'heard' },
+    creatorLabel: 'Artist', shelfLabel: 'Shelf', doneLabel: 'Heard', cover: 'square',
+    search: 'https://en.wikipedia.org/w/index.php?search=', searchSuffix: 'album',
+    flags: { start: { field: 'start_here', label: 'Start here' }, path: { field: 'artist_path', label: 'Artist path' } },
+    // Artist paths name an artist rather than an album; a few rows carry a whole entry in the artist column.
+    transform(r) {
+      if (r.album === '(artist path)') return { ...r, album: r.artist, artist: '', artist_path: 'yes' };
+      if (!r.album && r.artist) {
+        let artist = '', text = r.artist;
+        const dash = text.split(' — ');
+        if (dash.length > 1) [artist, text] = [dash[0], dash.slice(1).join(' — ')];
+        const m = /^(.+?)\s*(soundtrack)?\s*\(([^)]*?(\d{4})[^)]*)\)\.?\s*(.*)$/.exec(text);
+        if (m) return { ...r, album: m[1], artist, year: m[4], note: [m[2] && 'Soundtrack.', m[5]].filter(Boolean).join(' ') };
+        const [title, ...rest] = text.split('. ');
+        return { ...r, album: title, artist, note: rest.join('. ') };
+      }
+      return r;
+    },
   },
 ];
 
@@ -47,18 +66,19 @@ function parseCsv(text) {
 }
 
 const truthy = value => value === true || /^(yes|y|x|true|1|✓|★)$/i.test(String(value ?? '').trim());
-const clean = value => String(value ?? '').trim();
+const clean = value => String(value ?? '').replace(/\*/g, '').trim();
 
 const sourceDir = process.argv[2];
 if (!sourceDir) { console.error('Usage: node scripts/antilibrary-import.mjs <source-folder>'); process.exit(1); }
 const out = path.join(root, 'site/antilibrary/data');
 await mkdir(out, { recursive: true });
 const manifest = [];
+const lookups = await readLookups();
 for (const list of LISTS) {
   const file = path.join(sourceDir, list.source);
   try { await access(file); } catch { console.log(`Skipped ${list.id}: no ${list.source}`); continue; }
   const text = await readFile(file, 'utf8');
-  const records = list.source.endsWith('.json') ? JSON.parse(text) : parseCsv(text);
+  const records = (list.source.endsWith('.json') ? JSON.parse(text) : parseCsv(text)).map(r => list.transform ? list.transform(r) : r);
   const { fields } = list;
   const items = records.filter(r => clean(r[fields.title])).map(r => {
     const item = { t: clean(r[fields.title]) };
@@ -71,8 +91,8 @@ for (const list of LISTS) {
     if (fields.done && truthy(r[fields.done])) item.d = 1;
     return item;
   });
-  await writeFile(path.join(out, `${list.id}.json`), JSON.stringify(items));
-  const { source, fields: _, ...meta } = list;
+  await writeFile(path.join(out, `${list.id}.json`), JSON.stringify(applyLookups(list.id, items, lookups)));
+  const { source, fields: _, transform, ...meta } = list;
   manifest.push({ ...meta, flags: Object.fromEntries(Object.entries(list.flags).map(([key, flag]) => [key, flag.label])),
     hasYear: items.some(item => item.y), count: items.length });
   console.log(`Imported ${items.length} ${list.noun[1]}`);

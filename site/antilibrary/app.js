@@ -99,7 +99,12 @@
     if (i.u) where.push(i.u);
     const tags = (i.f || []).map(f => `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
     if (i.d) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel || 'Done')}</li>`);
-    return `<article class="al-item" id="item-${i._id}" tabindex="-1"><div class="al-item-head"><h3>${esc(i.t)}</h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>` +
+    const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
+    const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
+    const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
+    return `<article class="al-item" id="item-${i._id}" tabindex="-1">` +
+      `<a class="al-cover" href="${esc(href)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
+      `<div class="al-item-head"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>` +
       `<div class="al-item-body">${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
   }
@@ -138,6 +143,7 @@
     list = lists.find(l => l.id === id) || lists[0];
     if (!fromUrl) Object.assign(state, { q: '', group: '', shelf: '', sort: 'shelf', flags: new Set() });
     renderTabs();
+    els.results.dataset.cover = list.cover || 'tall';
     els.count.textContent = 'Loading the shelves…';
     if (!cache[list.id]) {
       const response = await fetch(`data/${encodeURIComponent(list.id)}.json`);
@@ -153,6 +159,9 @@
     render();
     writeUrl();
   }
+
+  // A cover that fails to load leaves the lettered placeholder showing.
+  els.results.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, true);
 
   let timer;
   els.q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { state.q = els.q.value.trim(); render(); writeUrl(); }, 120); });

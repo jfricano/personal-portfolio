@@ -10,6 +10,7 @@
   "groupLabel": "Part",
   "shelfLabel": "Section",
   "doneLabel": "Read",
+  "search": "https://openlibrary.org/search?q=",
   "flags": {
    "owned": "On my shelf",
    "star": "Vonnegut frequency"
@@ -27,10 +28,32 @@
   "creatorLabel": "Director",
   "shelfLabel": "Shelf",
   "doneLabel": "Watched",
+  "search": "https://en.wikipedia.org/w/index.php?search=",
+  "searchSuffix": "film",
   "flags": {
    "start": "Start here"
   },
   "hasYear": true,
   "count": 832
+ },
+ {
+  "id": "albums",
+  "label": "Albums",
+  "noun": [
+   "album",
+   "albums"
+  ],
+  "creatorLabel": "Artist",
+  "shelfLabel": "Shelf",
+  "doneLabel": "Heard",
+  "cover": "square",
+  "search": "https://en.wikipedia.org/w/index.php?search=",
+  "searchSuffix": "album",
+  "flags": {
+   "start": "Start here",
+   "path": "Artist path"
+  },
+  "hasYear": true,
+  "count": 1586
  }
 ]
