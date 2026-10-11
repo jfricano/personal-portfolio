@@ -98,3 +98,9 @@ Verification: npm run check passes146 references across10pages; git diff --check
 Independent read-only review by actual agent /root/v1_review found no material findings, verified12source references/anchors and dimensions, and checked claims against current app records. Reviewer performed no browser, app or hardware checks.
 
 PR #10 was already merged at84561e3. New branch codex/statbatt-case-study starts at that main baseline. The four earlier custom-domain edits remain unstaged. Prepare a fresh PR for owner acceptance; no merge, deployment, new cost or monitoring initiated.
+
+## Anti-library editorial art — October 11, 2026
+
+Branch `codex/antilibrary-art`, based on PR #21's `claude/antilibrary-page` at `729f07d`. Added three original gouache illustrations derived stylistically from the existing attention still life: books, film reel, and vinyl record. The existing tab-specific image loader selects the new JPEGs. The art slot now contains the full composition, capped at 340px tall on desktop and 3:2 on mobile. Original PNGs and prompts are retained in [artwork/antilibrary/README.md](artwork/antilibrary/README.md); originals stay out of the deployment build.
+
+Verification: `npm run check` passed 202 checks across 13 pages. Browser inspection confirmed all three tab selections load the correct 1536×1024 image, full compositions on desktop/mobile, and no horizontal overflow at 390px and 320px. Screenshot: [films preview](verification/previews/antilibrary-art.jpg). No application logic or data changed; native screen-reader/zoom testing was not performed. Source is prepared for review, not deployed. This PR targets the PR #21 branch to keep artwork separate from the page implementation. Jason retains merge authority. The shared checkout and its unrelated changes were untouched.
