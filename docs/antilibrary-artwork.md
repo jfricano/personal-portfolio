@@ -8,9 +8,8 @@ Each list on `/antilibrary/` shows a header image between the list tabs and the 
 | Films  | `films.jpg`  |
 | Albums | `albums.jpg` |
 
-- **Size:** 2640 × 880 px (3:1), which covers the 1320 px content width on high-density screens.
-- **Phones:** the same image is cropped to 2:1 around the center, so keep the main subject inside the middle 1760 × 880 px.
-- **Format:** JPEG, sRGB, about 300 KB or less. The page's paper color is `#f5f0e7` if the art should bleed into it.
+- **Size:** the current set is 1536 × 1024 px (3:2). The slot shows the whole image, never cropped: up to 340 px tall on desktop, and at 3:2 on phones.
+- **Format:** JPEG, sRGB. The page's paper color is `#f5f0e7`, and the image is multiplied onto it, so a cream background blends in.
 - **No text in the image**, since the list name is already in the tab above it.
 
-Put the files in `site/antilibrary/art/` and open a PR; nothing else needs to change.
+Originals and generation prompts are in `artwork/antilibrary/`. To replace an image, put the new file in `site/antilibrary/art/` and open a PR; nothing else needs to change.
