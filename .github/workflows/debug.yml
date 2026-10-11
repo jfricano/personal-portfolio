@@ -7,13 +7,16 @@ jobs:
       - run: |
           cat > d.mjs <<'JS'
           const UA='jfricano-antilibrary/1.0 (https://github.com/jfricano/personal-portfolio)';
-          const urls = [
-            'https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=American%20Beauty%201999%20film&gsrlimit=6&prop=pageimages%7Cdescription&piprop=thumbnail&pithumbsize=400&pilicense=any&redirects=1&origin=*',
-            'https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=Bob%20Dylan%20musician%20band&gsrlimit=6&prop=pageimages%7Cdescription&piprop=thumbnail&pithumbsize=400&pilicense=any&redirects=1&origin=*',
-            'https://en.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&generator=search&gsrsearch=Alice%20Tom%20Waits%20album&gsrlimit=6&prop=pageimages%7Cdescription&piprop=thumbnail&pithumbsize=400&pilicense=any&redirects=1&origin=*',
-            'https://api.deezer.com/search/album?q=artist%3A%22Tom%20Waits%22%20album%3A%22Alice%22&limit=3',
-            'https://openlibrary.org/search.json?title=A%20Confession&author=tolstoy&limit=3&fields=key,title,author_name,cover_i',
-          ];
-          for (const u of urls) { const r = await fetch(u,{headers:{'User-Agent':UA}}); const t = await r.text(); console.log(`::warning::${r.status} ${t.slice(0,900).replace(/\n/g,' ')}`); }
+          const get = async u => { const r = await fetch(u,{headers:{'User-Agent':UA,Accept:'application/json'}}); await new Promise(r=>setTimeout(r,1100)); return r.json(); };
+          const s = await get('https://musicbrainz.org/ws/2/release-group/?query=' + encodeURIComponent('releasegroup:"Rain Dogs" AND artist:"Tom Waits"') + '&fmt=json&limit=2');
+          const rg = s['release-groups'][0];
+          console.log(`::warning::search ${JSON.stringify(rg).slice(0,700)}`);
+          const d = await get(`https://musicbrainz.org/ws/2/release-group/${rg.id}?inc=url-rels+genres&fmt=json`);
+          console.log(`::warning::detail ${JSON.stringify({t:d.title,date:d['first-release-date'],type:d['primary-type'],sec:d['secondary-types'],genres:d.genres,rels:(d.relations||[]).map(r=>[r.type,r.url&&r.url.resource])}).slice(0,1500)}`);
+          const a = await get('https://musicbrainz.org/ws/2/artist/?query=' + encodeURIComponent('artist:"Bob Dylan"') + '&fmt=json&limit=1');
+          const ad = await get(`https://musicbrainz.org/ws/2/artist/${a.artists[0].id}?inc=url-rels+genres&fmt=json`);
+          console.log(`::warning::artist ${JSON.stringify({genres:ad.genres.slice(0,6),rels:(ad.relations||[]).filter(r=>/discogs|wikipedia|wikidata/.test(r.url.resource)).map(r=>[r.type,r.url.resource])})}`);
+          const c = await get('https://musicbrainz.org/ws/2/release-group/?query=' + encodeURIComponent('releasegroup:"Goldberg Variations" AND artist:"Glenn Gould"') + '&fmt=json&limit=3');
+          for (const x of c['release-groups']) { const dd = await get(`https://musicbrainz.org/ws/2/release-group/${x.id}?inc=url-rels+genres&fmt=json`); console.log(`::warning::classical ${x.score} ${x.title} ${dd['first-release-date']} ${(dd.relations||[]).map(r=>r.url.resource).join(' ')}`); }
           JS
           node d.mjs
