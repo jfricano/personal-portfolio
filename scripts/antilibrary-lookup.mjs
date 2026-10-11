@@ -50,43 +50,70 @@ async function getJson(url, headers = {}) {
   throw Error(`Gave up on ${url}`);
 }
 
-async function book(item) {
-  const params = new URLSearchParams({ title: item.t.split(':')[0], limit: '8', fields: 'key,title,author_name,cover_i,edition_count' });
-  const author = item.c && !/various|anonymous/i.test(item.c) ? surname(item.c) : '';
-  if (author) params.set('author', author);
+async function openLibrary(item, params) {
   const { docs = [] } = await getJson(`https://openlibrary.org/search.json?${params}`);
-  const matches = docs.filter(d => sameTitle(d.title, item.t) && (!author || (d.author_name || []).some(a => fold(a).includes(author))));
-  const doc = matches.find(d => d.cover_i) || matches[0];
+  const matches = docs.filter(d => sameTitle(d.title, item.t));
+  const exact = matches.filter(d => short(d.title) === short(item.t));
+  const doc = exact[0] || matches[0];
   if (!doc) return null;
-  return { s: 'openlibrary', l: `https://openlibrary.org${doc.key}`, ...(doc.cover_i && { i: `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` }) };
+  const cover = (exact.find(d => d.cover_i) || matches.find(d => d.cover_i))?.cover_i;
+  return { s: 'openlibrary', l: `https://openlibrary.org${doc.key}`, ...(cover && { i: `https://covers.openlibrary.org/b/id/${cover}-M.jpg` }) };
 }
 
-async function wikipedia(query, accept) {
+async function book(item) {
+  const title = item.t.replace(/\(.*?\)/g, '').split(':')[0].trim();
+  const fields = 'key,title,author_name,cover_i';
+  const author = item.c && !/various|anonymous|et al/i.test(item.c) ? surname(item.c) : '';
+  // The author filter runs on Open Library's side, which also knows names written in other scripts.
+  const hit = await openLibrary(item, new URLSearchParams({ title, ...(author && { author }), limit: '8', fields }))
+    || await openLibrary(item, new URLSearchParams({ q: `${title} ${item.c || ''}`, limit: '8', fields }));
+  if (hit?.i) return hit;
+  const wiki = await wikipedia(`${title} ${item.c || ''} book`, p => sameTitle(p.title, item.t) &&
+    /book|novel|novella|essay|poem|poetry|treatise|memoir|collection|play|text|work|dialogue|epic|scripture|manifesto|autobiography|biography|non-fiction/i.test(p.description || ''));
+  return hit ? { ...hit, ...(wiki?.i && { i: wiki.i }) } : wiki;
+}
+
+async function wikipedia(query, accept, fallback = () => null) {
   const params = new URLSearchParams({ action: 'query', format: 'json', formatversion: '2', generator: 'search', gsrsearch: query, gsrlimit: '6',
     prop: 'pageimages|description', piprop: 'thumbnail', pithumbsize: '400', pilicense: 'any', redirects: '1', origin: '*' });
   const { query: result } = await getJson(`https://en.wikipedia.org/w/api.php?${params}`);
-  const page = (result?.pages || []).sort((a, b) => a.index - b.index).find(accept);
+  const page = (result?.pages || []).sort((a, b) => a.index - b.index).find(accept) || fallback();
   if (!page) return null;
   return { s: 'wikipedia', l: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`, ...(page.thumbnail && { i: page.thumbnail.source }) };
 }
-const nearYear = (description, year) => !year || [year - 1, year, year + 1].some(y => description.includes(String(y)));
-
-const film = item => wikipedia(`${item.t} ${item.y || ''} film`, p => {
-  const d = p.description || '';
-  return sameTitle(p.title, item.t) && /film|documentary|miniseries|series|anime/i.test(d) && nearYear(d, item.y);
-});
+const nearYear = (text, year) => [year - 1, year, year + 1].some(y => text.includes(String(y)));
+// Wikipedia descriptions often leave out the year, so a page naming the right year wins and a
+// plain title match is the fallback.
+async function film(item) {
+  const isFilm = p => sameTitle(p.title, item.t) && /film|documentary|miniseries|series|anime|movie/i.test(p.description || '');
+  let pick = null;
+  const hit = await wikipedia(`${item.t} ${item.y || ''} film`, p => {
+    if (!isFilm(p)) return false;
+    const dated = !item.y || nearYear(`${p.title} ${p.description}`, item.y);
+    const otherYear = /\b(18|19|20)\d\d\b/.test(`${p.title} ${p.description}`);
+    if (dated) return true;
+    if (!otherYear && !pick) pick = p;
+    return false;
+  }, () => pick);
+  return hit;
+}
 
 function wikipediaAlbum(item) {
   if (item.f?.includes('path')) {
-    return wikipedia(`${item.t} musician band`, p => sameTitle(p.title, item.t) &&
-      /band|musician|singer|rapper|composer|group|songwriter|artist|duo|pianist|saxophonist|trumpeter|guitarist|producer|DJ|ensemble|orchestra/i.test(p.description || ''));
+    return wikipedia(item.t, p => sameTitle(p.title, item.t) &&
+      /band|musician|singer|rapper|composer|group|songwriter|artist|duo|pianist|saxophonist|trumpeter|guitarist|producer|DJ|ensemble|orchestra|poet|conductor|vocalist/i.test(p.description || ''));
   }
   const artist = surname(item.c);
+  const musical = /album|soundtrack|compilation|\bEP\b|recording|record|live|composition|symphony|concerto|opera|requiem|ballet|suite|sonata|oratorio|mass|score|work by/i;
+  let pick = null;
   return wikipedia(`${item.t} ${item.c || ''} album`, p => {
     const d = p.description || '';
-    return sameTitle(p.title, item.t) && /album|soundtrack|compilation|\bEP\b|recording|record|live/i.test(d) &&
-      (!artist || fold(d).includes(artist) || fold(p.title).includes(artist));
-  });
+    if (!sameTitle(p.title, item.t) || !musical.test(d)) return false;
+    if (!artist || fold(d).includes(artist) || p.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').includes(artist)) return true;
+    // A description without any artist ("14th studio album") is a fallback, never one naming someone else.
+    if (!pick && !/\bby\b/i.test(d) && !/\(.*\)/.test(p.title.replace(/\((album|EP|soundtrack)\)/i, ''))) pick = p;
+    return false;
+  }, () => pick);
 }
 
 async function deezer(kind, q) {
