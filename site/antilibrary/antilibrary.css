@@ -72,6 +72,8 @@
 .al-tag{font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);white-space:nowrap}
 .al-tag-star{color:var(--rust);border-color:var(--rust)}
 .al-tag-star:before{content:'★ '}
+.al-tag-core{color:var(--ink);border-color:var(--ink);font-weight:600}
+.al-tag-core:before{content:'↻ '}
 .al-tag-owned{background:var(--lavender);border-color:var(--lavender)}
 .al-tag-start{color:var(--rust);border-color:var(--rust)}
 .al-tag-formative{color:var(--rust);border-color:var(--rust);font-weight:600}

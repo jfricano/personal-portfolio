@@ -21,7 +21,7 @@ for (const file of pages) {
   if (new Set(ids).size !== ids.length) throw Error(`${name}: duplicate IDs`);
   for (const [, value] of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
     if (/^(https:|mailto:|data:)/.test(value)) continue;
-    const [target, anchor] = value.split('#');
+    const [target, anchor] = value.replace(/\?[^#]*/, '').split('#');
     const destination = target ? path.resolve(path.dirname(file), target) : file;
     if (!destination.startsWith(directory + path.sep)) throw Error(`${name}: outside build ${value}`);
     await stat(destination);
