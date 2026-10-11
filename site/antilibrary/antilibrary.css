@@ -88,7 +88,7 @@
 .al-credit{font-size:12px;color:var(--muted);padding-top:40px}
 .al-link{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer;margin-left:6px}
 .al-link:hover{color:var(--rust)}
-.al-link:focus-visible,.al-mark:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
+.al-link:focus-visible,.al-mark:focus-visible,.al-remove:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
 
 /* Finished titles stay on the shelf, struck through. */
 .al-done h3 a{text-decoration:line-through;text-decoration-thickness:1px;color:var(--muted)}
@@ -98,6 +98,12 @@
 .al-mark[aria-pressed=true]{background:var(--ink);color:var(--paper)}
 .al-mark.al-unsent{border-style:dashed}
 .al-mark:disabled{opacity:.5;cursor:default}
+.al-owner-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.al-owner-actions .al-mark{margin-top:0}
+.al-remove{font:inherit;font-size:12px;background:none;border:1px solid var(--rust);color:var(--rust);padding:5px 11px;cursor:pointer;min-height:32px}
+.al-remove.al-unsent{border-style:dashed}
+.al-removing{opacity:.55}
+.al-removing h3 a{text-decoration:line-through}
 .al-owner-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:16px;padding:12px 16px;background:var(--lavender);font-size:14px}
 .al-owner-bar a.al-button{text-decoration:none;display:inline-flex;align-items:center}
 .al-owner-bar a.al-button:hover{color:var(--paper)}

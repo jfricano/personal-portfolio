@@ -19,7 +19,7 @@
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
-  let progress = {}, pending = {}, owner = false, picked = false;
+  let progress = {}, removed = {}, pending = {}, owner = false, picked = false;
   const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', flags: new Set(), hide: false });
   const state = { list: '', ...blank() };
 
@@ -35,9 +35,11 @@
   };
   const itemKey = i => `${i.t}|${i.c || ''}`;
   const pendingFor = i => pending[list.id]?.[itemKey(i)];
+  const REMOVE = 'remove';
+  const isRemoving = i => pendingFor(i) === REMOVE;
   const isDone = i => {
     const mark = pendingFor(i);
-    return Boolean(i.d || (mark !== undefined ? mark : progress[list.id]?.[itemKey(i)]));
+    return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
   };
   // Flags such as "Start here" are Jason's own and only show in owner mode.
   const shownFlags = () => Object.entries(list.flags).filter(([key]) => owner || !(list.privateFlags || []).includes(key));
@@ -140,8 +142,10 @@
     const extra = [i.r && `<a href="${esc(i.r)}" target="_blank" rel="noopener noreferrer">Rate Your Music ↗</a>`,
       list.listen && `<a href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`].filter(Boolean);
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
-    const mark = owner ? `<button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` : '';
-    return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
+    const removing = owner && isRemoving(i);
+    const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined && !removing ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d || removing ? ` disabled title="${removing ? 'Set to be removed' : 'Marked in the source list'}"` : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
+      `<button type="button" class="al-remove${removing ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${removing}">${removing ? 'Keep' : 'Remove'}</button></span>` : '';
+    return `<article class="al-item${done ? ' al-done' : ''}${removing ? ' al-removing' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}${genres}${more}${mark}</div>` +
       `<div class="al-item-body">${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
@@ -227,7 +231,7 @@
     const count = pendingCount();
     els.ownerText.textContent = count
       ? `${number(count)} ${count === 1 ? 'change is' : 'changes are'} saved in this browser and not yet on the site.`
-      : 'Mark titles as you finish them, then send the changes to the site.';
+      : 'Mark titles as you finish them or remove ones you no longer want, then send the changes to the site.';
     els.send.hidden = els.discard.hidden = !count;
     if (count) els.send.href = issueUrl();
   }
@@ -237,7 +241,7 @@
       const meta = lists.find(l => l.id === listId);
       for (const [key, value] of Object.entries(marks)) {
         const [title, creator] = key.split('|');
-        lines.push(`- ${value ? meta.doneLabel : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
+        lines.push(`- ${value === REMOVE ? 'Remove from the list' : value ? meta.doneLabel : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
       }
     }
     const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the site.\n\n\`\`\`json\n${JSON.stringify(pending)}\n\`\`\`\n`;
@@ -249,24 +253,31 @@
     store.set(OWNER_KEY, on || null);
     if (list) { renderControls(); render(); writeUrl(); }
   }
-  // Drop browser-held marks the published progress already matches.
+  // Drop browser-held marks the published data already matches (a removal is published once removed.json lists it).
   function prunePending() {
     for (const [listId, marks] of Object.entries(pending)) {
-      for (const [key, value] of Object.entries(marks)) if (Boolean(progress[listId]?.[key]) === Boolean(value)) delete marks[key];
+      for (const [key, value] of Object.entries(marks)) {
+        if (value === REMOVE ? removed[listId]?.[key] : Boolean(progress[listId]?.[key]) === Boolean(value)) delete marks[key];
+      }
       if (!Object.keys(marks).length) delete pending[listId];
     }
     store.set(PENDING_KEY, Object.keys(pending).length ? pending : null);
   }
   els.results.addEventListener('click', event => {
-    const button = event.target.closest('.al-mark');
+    const button = event.target.closest('.al-mark, .al-remove');
     if (!button || !owner) return;
     const key = button.dataset.key, item = items.find(i => itemKey(i) === key);
-    const next = !isDone(item);
     pending[list.id] ??= {};
-    pending[list.id][key] = next ? new Date().toISOString().slice(0, 10) : null;
+    if (button.classList.contains('al-remove')) {
+      if (isRemoving(item)) delete pending[list.id][key];
+      else pending[list.id][key] = REMOVE;
+    } else {
+      pending[list.id][key] = !isDone(item) ? new Date().toISOString().slice(0, 10) : null;
+    }
     prunePending();
+    const cls = button.classList.contains('al-remove') ? '.al-remove' : '.al-mark';
     button.closest('.al-item').outerHTML = itemHtml(item);
-    $(`item-${item._id}`).querySelector('.al-mark').focus();
+    $(`item-${item._id}`).querySelector(cls).focus();
     const finished = items.filter(isDone).length;
     els.count.textContent = els.count.textContent.replace(/(, [\d,]+ \w+)?\.$/, finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
     renderOwnerBar();
@@ -288,7 +299,7 @@
         const all = await loadItems(meta.id);
         const saved = list;
         list = meta;
-        const rows = all.map(i => {
+        const rows = all.filter(i => pending[meta.id]?.[itemKey(i)] !== REMOVE).map(i => {
           const mark = pending[meta.id]?.[itemKey(i)], date = mark !== undefined ? mark : progress[meta.id]?.[itemKey(i)];
           return {
             ...(meta.groupLabel && { [meta.groupLabel]: i.g || '' }),
@@ -359,9 +370,10 @@
   Promise.all([
     fetch(`${DATA}lists.json`).then(r => r.json()),
     fetch(`${DATA}progress.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
-  ]).then(([data, done]) => {
+    fetch(`${DATA}removed.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
+  ]).then(([data, done, gone]) => {
     lists = data.filter(l => /^https:\/\//.test(l.search));
     lists.forEach(l => { if (l.listen && !/^https:\/\//.test(l.listen)) delete l.listen; });
-    progress = done; prunePending(); return selectList(state.list, true);
+    progress = done; removed = gone; prunePending(); return selectList(state.list, true);
   }).catch(() => { els.count.textContent = 'The shelves could not be loaded. Try refreshing the page.'; });
 })();
