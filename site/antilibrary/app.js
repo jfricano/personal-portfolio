@@ -168,6 +168,16 @@
     els.results.innerHTML = html;
   }
 
+  // Header art for each list lives at art/<list id>.jpg; the slot stays hidden until a file exists.
+  function showArt() {
+    const figure = $('al-art'), image = $('al-art-img');
+    figure.hidden = true;
+    image.onload = () => { if (image.dataset.list === list.id) figure.hidden = false; };
+    image.onerror = () => { figure.hidden = true; };
+    image.dataset.list = list.id;
+    image.src = `art/${encodeURIComponent(list.id)}.jpg`;
+  }
+
   async function loadItems(id) {
     if (!cache[id]) {
       const data = await fetch(`data/${encodeURIComponent(id)}.json`).then(r => r.json());
@@ -184,6 +194,7 @@
     list = lists.find(l => l.id === id) || lists[0];
     if (!fromUrl) Object.assign(state, blank());
     renderTabs();
+    showArt();
     els.results.dataset.cover = list.cover || 'tall';
     els.count.textContent = 'Loading the shelves…';
     items = await loadItems(list.id);
