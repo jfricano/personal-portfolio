@@ -321,8 +321,10 @@
   });
   els.reset.addEventListener('click', () => { Object.assign(state, blank()); renderControls(); render(); writeUrl(); });
   els.random.addEventListener('click', () => {
-    if (!visible.length) return;
-    const pick = visible[Math.floor(Math.random() * visible.length)];
+    // Finished titles are skipped unless nothing else is left in view.
+    const pool = visible.filter(i => !isDone(i)).length ? visible.filter(i => !isDone(i)) : visible;
+    if (!pool.length) return;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
     document.querySelectorAll('.al-picked').forEach(el => el.classList.remove('al-picked'));
     const el = $(`item-${pick._id}`);
     el.classList.add('al-picked');
