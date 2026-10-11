@@ -25,7 +25,7 @@
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const fold = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const number = n => n.toLocaleString('en-US');
+  const number = n => Number(n).toLocaleString('en-US');
   const splitShelf = s => { const m = /^(\d+)\.\s*(.*)$/.exec(s || ''); return m ? [m[1].padStart(2, '0'), m[2]] : ['', s || '']; };
   const titleKey = t => fold(t).replace(/^(the|a|an)\s+/, '');
   const creatorKey = c => {
