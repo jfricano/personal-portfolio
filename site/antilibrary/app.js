@@ -1,11 +1,13 @@
-// The anti-library browser: lists come from data/lists.json, items from data/<id>.json, and
-// finished titles from data/progress.json.
+// The anti-library browser. The lists live in the jfricano/anti-lib repository, which builds them into
+// JSON; the page reads lists.json, one <id>.json per list and progress.json from there (the data-source
+// attribute on <main>), so list changes show up without redeploying this site.
 // Owner mode (turned on by visiting ?owner=on, never linked from the page) adds a mark button
 // to each title and a spreadsheet export. Marks wait in this browser until the owner sends
 // them as one prefilled GitHub issue; a repository workflow applies issues opened by the owner
-// to progress.json, so GitHub's own sign-in is the permission check and the page holds no secrets.
+// to its progress.json, so GitHub's own sign-in is the permission check and the page holds no secrets.
 (() => {
-  const REPO = 'jfricano/personal-portfolio';
+  const REPO = 'jfricano/anti-lib';
+  const DATA = document.getElementById('main').dataset.source;
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
   const $ = id => document.getElementById(id);
   const els = {
@@ -189,8 +191,10 @@
 
   async function loadItems(id) {
     if (!cache[id]) {
-      const data = await fetch(`data/${encodeURIComponent(id)}.json`).then(r => r.json());
+      const data = await fetch(`${DATA}${encodeURIComponent(id)}.json`).then(r => r.json());
       data.forEach((i, n) => {
+        // The data comes from another repository, so only web links are kept.
+        for (const key of ['l', 'i', 'r']) if (i[key] && !/^https:\/\//.test(i[key])) delete i[key];
         i._id = n; i._t = titleKey(i.t); i._c = creatorKey(i.c);
         i._h = fold([i.t, i.c, i.y, i.g, i.s, i.u, i.n, ...(i.k || [])].filter(Boolean).join(' '));
       });
@@ -235,7 +239,7 @@
     }
     const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the site.\n\n\`\`\`json\n${JSON.stringify(pending)}\n\`\`\`\n`;
     const count = pendingCount();
-    return `https://github.com/${REPO}/issues/new?${new URLSearchParams({ title: `Anti-library: update ${count} ${count === 1 ? 'title' : 'titles'}`, labels: 'antilibrary', body })}`;
+    return `https://github.com/${REPO}/issues/new?${new URLSearchParams({ title: `Anti-library: update ${count} ${count === 1 ? 'title' : 'titles'}`, body })}`;
   }
   function setOwner(on) {
     owner = on;
@@ -350,8 +354,11 @@
   owner = store.get(OWNER_KEY, false) === true;
   pending = store.get(PENDING_KEY, {});
   Promise.all([
-    fetch('data/lists.json').then(r => r.json()),
-    fetch('data/progress.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
-  ]).then(([data, done]) => { lists = data; progress = done; prunePending(); return selectList(state.list, true); })
-    .catch(() => { els.count.textContent = 'The shelves could not be loaded. Try refreshing the page.'; });
+    fetch(`${DATA}lists.json`).then(r => r.json()),
+    fetch(`${DATA}progress.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
+  ]).then(([data, done]) => {
+    lists = data.filter(l => /^https:\/\//.test(l.search));
+    lists.forEach(l => { if (l.listen && !/^https:\/\//.test(l.listen)) delete l.listen; });
+    progress = done; prunePending(); return selectList(state.list, true);
+  }).catch(() => { els.count.textContent = 'The shelves could not be loaded. Try refreshing the page.'; });
 })();

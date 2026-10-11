@@ -36,17 +36,13 @@ See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for sco
 
 ## Anti-library
 
-`site/antilibrary/` is an unlisted, searchable list of books and films Jason hasn’t gotten to yet, served at `/antilibrary/`. The page loads `data/lists.json` and one `data/<id>.json` per list. To refresh the data or add a list (albums next), put the source files in one folder and run:
+`site/antilibrary/` is an unlisted, searchable page of the books, films and albums Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
 
-```sh
-node scripts/antilibrary-import.mjs <source-folder>
-```
+The page fetches `lists.json`, one `<id>.json` per list and `progress.json` from `https://raw.githubusercontent.com/jfricano/anti-lib/main/data/` (the `data-source` attribute on `<main>`), so list changes and finished titles show up without redeploying this site. Search, filters and sort are kept in the URL, so a filtered view can be shared as a link. Links from the data are only used if they are `https:`.
 
-Each list is one entry in `LISTS` at the top of the script (source file, column names, flags). A list whose source file is missing is skipped. Search, filters and sort are kept in the URL, so a filtered view can be shared as a link.
+**Owner mode** is not linked anywhere: open `/antilibrary/?owner=on` once and the browser remembers it (Leave owner mode turns it off). It adds a mark button to each title and an **Export spreadsheet** button that downloads every list, with status and finish dates, as one XLSX (SheetJS, vendored in `site/antilibrary/vendor/` and loaded only on export). Marks wait in that browser until **Send changes to the site** opens a prefilled issue in jfricano/anti-lib, whose workflow applies issues Jason opens. The page holds no credentials.
 
-Links and covers: `scripts/antilibrary-lookup.mjs` finds a page and cover for each title with keyless public APIs (Open Library for books, Wikipedia for films, Wikipedia, Deezer and MusicBrainz/Cover Art Archive for music) and caches them in `data/lookups.json`. The **Anti-library links and covers** workflow runs it whenever list data changes on a branch and commits the results there.
-
-Finished titles: `data/progress.json` lists what Jason has finished; the page strikes those through. **Owner mode** is not linked anywhere: open `/antilibrary/?owner=on` once and the browser remembers it (Leave owner mode turns it off). It adds a mark button to each title and an **Export spreadsheet** button that downloads every list, with status and finish dates, as one XLSX (SheetJS, vendored in `site/antilibrary/vendor/` and loaded only on export). Marks wait in that browser until **Send changes to the site** opens a prefilled GitHub issue; when Jason submits it, the **Anti-library progress** workflow applies it to `progress.json` on main, closes the issue and redeploys. Issues from anyone else are ignored, and the page itself holds no credentials.
+Header art: `site/antilibrary/art/<list>.jpg`, specs in `docs/antilibrary-artwork.md`.
 
 ## License
 
