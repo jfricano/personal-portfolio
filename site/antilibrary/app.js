@@ -181,11 +181,11 @@
     els.results.innerHTML = html;
   }
 
-  // Header art for each list lives at art/<list id>.jpg; the slot stays hidden until a file exists.
+  // Each list's illustration lives at art/<list id>.jpg and sits in the intro; a list without one shows no picture.
   function showArt() {
     const figure = $('al-art'), image = $('al-art-img');
-    figure.hidden = true;
-    image.onload = () => { if (image.dataset.list === list.id) figure.hidden = false; };
+    figure.classList.remove('is-shown');
+    image.onload = () => { if (image.dataset.list === list.id) { figure.hidden = false; figure.classList.add('is-shown'); } };
     image.onerror = () => { figure.hidden = true; };
     image.dataset.list = list.id;
     image.src = `art/${encodeURIComponent(list.id)}.jpg`;
