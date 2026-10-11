@@ -1,0 +1,36 @@
+[
+ {
+  "id": "books",
+  "label": "Books",
+  "noun": [
+   "book",
+   "books"
+  ],
+  "creatorLabel": "Author",
+  "groupLabel": "Part",
+  "shelfLabel": "Section",
+  "doneLabel": "Read",
+  "flags": {
+   "owned": "On my shelf",
+   "star": "Vonnegut frequency"
+  },
+  "hasYear": false,
+  "count": 1033
+ },
+ {
+  "id": "films",
+  "label": "Films",
+  "noun": [
+   "film",
+   "films"
+  ],
+  "creatorLabel": "Director",
+  "shelfLabel": "Shelf",
+  "doneLabel": "Watched",
+  "flags": {
+   "start": "Start here"
+  },
+  "hasYear": true,
+  "count": 832
+ }
+]

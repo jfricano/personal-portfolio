@@ -37,3 +37,7 @@ Owner requested swapping iYosi and StatBatt: StatBatt becomes selected-work entr
 ## StatBatt case study — October 2, 2026
 
 Owner requested a full StatBatt case study using the existing visual language. Include a grounded narrative, principal technologies, illustrative landing screenshot, design/implementation decisions and explicit local-candidate status. Link from featured entry C in the same tab; external landing links open separately. Proprietary code remains unlinked. Prepare a new review PR because #10 is merged; owner retains acceptance/merge.
+
+## Anti-library — October 11, 2026
+
+Jason asked for a responsive page for his anti-library (books, films, later albums) with search, sort and filter, reachable on his site but not linked from it, and open to sharing. Implemented at `/antilibrary/` like `/moreprojects/`: no homepage or navigation link, noindex and out of the sitemap. Data is generated from the project lists by `scripts/antilibrary-import.mjs`, so new lists drop in as data. Prepared as a review PR; merge and deployment stay with Jason.

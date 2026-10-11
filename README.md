@@ -34,6 +34,16 @@ The static output excludes local workflow documents, artwork provenance notes an
 
 See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for scope and evidence. GitHub Pages hosting is configured by the workflow below. Pending feature changes follow the recorded acceptance and merge process. Other static hosts must be configured to use `404.html` for missing pages.
 
+## Anti-library
+
+`site/antilibrary/` is an unlisted, searchable list of books and films Jason hasn’t gotten to yet, served at `/antilibrary/`. The page loads `data/lists.json` and one `data/<id>.json` per list. To refresh the data or add a list (albums next), put the source files in one folder and run:
+
+```sh
+node scripts/antilibrary-import.mjs <source-folder>
+```
+
+Each list is one entry in `LISTS` at the top of the script (source file, column names, flags). A list whose source file is missing is skipped. Search, filters and sort are kept in the URL, so a filtered view can be shared as a link.
+
 ## License
 
 This personal website is open source under the [MIT License](LICENSE).
