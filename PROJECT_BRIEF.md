@@ -41,3 +41,5 @@ Owner requested a full StatBatt case study using the existing visual language. I
 ## Anti-library — October 11, 2026
 
 Jason asked for a responsive page for his anti-library (books, films, later albums) with search, sort and filter, reachable on his site but not linked from it, and open to sharing. Implemented at `/antilibrary/` like `/moreprojects/`: no homepage or navigation link, noindex and out of the sitemap. Data is generated from the project lists by `scripts/antilibrary-import.mjs`, so new lists drop in as data. Prepared as a review PR; merge and deployment stay with Jason.
+
+Follow-ups the same day: titles link to Open Library or Wikipedia pages with covers from keyless public sources; albums (Popular and Frontiers) joined books and films; finished titles stay listed but struck through, marked by Jason in owner mode and saved through a GitHub issue that only the repository owner can apply.

@@ -24,8 +24,8 @@ const LISTS = [
   },
   {
     id: 'albums', label: 'Albums', noun: ['album', 'albums'], source: 'music.csv',
-    fields: { title: 'album', creator: 'artist', year: 'year', shelf: 'section', sub: 'subsection', note: 'note', done: 'heard' },
-    creatorLabel: 'Artist', shelfLabel: 'Shelf', doneLabel: 'Heard', cover: 'square',
+    fields: { title: 'album', creator: 'artist', year: 'year', group: 'part', shelf: 'section', sub: 'subsection', note: 'note', done: 'status' },
+    creatorLabel: 'Artist', groupLabel: 'Part', shelfLabel: 'Shelf', doneLabel: 'Heard', cover: 'square',
     search: 'https://en.wikipedia.org/w/index.php?search=', searchSuffix: 'album',
     flags: { start: { field: 'start_here', label: 'Start here' }, path: { field: 'artist_path', label: 'Artist path' } },
     // Artist paths name an artist rather than an album; a few rows carry a whole entry in the artist column.
@@ -65,7 +65,7 @@ function parseCsv(text) {
   return body.map(r => Object.fromEntries(head.map((key, i) => [key.trim(), (r[i] ?? '').trim()])));
 }
 
-const truthy = value => value === true || /^(yes|y|x|true|1|✓|★)$/i.test(String(value ?? '').trim());
+const truthy = value => value === true || /^(yes|y|x|true|1|✓|★|heard|read|watched|seen|done)$/i.test(String(value ?? '').trim());
 const clean = value => String(value ?? '').replace(/\*/g, '').trim();
 
 const sourceDir = process.argv[2];

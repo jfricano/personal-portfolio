@@ -44,6 +44,7 @@
    "albums"
   ],
   "creatorLabel": "Artist",
+  "groupLabel": "Part",
   "shelfLabel": "Shelf",
   "doneLabel": "Heard",
   "cover": "square",
@@ -54,6 +55,6 @@
    "path": "Artist path"
   },
   "hasYear": true,
-  "count": 1586
+  "count": 1716
  }
 ]

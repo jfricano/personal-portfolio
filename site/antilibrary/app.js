@@ -1,17 +1,26 @@
-// The anti-library browser: lists come from data/lists.json, items from data/<id>.json.
+// The anti-library browser: lists come from data/lists.json, items from data/<id>.json, and
+// finished titles from data/progress.json.
+// Owner mode adds a mark button to each title. Marks wait in this browser until the owner sends
+// them as one prefilled GitHub issue; a repository workflow applies issues opened by the owner
+// to progress.json, so GitHub's own sign-in is the permission check and the page holds no secrets.
 (() => {
+  const REPO = 'jfricano/personal-portfolio';
+  const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
   const $ = id => document.getElementById(id);
   const els = {
     tabs: $('al-tabs'), q: $('al-q'), group: $('al-group'), groupField: $('al-group-field'), groupLabel: $('al-group-label'),
     shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), sort: $('al-sort'), flags: $('al-flags'),
     count: $('al-count'), results: $('al-results'), random: $('al-random'), reset: $('al-reset'),
+    owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), send: $('al-send'), discard: $('al-discard'),
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
-  const state = { list: '', q: '', group: '', shelf: '', sort: 'shelf', flags: new Set() };
+  let progress = {}, pending = {}, owner = false;
+  const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', flags: new Set(), hide: false });
+  const state = { list: '', ...blank() };
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  const fold = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const fold = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
   const number = n => n.toLocaleString('en-US');
   const splitShelf = s => { const m = /^(\d+)\.\s*(.*)$/.exec(s || ''); return m ? [m[1].padStart(2, '0'), m[2]] : ['', s || '']; };
   const titleKey = t => fold(t).replace(/^(the|a|an)\s+/, '');
@@ -20,12 +29,22 @@
     const words = first.split(/\s+/).filter(w => !/^(jr\.?|sr\.?|ii|iii|iv)$/.test(w));
     return `${words.at(-1) || '~'} ${first}`;
   };
+  const itemKey = i => `${i.t}|${i.c || ''}`;
+  const pendingFor = i => pending[list.id]?.[itemKey(i)];
+  const isDone = i => {
+    const mark = pendingFor(i);
+    return Boolean(i.d || (mark !== undefined ? mark : progress[list.id]?.[itemKey(i)]));
+  };
   const SORTS = {
     shelf: { label: 'Shelf order' },
     title: { label: 'Title A–Z', cmp: (a, b) => a._t.localeCompare(b._t) },
     creator: { label: 'Creator A–Z', cmp: (a, b) => a._c.localeCompare(b._c) || a._t.localeCompare(b._t) },
     newest: { label: 'Newest first', year: true, cmp: (a, b) => (b.y || 0) - (a.y || 0) || a._t.localeCompare(b._t) },
     oldest: { label: 'Oldest first', year: true, cmp: (a, b) => (a.y || 9999) - (b.y || 9999) || a._t.localeCompare(b._t) },
+  };
+  const store = {
+    get(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } },
+    set(key, value) { try { value === null ? localStorage.removeItem(key) : localStorage.setItem(key, JSON.stringify(value)); } catch {} },
   };
 
   function readUrl() {
@@ -36,6 +55,7 @@
     state.shelf = p.get('shelf') || '';
     state.sort = SORTS[p.get('sort')] ? p.get('sort') : 'shelf';
     state.flags = new Set((p.get('only') || '').split(',').filter(Boolean));
+    state.hide = p.get('hide') === '1';
   }
   function writeUrl() {
     const p = new URLSearchParams();
@@ -45,8 +65,9 @@
     if (state.shelf) p.set('shelf', state.shelf);
     if (state.sort !== 'shelf') p.set('sort', state.sort);
     if (state.flags.size) p.set('only', [...state.flags].join(','));
+    if (state.hide) p.set('hide', '1');
     const query = p.toString();
-    history.replaceState(null, '', query ? `?${query}` : location.pathname);
+    try { history.replaceState(null, '', query ? `?${query}` : location.pathname); } catch {}
   }
 
   function options(select, values, allLabel, current) {
@@ -74,8 +95,8 @@
     els.sort.innerHTML = sorts.map(([key, s]) => `<option value="${key}"${key === state.sort ? ' selected' : ''}>${key === 'creator' ? `${esc(list.creatorLabel)} A–Z` : s.label}</option>`).join('');
     for (const key of state.flags) if (!list.flags[key]) state.flags.delete(key);
     els.flags.innerHTML = '<legend class="label">Only show</legend>' + Object.entries(list.flags).map(([key, label]) =>
-      `<label class="al-chip al-chip-${esc(key)}"><input type="checkbox" value="${esc(key)}"${state.flags.has(key) ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('');
-    els.flags.hidden = !Object.keys(list.flags).length;
+      `<label class="al-chip al-chip-${esc(key)}"><input type="checkbox" value="${esc(key)}"${state.flags.has(key) ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('') +
+      `<label class="al-chip al-chip-hide"><input type="checkbox" value="" data-hide${state.hide ? ' checked' : ''}><span>Hide ${esc(list.doneLabel.toLowerCase())}</span></label>`;
     els.q.value = state.q;
   }
   function renderShelves() {
@@ -87,7 +108,7 @@
   function filter() {
     const terms = fold(state.q).split(/\s+/).filter(Boolean);
     visible = items.filter(i => (!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf) &&
-      [...state.flags].every(f => i.f && i.f.includes(f)) && terms.every(t => i._h.includes(t)));
+      [...state.flags].every(f => i.f && i.f.includes(f)) && (!state.hide || !isDone(i)) && terms.every(t => i._h.includes(t)));
     const sort = SORTS[state.sort];
     if (sort.cmp) visible = [...visible].sort(sort.cmp);
   }
@@ -97,14 +118,17 @@
     const where = [];
     if (state.sort !== 'shelf' && i.s) where.push(splitShelf(i.s)[1]);
     if (i.u) where.push(i.u);
+    const done = isDone(i);
     const tags = (i.f || []).map(f => `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
-    if (i.d) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel || 'Done')}</li>`);
+    if (done) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel)}</li>`);
     const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
     const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
-    return `<article class="al-item" id="item-${i._id}" tabindex="-1">` +
+    const label = list.doneLabel.toLowerCase();
+    const mark = owner ? `<button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` : '';
+    return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
-      `<div class="al-item-head"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>` +
+      `<div class="al-item-head"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}${mark}</div>` +
       `<div class="al-item-body">${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
   }
@@ -112,10 +136,13 @@
   function render() {
     filter();
     const noun = list.noun[items.length === 1 ? 0 : 1];
-    els.count.textContent = visible.length === items.length
-      ? `All ${number(items.length)} ${noun}.`
-      : `Showing ${number(visible.length)} of ${number(items.length)} ${noun}.`;
+    const finished = items.filter(isDone).length;
+    els.count.textContent = (visible.length === items.length
+      ? `All ${number(items.length)} ${noun}`
+      : `Showing ${number(visible.length)} of ${number(items.length)} ${noun}`) +
+      (finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
     els.random.disabled = !visible.length;
+    renderOwnerBar();
     if (!visible.length) {
       els.results.innerHTML = `<p class="al-empty">Nothing on these shelves matches. Try fewer words, or clear the filters.</p>`;
       return;
@@ -141,7 +168,7 @@
 
   async function selectList(id, fromUrl) {
     list = lists.find(l => l.id === id) || lists[0];
-    if (!fromUrl) Object.assign(state, { q: '', group: '', shelf: '', sort: 'shelf', flags: new Set() });
+    if (!fromUrl) Object.assign(state, blank());
     renderTabs();
     els.results.dataset.cover = list.cover || 'tall';
     els.count.textContent = 'Loading the shelves…';
@@ -160,6 +187,62 @@
     writeUrl();
   }
 
+  // Owner mode.
+  const pendingCount = () => Object.values(pending).reduce((n, marks) => n + Object.keys(marks).length, 0);
+  function renderOwnerBar() {
+    els.owner.textContent = owner ? 'Leave owner mode' : 'Owner mode';
+    els.ownerBar.hidden = !owner;
+    if (!owner) return;
+    const count = pendingCount();
+    els.ownerText.textContent = count
+      ? `${number(count)} ${count === 1 ? 'change is' : 'changes are'} saved in this browser and not yet on the site.`
+      : 'Mark titles as you finish them, then send the changes to the site.';
+    els.send.hidden = els.discard.hidden = !count;
+    if (count) els.send.href = issueUrl();
+  }
+  function issueUrl() {
+    const lines = [];
+    for (const [listId, marks] of Object.entries(pending)) {
+      const meta = lists.find(l => l.id === listId);
+      for (const [key, value] of Object.entries(marks)) {
+        const [title, creator] = key.split('|');
+        lines.push(`- ${value ? meta.doneLabel : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
+      }
+    }
+    const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the site.\n\n\`\`\`json\n${JSON.stringify(pending)}\n\`\`\`\n`;
+    const count = pendingCount();
+    return `https://github.com/${REPO}/issues/new?${new URLSearchParams({ title: `Anti-library: update ${count} ${count === 1 ? 'title' : 'titles'}`, labels: 'antilibrary', body })}`;
+  }
+  function setOwner(on) {
+    owner = on;
+    store.set(OWNER_KEY, on || null);
+    if (list) render();
+  }
+  // Drop browser-held marks the published progress already matches.
+  function prunePending() {
+    for (const [listId, marks] of Object.entries(pending)) {
+      for (const [key, value] of Object.entries(marks)) if (Boolean(progress[listId]?.[key]) === Boolean(value)) delete marks[key];
+      if (!Object.keys(marks).length) delete pending[listId];
+    }
+    store.set(PENDING_KEY, Object.keys(pending).length ? pending : null);
+  }
+  els.results.addEventListener('click', event => {
+    const button = event.target.closest('.al-mark');
+    if (!button || !owner) return;
+    const key = button.dataset.key, item = items.find(i => itemKey(i) === key);
+    const next = !isDone(item);
+    pending[list.id] ??= {};
+    pending[list.id][key] = next ? new Date().toISOString().slice(0, 10) : null;
+    prunePending();
+    button.closest('.al-item').outerHTML = itemHtml(item);
+    $(`item-${item._id}`).querySelector('.al-mark').focus();
+    const finished = items.filter(isDone).length;
+    els.count.textContent = els.count.textContent.replace(/(, [\d,]+ \w+)?\.$/, finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
+    renderOwnerBar();
+  });
+  els.owner.addEventListener('click', () => setOwner(!owner));
+  els.discard.addEventListener('click', () => { pending = {}; store.set(PENDING_KEY, null); render(); });
+
   // A cover that fails to load leaves the lettered placeholder showing.
   els.results.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, true);
 
@@ -170,10 +253,11 @@
   els.sort.addEventListener('change', () => { state.sort = els.sort.value; render(); writeUrl(); });
   els.flags.addEventListener('change', event => {
     const box = event.target;
-    box.checked ? state.flags.add(box.value) : state.flags.delete(box.value);
+    if ('hide' in box.dataset) state.hide = box.checked;
+    else box.checked ? state.flags.add(box.value) : state.flags.delete(box.value);
     render(); writeUrl();
   });
-  els.reset.addEventListener('click', () => { Object.assign(state, { q: '', group: '', shelf: '', sort: 'shelf', flags: new Set() }); renderControls(); render(); writeUrl(); });
+  els.reset.addEventListener('click', () => { Object.assign(state, blank()); renderControls(); render(); writeUrl(); });
   els.random.addEventListener('click', () => {
     if (!visible.length) return;
     const pick = visible[Math.floor(Math.random() * visible.length)];
@@ -197,6 +281,11 @@
   });
 
   readUrl();
-  fetch('data/lists.json').then(r => r.json()).then(data => { lists = data; return selectList(state.list, true); })
+  owner = store.get(OWNER_KEY, false) === true;
+  pending = store.get(PENDING_KEY, {});
+  Promise.all([
+    fetch('data/lists.json').then(r => r.json()),
+    fetch('data/progress.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
+  ]).then(([data, done]) => { lists = data; progress = done; prunePending(); return selectList(state.list, true); })
     .catch(() => { els.count.textContent = 'The shelves could not be loaded. Try refreshing the page.'; });
 })();
