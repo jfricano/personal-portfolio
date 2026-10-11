@@ -22,7 +22,7 @@
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
-  let progress = {}, pending = {}, owner = false, picked = false, digestLinks = {};
+  let progress = {}, removed = {}, pending = {}, owner = false, picked = false, digestLinks = {};
   const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', flags: new Set(), hide: false });
   const state = { list: '', ...blank() };
 
@@ -38,9 +38,11 @@
   };
   const itemKey = i => `${i.t}|${i.c || ''}`;
   const pendingFor = i => pending[list.id]?.[itemKey(i)];
+  const REMOVE = 'remove';
+  const isRemoving = i => pendingFor(i) === REMOVE;
   const isDone = i => {
     const mark = pendingFor(i);
-    return Boolean(i.d || (mark !== undefined ? mark : progress[list.id]?.[itemKey(i)]));
+    return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
   };
   // Flags such as "Start here" are Jason's own and only show in owner mode.
   const shownFlags = () => Object.entries(list.flags).filter(([key]) => owner || !(list.privateFlags || []).includes(key));
@@ -120,7 +122,7 @@
 
   function filter() {
     const terms = fold(state.q).split(/\s+/).filter(Boolean);
-    visible = items.filter(i => (!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf) &&
+    visible = items.filter(i => !(owner && isRemoving(i)) && (!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf) &&
       [...state.flags].every(f => i.f && i.f.includes(f)) && (!owner || !state.hide || !isDone(i)) && terms.every(t => i._h.includes(t)));
     const sort = SORTS[state.sort];
     if (sort.cmp) visible = [...visible].sort(sort.cmp);
@@ -144,7 +146,8 @@
       list.listen && `<a href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
       owner && digestLinks[list.id]?.[itemKey(i)] && `<a class="al-digest" href="../digests/#${esc(digestLinks[list.id][itemKey(i)])}">Read digest</a>`].filter(Boolean);
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
-    const mark = owner ? `<button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` : '';
+    const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
+      `<button type="button" class="al-remove" data-key="${esc(itemKey(i))}">Remove</button></span>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}${genres}${more}${mark}</div>` +
@@ -152,14 +155,20 @@
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
   }
 
+  // Titles the owner is removing drop out of the view (and the totals) at once.
+  function updateCount() {
+    const kept = owner ? items.filter(i => !isRemoving(i)) : items;
+    const noun = list.noun[kept.length === 1 ? 0 : 1];
+    const finished = kept.filter(isDone).length;
+    els.count.textContent = (visible.length === kept.length
+      ? `All ${number(kept.length)} ${noun}`
+      : `Showing ${number(visible.length)} of ${number(kept.length)} ${noun}`) +
+      (finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
+  }
+
   function render() {
     filter();
-    const noun = list.noun[items.length === 1 ? 0 : 1];
-    const finished = items.filter(isDone).length;
-    els.count.textContent = (visible.length === items.length
-      ? `All ${number(items.length)} ${noun}`
-      : `Showing ${number(visible.length)} of ${number(items.length)} ${noun}`) +
-      (finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
+    updateCount();
     els.random.disabled = !visible.length;
     renderOwnerBar();
     if (!visible.length) {
@@ -185,11 +194,11 @@
     els.results.innerHTML = html;
   }
 
-  // Header art for each list lives at art/<list id>.jpg; the slot stays hidden until a file exists.
+  // Each list's illustration lives at art/<list id>.jpg and sits in the intro; a list without one shows no picture.
   function showArt() {
     const figure = $('al-art'), image = $('al-art-img');
-    figure.hidden = true;
-    image.onload = () => { if (image.dataset.list === list.id) figure.hidden = false; };
+    figure.classList.remove('is-shown');
+    image.onload = () => { if (image.dataset.list === list.id) { figure.hidden = false; figure.classList.add('is-shown'); } };
     image.onerror = () => { figure.hidden = true; };
     image.dataset.list = list.id;
     image.src = `art/${encodeURIComponent(list.id)}.jpg`;
@@ -231,7 +240,8 @@
     const count = pendingCount();
     els.ownerText.textContent = count
       ? `${number(count)} ${count === 1 ? 'change is' : 'changes are'} saved in this browser and not yet on the site.`
-      : 'Mark titles as you finish them, then send the changes to the site.';
+      : 'Mark titles as you finish them or remove ones you no longer want, then send the changes to the site.';
+    if (count) els.ownerText.textContent += ' Discard brings back anything you removed.';
     els.send.hidden = els.discard.hidden = !count;
     if (count) els.send.href = issueUrl();
   }
@@ -241,7 +251,7 @@
       const meta = lists.find(l => l.id === listId);
       for (const [key, value] of Object.entries(marks)) {
         const [title, creator] = key.split('|');
-        lines.push(`- ${value ? meta.doneLabel : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
+        lines.push(`- ${value === REMOVE ? 'Remove from the list' : value ? meta.doneLabel : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
       }
     }
     const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the site.\n\n\`\`\`json\n${JSON.stringify(pending)}\n\`\`\`\n`;
@@ -269,26 +279,41 @@
       if (list) render();
     } catch {}
   }
-  // Drop browser-held marks the published progress already matches.
+  // Drop browser-held marks the published data already matches (a removal is published once removed.json lists it).
   function prunePending() {
     for (const [listId, marks] of Object.entries(pending)) {
-      for (const [key, value] of Object.entries(marks)) if (Boolean(progress[listId]?.[key]) === Boolean(value)) delete marks[key];
+      for (const [key, value] of Object.entries(marks)) {
+        if (value === REMOVE ? removed[listId]?.[key] : Boolean(progress[listId]?.[key]) === Boolean(value)) delete marks[key];
+      }
       if (!Object.keys(marks).length) delete pending[listId];
     }
     store.set(PENDING_KEY, Object.keys(pending).length ? pending : null);
   }
   els.results.addEventListener('click', event => {
-    const button = event.target.closest('.al-mark');
+    const button = event.target.closest('.al-mark, .al-remove');
     if (!button || !owner) return;
     const key = button.dataset.key, item = items.find(i => itemKey(i) === key);
-    const next = !isDone(item);
     pending[list.id] ??= {};
-    pending[list.id][key] = next ? new Date().toISOString().slice(0, 10) : null;
-    prunePending();
-    button.closest('.al-item').outerHTML = itemHtml(item);
-    $(`item-${item._id}`).querySelector('.al-mark').focus();
-    const finished = items.filter(isDone).length;
-    els.count.textContent = els.count.textContent.replace(/(, [\d,]+ \w+)?\.$/, finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
+    const article = button.closest('.al-item');
+    if (button.classList.contains('al-remove')) {
+      pending[list.id][key] = REMOVE;
+      prunePending();
+      // The title leaves the page now; Discard brings it back until the changes are sent.
+      const shelf = article.closest('.al-shelf'), next = article.nextElementSibling || article.previousElementSibling;
+      visible = visible.filter(i => i !== item);
+      article.remove();
+      if (shelf) {
+        const left = shelf.querySelectorAll('.al-item').length;
+        if (left) shelf.querySelector('.al-shelf-count').textContent = number(left); else shelf.remove();
+      }
+      (next?.isConnected ? next : els.results).focus?.();
+    } else {
+      pending[list.id][key] = !isDone(item) ? new Date().toISOString().slice(0, 10) : null;
+      prunePending();
+      article.outerHTML = itemHtml(item);
+      $(`item-${item._id}`).querySelector('.al-mark').focus();
+    }
+    updateCount();
     renderOwnerBar();
   });
   els.owner.addEventListener('click', () => setOwner(false));
@@ -308,7 +333,7 @@
         const all = await loadItems(meta.id);
         const saved = list;
         list = meta;
-        const rows = all.map(i => {
+        const rows = all.filter(i => pending[meta.id]?.[itemKey(i)] !== REMOVE).map(i => {
           const mark = pending[meta.id]?.[itemKey(i)], date = mark !== undefined ? mark : progress[meta.id]?.[itemKey(i)];
           return {
             ...(meta.groupLabel && { [meta.groupLabel]: i.g || '' }),
@@ -379,9 +404,10 @@
   Promise.all([
     fetch(`${DATA}lists.json`).then(r => r.json()),
     fetch(`${DATA}progress.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
-  ]).then(([data, done]) => {
+    fetch(`${DATA}removed.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
+  ]).then(([data, done, gone]) => {
     lists = data.filter(l => /^https:\/\//.test(l.search));
     lists.forEach(l => { if (l.listen && !/^https:\/\//.test(l.listen)) delete l.listen; });
-    progress = done; prunePending(); loadDigests(); return selectList(state.list, true);
+    progress = done; removed = gone; prunePending(); loadDigests(); return selectList(state.list, true);
   }).catch(() => { els.count.textContent = 'The shelves could not be loaded. Try refreshing the page.'; });
 })();
