@@ -1,6 +1,8 @@
 name: Anti-library links and covers
 # Looks up a public page and cover for new anti-library titles and commits the results
 # to the same branch. Runs when list data changes on a feature branch, or by hand.
+# Album covers and artist photos come from Spotify when the SPOTIFY_CLIENT_ID and
+# SPOTIFY_CLIENT_SECRET repository secrets exist; otherwise from Wikipedia.
 on:
   push:
     branches-ignore: [main]
@@ -13,6 +15,7 @@ on:
         default: false
 permissions:
   contents: write
+  actions: write
 concurrency:
   group: antilibrary-lookups-${{ github.ref }}
   cancel-in-progress: false
@@ -26,9 +29,16 @@ jobs:
         with:
           node-version: '22'
       - run: node scripts/antilibrary-lookup.mjs ${{ inputs.retry && '--retry' || '' }}
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
       - name: Commit results
         run: |
           git add site/antilibrary/data
           if git diff --cached --quiet; then echo "No new links or covers."; exit 0; fi
           git -c user.name="github-actions[bot]" -c user.email="41898181+github-actions[bot]@users.noreply.github.com" commit -m "Add anti-library links and covers"
           git push
+          # A push made by this workflow does not start other workflows, so redeploy main explicitly.
+          if [ "$GITHUB_REF_NAME" = main ]; then gh workflow run pages.yml --ref main; fi
+        env:
+          GH_TOKEN: ${{ github.token }}

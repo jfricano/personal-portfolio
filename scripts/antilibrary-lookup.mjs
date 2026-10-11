@@ -1,5 +1,6 @@
 // Finds a public page and cover image for each anti-library item, using keyless public APIs:
-// Open Library for books, Wikipedia for films, albums and artists.
+// Open Library for books, Wikipedia for films, and Spotify for albums and artists when
+// SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET are set (Wikipedia otherwise).
 // Results are cached in site/antilibrary/data/lookups.json so each title is looked up once.
 // Usage: node scripts/antilibrary-lookup.mjs [--retry]   (--retry re-checks titles with no match)
 import { readFile, writeFile } from 'node:fs/promises';
@@ -38,12 +39,13 @@ const sameTitle = (a, b) => {
 const surname = name => fold(String(name || '').split(/\s*(?:&|,| and )\s*/)[0]).split(' ').filter(w => !/^(jr|sr|ii|iii)$/.test(w)).at(-1) || '';
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-async function getJson(url) {
+async function getJson(url, headers = {}) {
   for (let attempt = 0; attempt < 5; attempt++) {
-    const response = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json' } }).catch(() => null);
+    const response = await fetch(url, { headers: { 'User-Agent': UA, Accept: 'application/json', ...headers } }).catch(() => null);
     if (response?.ok) return response.json();
     if (response && response.status < 500 && response.status !== 429) throw Error(`${response.status} ${url}`);
-    await sleep(1500 * 2 ** attempt);
+    const wait = Number(response?.headers.get('retry-after'));
+    await sleep(wait ? wait * 1000 + 250 : 1500 * 2 ** attempt);
   }
   throw Error(`Gave up on ${url}`);
 }
@@ -56,7 +58,7 @@ async function book(item) {
   const matches = docs.filter(d => sameTitle(d.title, item.t) && (!author || (d.author_name || []).some(a => fold(a).includes(author))));
   const doc = matches.find(d => d.cover_i) || matches[0];
   if (!doc) return null;
-  return { l: `https://openlibrary.org${doc.key}`, ...(doc.cover_i && { i: `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` }) };
+  return { s: 'openlibrary', l: `https://openlibrary.org${doc.key}`, ...(doc.cover_i && { i: `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` }) };
 }
 
 async function wikipedia(query, accept) {
@@ -65,7 +67,7 @@ async function wikipedia(query, accept) {
   const { query: result } = await getJson(`https://en.wikipedia.org/w/api.php?${params}`);
   const page = (result?.pages || []).sort((a, b) => a.index - b.index).find(accept);
   if (!page) return null;
-  return { l: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`, ...(page.thumbnail && { i: page.thumbnail.source }) };
+  return { s: 'wikipedia', l: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`, ...(page.thumbnail && { i: page.thumbnail.source }) };
 }
 const nearYear = (description, year) => !year || [year - 1, year, year + 1].some(y => description.includes(String(y)));
 
@@ -74,7 +76,7 @@ const film = item => wikipedia(`${item.t} ${item.y || ''} film`, p => {
   return sameTitle(p.title, item.t) && /film|documentary|miniseries|series|anime/i.test(d) && nearYear(d, item.y);
 });
 
-function album(item) {
+function wikipediaAlbum(item) {
   if (item.f?.includes('path')) {
     return wikipedia(`${item.t} musician band`, p => sameTitle(p.title, item.t) &&
       /band|musician|singer|rapper|composer|group|songwriter|artist|duo|pianist|saxophonist|trumpeter|guitarist|producer|DJ|ensemble|orchestra/i.test(p.description || ''));
@@ -85,6 +87,43 @@ function album(item) {
     return sameTitle(p.title, item.t) && /album|soundtrack|compilation|\bEP\b|recording|record|live/i.test(d) &&
       (!artist || fold(d).includes(artist) || fold(p.title).includes(artist));
   });
+}
+
+const spotifyCredentials = process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET;
+let spotifyToken = null;
+async function spotify(pathAndQuery) {
+  if (!spotifyToken || spotifyToken.expires < Date.now()) {
+    const response = await fetch('https://accounts.spotify.com/api/token', { method: 'POST', body: 'grant_type=client_credentials', headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      Authorization: 'Basic ' + Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64') } });
+    if (!response.ok) throw Error(`Spotify sign-in failed (${response.status}). Check the SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET secrets.`);
+    const { access_token, expires_in } = await response.json();
+    spotifyToken = { value: access_token, expires: Date.now() + (expires_in - 60) * 1000 };
+  }
+  return getJson(`https://api.spotify.com/v1/${pathAndQuery}`, { Authorization: `Bearer ${spotifyToken.value}` });
+}
+const spotifyImage = images => (images || []).find(image => image.width && image.width <= 320) || (images || [])[0];
+
+async function spotifyAlbum(item) {
+  if (item.f?.includes('path')) {
+    const { artists } = await spotify(`search?${new URLSearchParams({ q: item.t, type: 'artist', limit: '5' })}`);
+    const match = artists.items.filter(a => sameTitle(a.name, item.t)).sort((a, b) => (b.popularity || 0) - (a.popularity || 0))[0];
+    return match ? { s: 'spotify', l: match.external_urls.spotify, ...(spotifyImage(match.images) && { i: spotifyImage(match.images).url }) } : null;
+  }
+  const artist = surname(item.c);
+  const q = `album:${item.t.split(':')[0]}${item.c ? ` artist:${item.c.split(/\s*(?:&| and |,)\s*/)[0]}` : ''}`;
+  const { albums } = await spotify(`search?${new URLSearchParams({ q, type: 'album', limit: '8' })}`);
+  const match = albums.items.find(a => a && sameTitle(a.name, item.t) && (!artist || a.artists.some(x => fold(x.name).includes(artist))));
+  return match ? { s: 'spotify', l: match.external_urls.spotify, ...(spotifyImage(match.images) && { i: spotifyImage(match.images).url }) } : null;
+}
+
+// Spotify first when it is configured, then Wikipedia.
+async function album(item) {
+  if (spotifyCredentials) {
+    const hit = await spotifyAlbum(item);
+    if (hit) return hit;
+  }
+  return wikipediaAlbum(item);
 }
 
 const FINDERS = { books: book, films: film, albums: album };
@@ -101,13 +140,22 @@ async function run() {
     if (!find) { console.log(`No lookup source for ${list.id}`); continue; }
     const file = path.join(dataDir, `${list.id}.json`);
     const items = JSON.parse(await readFile(file, 'utf8'));
-    const todo = items.filter(item => { const key = lookupKey(list.id, item); return !(key in lookups) || (retry && !lookups[key]); });
+    // Once Spotify is configured, albums found elsewhere are checked against Spotify too.
+    const upgrade = list.id === 'albums' && spotifyCredentials;
+    const todo = items.filter(item => {
+      const key = lookupKey(list.id, item), hit = lookups[key];
+      return !(key in lookups) || (retry && !hit) || (upgrade && hit?.s !== 'spotify' && !hit?.checked);
+    });
     console.log(`${list.id}: looking up ${todo.length} of ${items.length}`);
     let next = 0, failed = 0;
     await Promise.all(Array.from({ length: LIMITS[list.id] }, async () => {
       while (next < todo.length) {
         const item = todo[next++];
-        try { lookups[lookupKey(list.id, item)] = await find(item); }
+        try {
+          const hit = await find(item);
+          // Remember that Spotify had no match, so later runs keep the fallback without asking again.
+          lookups[lookupKey(list.id, item)] = upgrade && hit?.s !== 'spotify' ? { ...hit, checked: 1 } : hit;
+        }
         catch (error) { failed++; console.warn(error.message); }
         if (Date.now() - saved > 30000) { saved = Date.now(); await save(); }
       }
