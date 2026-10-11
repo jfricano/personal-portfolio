@@ -7,6 +7,9 @@
 // to its progress.json, so GitHub's own sign-in is the permission check and the page holds no secrets.
 (() => {
   const REPO = 'jfricano/anti-lib';
+  // Digests live in a private repository; in owner mode, a browser holding the digests page's
+  // read-only key also links each title that has a finished digest.
+  const DIGESTS_REPO = 'jfricano/reading-list', DIGESTS_TOKEN_KEY = 'digests-token';
   const DATA = document.getElementById('main').dataset.source;
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
   const $ = id => document.getElementById(id);
@@ -19,7 +22,7 @@
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
-  let progress = {}, removed = {}, pending = {}, owner = false, picked = false;
+  let progress = {}, removed = {}, pending = {}, owner = false, picked = false, digestLinks = {};
   const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', flags: new Set(), hide: false });
   const state = { list: '', ...blank() };
 
@@ -140,7 +143,8 @@
     const label = list.doneLabel.toLowerCase();
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [i.r && `<a href="${esc(i.r)}" target="_blank" rel="noopener noreferrer">Rate Your Music ↗</a>`,
-      list.listen && `<a href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`].filter(Boolean);
+      list.listen && `<a href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
+      owner && digestLinks[list.id]?.[itemKey(i)] && `<a class="al-digest" href="../digests/#${esc(digestLinks[list.id][itemKey(i)])}">Read digest</a>`].filter(Boolean);
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
     const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
       `<button type="button" class="al-remove" data-key="${esc(itemKey(i))}">Remove</button></span>` : '';
@@ -258,6 +262,22 @@
     owner = on;
     store.set(OWNER_KEY, on || null);
     if (list) { renderControls(); render(); writeUrl(); }
+  }
+  async function loadDigests() {
+    const token = store.get(DIGESTS_TOKEN_KEY, '');
+    if (!owner || !token) return;
+    try {
+      const response = await fetch(`https://api.github.com/repos/${DIGESTS_REPO}/contents/index.json`, {
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.raw+json', 'X-GitHub-Api-Version': '2022-11-28' },
+        cache: 'no-cache',
+      });
+      if (!response.ok) return;
+      digestLinks = {};
+      for (const d of await response.json()) {
+        if (d.status === 'ready' && /^[a-z0-9-]+$/.test(d.slug || '')) (digestLinks[d.list] ??= {})[d.key] = `${d.list}/${d.slug}`;
+      }
+      if (list) render();
+    } catch {}
   }
   // Drop browser-held marks the published data already matches (a removal is published once removed.json lists it).
   function prunePending() {
@@ -388,6 +408,6 @@
   ]).then(([data, done, gone]) => {
     lists = data.filter(l => /^https:\/\//.test(l.search));
     lists.forEach(l => { if (l.listen && !/^https:\/\//.test(l.listen)) delete l.listen; });
-    progress = done; removed = gone; prunePending(); return selectList(state.list, true);
+    progress = done; removed = gone; prunePending(); loadDigests(); return selectList(state.list, true);
   }).catch(() => { els.count.textContent = 'The shelves could not be loaded. Try refreshing the page.'; });
 })();
