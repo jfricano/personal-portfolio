@@ -189,7 +189,7 @@
     els.unlock.disabled = true;
     try {
       const index = await json('index.json', null);
-      if (!index) { token = ''; store.set(TOKEN_KEY, null); els.lockError.textContent = 'That key can’t see the digests repository. Give it read access to anti-lib-digests.'; showView('lock'); return; }
+      if (!index) { token = ''; store.set(TOKEN_KEY, null); els.lockError.textContent = 'That key can’t see the digests repository. Give it read access to reading-list.'; showView('lock'); return; }
       [marks, queue] = await Promise.all([json('marks.json', {}), json('queue.json', [])]);
       digests = index.filter(d => LISTS[d.list] && d.title && d.path).map(d => ({
         ...d, id: `${d.list}/${d.slug}`,

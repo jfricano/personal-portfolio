@@ -9,7 +9,7 @@
   const REPO = 'jfricano/anti-lib';
   // Digests live in a private repository; in owner mode, a browser holding the digests page's
   // read-only key also links each title that has a finished digest.
-  const DIGESTS_REPO = 'jfricano/anti-lib-digests', DIGESTS_TOKEN_KEY = 'digests-token';
+  const DIGESTS_REPO = 'jfricano/reading-list', DIGESTS_TOKEN_KEY = 'digests-token';
   const DATA = document.getElementById('main').dataset.source;
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
   const $ = id => document.getElementById(id);
