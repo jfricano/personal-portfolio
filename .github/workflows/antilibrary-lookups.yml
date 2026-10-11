@@ -1,12 +1,10 @@
 name: Anti-library links and covers
 # Looks up a public page and cover for new anti-library titles and commits the results
 # to the same branch. Runs when list data changes on a feature branch, or by hand.
-# Album covers and artist photos come from Spotify when the SPOTIFY_CLIENT_ID and
-# SPOTIFY_CLIENT_SECRET repository secrets exist; otherwise from Wikipedia.
 on:
   push:
     branches-ignore: [main]
-    paths: ['site/antilibrary/data/books.json', 'site/antilibrary/data/films.json', 'site/antilibrary/data/albums.json', 'site/antilibrary/data/lists.json']
+    paths: ['site/antilibrary/data/books.json', 'site/antilibrary/data/films.json', 'site/antilibrary/data/albums.json', 'site/antilibrary/data/lists.json', 'site/antilibrary/data/lookups.json', 'scripts/antilibrary-lookup.mjs']
   workflow_dispatch:
     inputs:
       retry:
@@ -29,9 +27,6 @@ jobs:
         with:
           node-version: '22'
       - run: node scripts/antilibrary-lookup.mjs ${{ inputs.retry && '--retry' || '' }}
-        env:
-          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
-          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
       - name: Commit results
         run: |
           git add site/antilibrary/data

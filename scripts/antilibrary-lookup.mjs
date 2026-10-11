@@ -1,6 +1,5 @@
 // Finds a public page and cover image for each anti-library item, using keyless public APIs:
-// Open Library for books, Wikipedia for films, and Spotify for albums and artists when
-// SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET are set (Wikipedia otherwise).
+// Open Library for books, Wikipedia for films, and Wikipedia plus Deezer artwork for music.
 // Results are cached in site/antilibrary/data/lookups.json so each title is looked up once.
 // Usage: node scripts/antilibrary-lookup.mjs [--retry]   (--retry re-checks titles with no match)
 import { readFile, writeFile } from 'node:fs/promises';
@@ -89,45 +88,32 @@ function wikipediaAlbum(item) {
   });
 }
 
-const spotifyCredentials = process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET;
-let spotifyToken = null;
-async function spotify(pathAndQuery) {
-  if (!spotifyToken || spotifyToken.expires < Date.now()) {
-    const response = await fetch('https://accounts.spotify.com/api/token', { method: 'POST', body: 'grant_type=client_credentials', headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: 'Basic ' + Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64') } });
-    if (!response.ok) throw Error(`Spotify sign-in failed (${response.status}). Check the SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET secrets.`);
-    const { access_token, expires_in } = await response.json();
-    spotifyToken = { value: access_token, expires: Date.now() + (expires_in - 60) * 1000 };
-  }
-  return getJson(`https://api.spotify.com/v1/${pathAndQuery}`, { Authorization: `Bearer ${spotifyToken.value}` });
+async function deezer(kind, q) {
+  const result = await getJson(`https://api.deezer.com/search/${kind}?${new URLSearchParams({ q, limit: '8' })}`);
+  if (result.error) throw Error(`Deezer: ${result.error.message || result.error.type}`);
+  return result.data || [];
 }
-const spotifyImage = images => (images || []).find(image => image.width && image.width <= 320) || (images || [])[0];
 
-async function spotifyAlbum(item) {
+async function deezerArt(item) {
   if (item.f?.includes('path')) {
-    const { artists } = await spotify(`search?${new URLSearchParams({ q: item.t, type: 'artist', limit: '5' })}`);
-    const match = artists.items.filter(a => sameTitle(a.name, item.t)).sort((a, b) => (b.popularity || 0) - (a.popularity || 0))[0];
-    return match ? { s: 'spotify', l: match.external_urls.spotify, ...(spotifyImage(match.images) && { i: spotifyImage(match.images).url }) } : null;
+    const match = (await deezer('artist', item.t)).filter(a => sameTitle(a.name, item.t)).sort((a, b) => (b.nb_fan || 0) - (a.nb_fan || 0))[0];
+    return match && !/\/artist\/\//.test(match.picture_medium) ? { l: match.link, i: match.picture_medium } : null;
   }
   const artist = surname(item.c);
-  const q = `album:${item.t.split(':')[0]}${item.c ? ` artist:${item.c.split(/\s*(?:&| and |,)\s*/)[0]}` : ''}`;
-  const { albums } = await spotify(`search?${new URLSearchParams({ q, type: 'album', limit: '8' })}`);
-  const match = albums.items.find(a => a && sameTitle(a.name, item.t) && (!artist || a.artists.some(x => fold(x.name).includes(artist))));
-  return match ? { s: 'spotify', l: match.external_urls.spotify, ...(spotifyImage(match.images) && { i: spotifyImage(match.images).url }) } : null;
+  const q = item.c ? `artist:"${item.c.split(/\s*(?:&| and |,)\s*/)[0]}" album:"${item.t.split(':')[0]}"` : item.t;
+  const match = (await deezer('album', q)).find(a => sameTitle(a.title, item.t) && (!artist || fold(a.artist?.name).includes(artist)));
+  return match && !/\/cover\/\//.test(match.cover_medium) ? { l: match.link, i: match.cover_medium } : match ? { l: match.link } : null;
 }
 
-// Spotify first when it is configured, then Wikipedia.
+// The Wikipedia page is the better link; Deezer has the more complete artwork.
 async function album(item) {
-  if (spotifyCredentials) {
-    const hit = await spotifyAlbum(item);
-    if (hit) return hit;
-  }
-  return wikipediaAlbum(item);
+  const [wiki, art] = await Promise.all([wikipediaAlbum(item), deezerArt(item).catch(error => { console.warn(error.message); return null; })]);
+  if (!wiki && !art) return null;
+  return { s: wiki ? 'wikipedia' : 'deezer', l: wiki?.l || art.l, ...((art?.i || wiki?.i) && { i: art?.i || wiki.i }) };
 }
 
 const FINDERS = { books: book, films: film, albums: album };
-const LIMITS = { books: 2, films: 4, albums: 4 };
+const LIMITS = { books: 2, films: 4, albums: 3 };
 
 async function run() {
   const retry = process.argv.includes('--retry');
@@ -140,22 +126,13 @@ async function run() {
     if (!find) { console.log(`No lookup source for ${list.id}`); continue; }
     const file = path.join(dataDir, `${list.id}.json`);
     const items = JSON.parse(await readFile(file, 'utf8'));
-    // Once Spotify is configured, albums found elsewhere are checked against Spotify too.
-    const upgrade = list.id === 'albums' && spotifyCredentials;
-    const todo = items.filter(item => {
-      const key = lookupKey(list.id, item), hit = lookups[key];
-      return !(key in lookups) || (retry && !hit) || (upgrade && hit?.s !== 'spotify' && !hit?.checked);
-    });
+    const todo = items.filter(item => { const key = lookupKey(list.id, item); return !(key in lookups) || (retry && !lookups[key]); });
     console.log(`${list.id}: looking up ${todo.length} of ${items.length}`);
     let next = 0, failed = 0;
     await Promise.all(Array.from({ length: LIMITS[list.id] }, async () => {
       while (next < todo.length) {
         const item = todo[next++];
-        try {
-          const hit = await find(item);
-          // Remember that Spotify had no match, so later runs keep the fallback without asking again.
-          lookups[lookupKey(list.id, item)] = upgrade && hit?.s !== 'spotify' ? { ...hit, checked: 1 } : hit;
-        }
+        try { lookups[lookupKey(list.id, item)] = await find(item); }
         catch (error) { failed++; console.warn(error.message); }
         if (Date.now() - saved > 30000) { saved = Date.now(); await save(); }
       }
