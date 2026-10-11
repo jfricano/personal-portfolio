@@ -1,4 +1,5 @@
 /* The anti-library: a searchable list in the personal site's editorial frame. */
+.antilibrary [hidden]{display:none!important}
 .antilibrary{padding-bottom:90px;min-height:70vh}
 .al-intro{padding:55px 0 50px;display:grid;grid-template-columns:1fr;gap:0}
 .al-intro h1{font-size:clamp(54px,7.6vw,105px);margin:22px 0 32px}

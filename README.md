@@ -46,7 +46,7 @@ Each list is one entry in `LISTS` at the top of the script (source file, column 
 
 Links and covers: `scripts/antilibrary-lookup.mjs` finds a page and cover for each title with keyless public APIs (Open Library for books, Wikipedia for films, Wikipedia, Deezer and MusicBrainz/Cover Art Archive for music) and caches them in `data/lookups.json`. The **Anti-library links and covers** workflow runs it whenever list data changes on a branch and commits the results there.
 
-Finished titles: `data/progress.json` lists what Jason has finished; the page strikes those through. **Owner mode** (link under the list) adds a mark button to each title. Marks wait in that browser until **Send changes to the site** opens a prefilled GitHub issue; when Jason submits it, the **Anti-library progress** workflow applies it to `progress.json` on main, closes the issue and redeploys. Issues from anyone else are ignored, and the page itself holds no credentials.
+Finished titles: `data/progress.json` lists what Jason has finished; the page strikes those through. **Owner mode** is not linked anywhere: open `/antilibrary/?owner=on` once and the browser remembers it (Leave owner mode turns it off). It adds a mark button to each title and an **Export spreadsheet** button that downloads every list, with status and finish dates, as one XLSX (SheetJS, vendored in `site/antilibrary/vendor/` and loaded only on export). Marks wait in that browser until **Send changes to the site** opens a prefilled GitHub issue; when Jason submits it, the **Anti-library progress** workflow applies it to `progress.json` on main, closes the issue and redeploys. Issues from anyone else are ignored, and the page itself holds no credentials.
 
 ## License
 

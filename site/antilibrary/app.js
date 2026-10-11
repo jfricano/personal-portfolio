@@ -1,6 +1,7 @@
 // The anti-library browser: lists come from data/lists.json, items from data/<id>.json, and
 // finished titles from data/progress.json.
-// Owner mode adds a mark button to each title. Marks wait in this browser until the owner sends
+// Owner mode (turned on by visiting ?owner=on, never linked from the page) adds a mark button
+// to each title and a spreadsheet export. Marks wait in this browser until the owner sends
 // them as one prefilled GitHub issue; a repository workflow applies issues opened by the owner
 // to progress.json, so GitHub's own sign-in is the permission check and the page holds no secrets.
 (() => {
@@ -12,6 +13,7 @@
     shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), sort: $('al-sort'), flags: $('al-flags'),
     count: $('al-count'), results: $('al-results'), random: $('al-random'), reset: $('al-reset'),
     owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), send: $('al-send'), discard: $('al-discard'),
+    exportButton: $('al-export'),
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
@@ -166,22 +168,25 @@
     els.results.innerHTML = html;
   }
 
+  async function loadItems(id) {
+    if (!cache[id]) {
+      const data = await fetch(`data/${encodeURIComponent(id)}.json`).then(r => r.json());
+      data.forEach((i, n) => {
+        i._id = n; i._t = titleKey(i.t); i._c = creatorKey(i.c);
+        i._h = fold([i.t, i.c, i.y, i.g, i.s, i.u, i.n].filter(Boolean).join(' '));
+      });
+      cache[id] = data;
+    }
+    return cache[id];
+  }
+
   async function selectList(id, fromUrl) {
     list = lists.find(l => l.id === id) || lists[0];
     if (!fromUrl) Object.assign(state, blank());
     renderTabs();
     els.results.dataset.cover = list.cover || 'tall';
     els.count.textContent = 'Loading the shelves…';
-    if (!cache[list.id]) {
-      const response = await fetch(`data/${encodeURIComponent(list.id)}.json`);
-      const data = await response.json();
-      data.forEach((i, n) => {
-        i._id = n; i._t = titleKey(i.t); i._c = creatorKey(i.c);
-        i._h = fold([i.t, i.c, i.y, i.g, i.s, i.u, i.n].filter(Boolean).join(' '));
-      });
-      cache[list.id] = data;
-    }
-    items = cache[list.id];
+    items = await loadItems(list.id);
     renderControls();
     render();
     writeUrl();
@@ -190,7 +195,6 @@
   // Owner mode.
   const pendingCount = () => Object.values(pending).reduce((n, marks) => n + Object.keys(marks).length, 0);
   function renderOwnerBar() {
-    els.owner.textContent = owner ? 'Leave owner mode' : 'Owner mode';
     els.ownerBar.hidden = !owner;
     if (!owner) return;
     const count = pendingCount();
@@ -240,7 +244,45 @@
     els.count.textContent = els.count.textContent.replace(/(, [\d,]+ \w+)?\.$/, finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
     renderOwnerBar();
   });
-  els.owner.addEventListener('click', () => setOwner(!owner));
+  els.owner.addEventListener('click', () => setOwner(false));
+
+  // The spreadsheet library loads only when the owner exports.
+  const loadScript = src => new Promise((resolve, reject) => {
+    const script = Object.assign(document.createElement('script'), { src, onload: resolve, onerror: reject });
+    document.head.append(script);
+  });
+  els.exportButton.addEventListener('click', async () => {
+    els.exportButton.disabled = true;
+    els.exportButton.textContent = 'Preparing…';
+    try {
+      if (!window.XLSX) await loadScript('vendor/xlsx.full.min.js');
+      const book = XLSX.utils.book_new();
+      for (const meta of lists) {
+        const all = await loadItems(meta.id);
+        const saved = list;
+        list = meta;
+        const rows = all.map(i => {
+          const mark = pending[meta.id]?.[itemKey(i)], date = mark !== undefined ? mark : progress[meta.id]?.[itemKey(i)];
+          return {
+            ...(meta.groupLabel && { [meta.groupLabel]: i.g || '' }),
+            [meta.shelfLabel]: i.s || '', Subsection: i.u || '', Title: i.t, [meta.creatorLabel]: i.c || '', Year: i.y || '',
+            ...Object.fromEntries(Object.entries(meta.flags).map(([key, label]) => [label, i.f?.includes(key) ? 'yes' : ''])),
+            Status: isDone(i) ? meta.doneLabel : 'Anti-library', [`${meta.doneLabel} on`]: date || '', Note: i.n || '', Link: i.l || '',
+          };
+        });
+        list = saved;
+        const sheet = XLSX.utils.json_to_sheet(rows);
+        sheet['!autofilter'] = { ref: sheet['!ref'] };
+        XLSX.utils.book_append_sheet(book, sheet, meta.label);
+      }
+      XLSX.writeFile(book, `anti-library-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    } catch {
+      els.ownerText.textContent = 'The spreadsheet could not be made. Reload the page and try again.';
+    } finally {
+      els.exportButton.disabled = false;
+      els.exportButton.textContent = 'Export spreadsheet';
+    }
+  });
   els.discard.addEventListener('click', () => { pending = {}; store.set(PENDING_KEY, null); render(); });
 
   // A cover that fails to load leaves the lettered placeholder showing.
@@ -281,6 +323,8 @@
   });
 
   readUrl();
+  const ownerParam = new URLSearchParams(location.search).get('owner');
+  if (ownerParam) store.set(OWNER_KEY, ownerParam === 'on' || null);
   owner = store.get(OWNER_KEY, false) === true;
   pending = store.get(PENDING_KEY, {});
   Promise.all([
