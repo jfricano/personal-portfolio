@@ -119,7 +119,7 @@
 
   function filter() {
     const terms = fold(state.q).split(/\s+/).filter(Boolean);
-    visible = items.filter(i => (!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf) &&
+    visible = items.filter(i => !(owner && isRemoving(i)) && (!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf) &&
       [...state.flags].every(f => i.f && i.f.includes(f)) && (!owner || !state.hide || !isDone(i)) && terms.every(t => i._h.includes(t)));
     const sort = SORTS[state.sort];
     if (sort.cmp) visible = [...visible].sort(sort.cmp);
@@ -142,24 +142,29 @@
     const extra = [i.r && `<a href="${esc(i.r)}" target="_blank" rel="noopener noreferrer">Rate Your Music ↗</a>`,
       list.listen && `<a href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`].filter(Boolean);
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
-    const removing = owner && isRemoving(i);
-    const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined && !removing ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d || removing ? ` disabled title="${removing ? 'Set to be removed' : 'Marked in the source list'}"` : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
-      `<button type="button" class="al-remove${removing ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${removing}">${removing ? 'Keep' : 'Remove'}</button></span>` : '';
-    return `<article class="al-item${done ? ' al-done' : ''}${removing ? ' al-removing' : ''}" id="item-${i._id}" tabindex="-1">` +
+    const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
+      `<button type="button" class="al-remove" data-key="${esc(itemKey(i))}">Remove</button></span>` : '';
+    return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}${genres}${more}${mark}</div>` +
       `<div class="al-item-body">${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
   }
 
+  // Titles the owner is removing drop out of the view (and the totals) at once.
+  function updateCount() {
+    const kept = owner ? items.filter(i => !isRemoving(i)) : items;
+    const noun = list.noun[kept.length === 1 ? 0 : 1];
+    const finished = kept.filter(isDone).length;
+    els.count.textContent = (visible.length === kept.length
+      ? `All ${number(kept.length)} ${noun}`
+      : `Showing ${number(visible.length)} of ${number(kept.length)} ${noun}`) +
+      (finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
+  }
+
   function render() {
     filter();
-    const noun = list.noun[items.length === 1 ? 0 : 1];
-    const finished = items.filter(isDone).length;
-    els.count.textContent = (visible.length === items.length
-      ? `All ${number(items.length)} ${noun}`
-      : `Showing ${number(visible.length)} of ${number(items.length)} ${noun}`) +
-      (finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
+    updateCount();
     els.random.disabled = !visible.length;
     renderOwnerBar();
     if (!visible.length) {
@@ -232,6 +237,7 @@
     els.ownerText.textContent = count
       ? `${number(count)} ${count === 1 ? 'change is' : 'changes are'} saved in this browser and not yet on the site.`
       : 'Mark titles as you finish them or remove ones you no longer want, then send the changes to the site.';
+    if (count) els.ownerText.textContent += ' Discard brings back anything you removed.';
     els.send.hidden = els.discard.hidden = !count;
     if (count) els.send.href = issueUrl();
   }
@@ -268,18 +274,26 @@
     if (!button || !owner) return;
     const key = button.dataset.key, item = items.find(i => itemKey(i) === key);
     pending[list.id] ??= {};
+    const article = button.closest('.al-item');
     if (button.classList.contains('al-remove')) {
-      if (isRemoving(item)) delete pending[list.id][key];
-      else pending[list.id][key] = REMOVE;
+      pending[list.id][key] = REMOVE;
+      prunePending();
+      // The title leaves the page now; Discard brings it back until the changes are sent.
+      const shelf = article.closest('.al-shelf'), next = article.nextElementSibling || article.previousElementSibling;
+      visible = visible.filter(i => i !== item);
+      article.remove();
+      if (shelf) {
+        const left = shelf.querySelectorAll('.al-item').length;
+        if (left) shelf.querySelector('.al-shelf-count').textContent = number(left); else shelf.remove();
+      }
+      (next?.isConnected ? next : els.results).focus?.();
     } else {
       pending[list.id][key] = !isDone(item) ? new Date().toISOString().slice(0, 10) : null;
+      prunePending();
+      article.outerHTML = itemHtml(item);
+      $(`item-${item._id}`).querySelector('.al-mark').focus();
     }
-    prunePending();
-    const cls = button.classList.contains('al-remove') ? '.al-remove' : '.al-mark';
-    button.closest('.al-item').outerHTML = itemHtml(item);
-    $(`item-${item._id}`).querySelector(cls).focus();
-    const finished = items.filter(isDone).length;
-    els.count.textContent = els.count.textContent.replace(/(, [\d,]+ \w+)?\.$/, finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
+    updateCount();
     renderOwnerBar();
   });
   els.owner.addEventListener('click', () => setOwner(false));
