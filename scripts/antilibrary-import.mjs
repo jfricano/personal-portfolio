@@ -2,7 +2,8 @@
 // Usage: node scripts/antilibrary-import.mjs <source-folder>
 // A new list is one more entry in LISTS; sources that are missing are skipped.
 // Links and covers already found by antilibrary-lookup.mjs are kept.
-// Flags marked private only show in owner mode.
+// Flags marked private only show in owner mode; privateFilter flags show as tags for everyone
+// but can only be filtered on in owner mode.
 import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
 import path from 'node:path';
 import { root } from './build.mjs';
@@ -11,10 +12,13 @@ import { readLookups, applyLookups } from './antilibrary-lookup.mjs';
 const LISTS = [
   {
     id: 'books', label: 'Books', noun: ['book', 'books'], source: 'anti-library.json',
-    fields: { title: 'title', creator: 'author', group: 'part', shelf: 'section', note: 'hook' },
+    fields: { title: 'title', creator: 'author', group: 'part', shelf: 'section', note: 'hook', done: 'status' },
+    doneValues: ['Read', 'Digested', 'Formative'],
     creatorLabel: 'Author', groupLabel: 'Part', shelfLabel: 'Section', doneLabel: 'Read',
     search: 'https://openlibrary.org/search?q=',
-    flags: { owned: { field: 'owned', label: 'On my shelf' }, star: { field: 'star', label: 'Vonnegut frequency' } },
+    flags: { owned: { field: 'owned', label: 'On my shelf' }, star: { field: 'star', label: 'Vonnegut frequency' },
+      formative: { field: 'status', equals: 'Formative', label: 'Formative', privateFilter: true },
+      reading: { field: 'status', equals: 'Reading', label: 'Reading now', privateFilter: true } },
   },
   {
     id: 'films', label: 'Films', noun: ['film', 'films'], source: 'movies.csv',
@@ -87,15 +91,16 @@ for (const list of LISTS) {
       const value = field && clean(r[field]);
       if (value) item[key] = key === 'y' && /^\d+$/.test(value) ? Number(value) : value;
     }
-    const flags = Object.entries(list.flags).filter(([, flag]) => truthy(r[flag.field])).map(([key]) => key);
+    const flags = Object.entries(list.flags).filter(([, flag]) => flag.equals ? r[flag.field] === flag.equals : truthy(r[flag.field])).map(([key]) => key);
     if (flags.length) item.f = flags;
-    if (fields.done && truthy(r[fields.done])) item.d = 1;
+    if (fields.done && (list.doneValues ? list.doneValues.includes(r[fields.done]) : truthy(r[fields.done]))) item.d = 1;
     return item;
   });
   await writeFile(path.join(out, `${list.id}.json`), JSON.stringify(applyLookups(list.id, items, lookups)));
-  const { source, fields: _, transform, ...meta } = list;
+  const { source, fields: _, transform, doneValues, ...meta } = list;
   manifest.push({ ...meta, flags: Object.fromEntries(Object.entries(list.flags).map(([key, flag]) => [key, flag.label])),
     privateFlags: Object.keys(list.flags).filter(key => list.flags[key].private),
+    privateFilters: Object.keys(list.flags).filter(key => list.flags[key].private || list.flags[key].privateFilter),
     hasYear: items.some(item => item.y), count: items.length });
   console.log(`Imported ${items.length} ${list.noun[1]}`);
 }

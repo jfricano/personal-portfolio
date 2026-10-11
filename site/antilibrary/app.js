@@ -97,7 +97,7 @@
     const sorts = Object.entries(SORTS).filter(([, s]) => !s.year || list.hasYear);
     if (!sorts.some(([key]) => key === state.sort)) state.sort = 'shelf';
     els.sort.innerHTML = sorts.map(([key, s]) => `<option value="${key}"${key === state.sort ? ' selected' : ''}>${key === 'creator' ? `${esc(list.creatorLabel)} A–Z` : s.label}</option>`).join('');
-    const flags = shownFlags();
+    const flags = shownFlags().filter(([key]) => owner || !(list.privateFilters || []).includes(key));
     for (const key of state.flags) if (!flags.some(([k]) => k === key)) state.flags.delete(key);
     els.flags.innerHTML = '<legend class="label">Only show</legend>' + flags.map(([key, label]) =>
       `<label class="al-chip al-chip-${esc(key)}"><input type="checkbox" value="${esc(key)}"${state.flags.has(key) ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('') +
