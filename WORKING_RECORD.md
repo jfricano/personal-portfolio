@@ -112,3 +112,9 @@ Verification: `npm run check` passed 202 checks across 13 pages. Browser inspect
 ## TV / streaming artwork — October 11, 2026
 
 Jason requested one matching illustration and explicitly directed delivery to `claude/antilibrary-page` as `site/antilibrary/art/tv.jpg`. Added the 1536×1024 JPEG and original `artwork/antilibrary/tv.png`; prompt and provenance are in the artwork README. The built-in generator used the existing film illustration as its style reference. Existing `art/<list>.jpg` loading requires no code change; the page team owns the TV list/tab integration. Visually inspected the generated composition and verified JPEG dimensions. `npm run check` and `git diff --check` passed. No TV tab runtime check claimed because this asset-only change does not add one. Commit uses Jason’s configured SSH signature; direct push to the page feature branch is specifically authorized.
+
+## Anti-library and digests documentation — October 12, 2026
+
+Jason asked for the documentation to be brought up to date after launch. The README’s Anti-library section now describes the live page (navigation link, folded shelves, Thread filter, artist path pages, owner mode’s current checkboxes and its mark-and-remove-only scope) and a new Digests section describes `/digests/` and its private data source. PROJECT_BRIEF.md gained a dated note on what changed since launch. Artist path Heard boxes (PR #40, merged during this pass) are described as live. Matching updates went to jfricano/anti-lib (README, list conventions, a guide for the future Anti-Library Builder) and jfricano/reading-list in their own PRs.
+
+Verification: compared each statement with the current `site/antilibrary/` and `site/digests/` source on main including PR #40; `git diff --check` passed. Documentation only; no page behavior changed. Jason merges.
