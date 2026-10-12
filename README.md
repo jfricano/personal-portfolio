@@ -28,7 +28,7 @@ The existing mockups and design brief remain below as historical context. Produc
 
 The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, GetFit → bellos and Orca Solutions. StreamOtter pairs its public banner with a local Pup Patrol game capture and links to toolkit and game case studies; both retain access to the field-station case. iYosi and the archived StatBatt record appear alongside Vespa Law at `/moreprojects/`. Eight case studies remain in the source, including the retained iYosi and StatBatt URLs. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
 
-`npm run check` validates all twelve shipped HTML pages, including the additional-project gallery, identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
+`npm run check` validates every shipped HTML page, including the additional-project gallery, identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
 
 The static output excludes local workflow documents, artwork provenance notes and the full-size original artwork PNG. Source provenance stays in the repository. No analytics, runtime services or external fonts are required.
 
@@ -36,7 +36,7 @@ See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for sco
 
 ## Anti-library
 
-`site/antilibrary/` is an unlisted, searchable page of the books, films and albums Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
+`site/antilibrary/` is an unlisted, searchable page of the books, films, albums and TV Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
 
 The page fetches `lists.json`, one `<id>.json` per list and `progress.json` from `https://raw.githubusercontent.com/jfricano/anti-lib/main/data/` (the `data-source` attribute on `<main>`), so list changes and finished titles show up without redeploying this site. Search, filters and sort are kept in the URL, so a filtered view can be shared as a link. Links from the data are only used if they are `https:`.
 
