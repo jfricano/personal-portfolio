@@ -29,18 +29,21 @@
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
   let progress = {}, removed = {}, pending = {}, pendingTags = {}, owner = false, picked = false, digestLinks = {}, digestMarks = {};
-  // Paths: an order through one artist's albums (artist.html) or one author's books (author.html). They aren't shelves
-  // and have no rows: every step is a title on its own shelf. Each list with paths gets an unnumbered Paths aside above
-  // its shelves, and every title by a path's artist or author links to the path under the name.
+  // Paths: an order through one artist's albums (artist.html), one author's books (author.html) or one director's films
+  // (director.html). They aren't shelves and have no rows: every step is a title on its own shelf. Each list with paths
+  // gets an unnumbered Paths aside above its shelves, and every title by a path's artist, author or director links to the
+  // path under the name.
   const PATHS = {
     albums: { file: 'paths.json', page: 'artist.html', who: 'artist', label: 'Artist path', heading: 'Artist paths',
       lede: 'Not a shelf. A listening order for each artist worth going deep on, through albums already on these shelves.' },
     books: { file: 'author-paths.json', page: 'author.html', who: 'author', label: 'Author path', heading: 'Author paths',
       lede: 'Not a shelf. A reading order for each author worth going deep on, through books already on these shelves.' },
+    films: { file: 'director-paths.json', page: 'director.html', who: 'director', label: 'Director path', heading: 'Director paths',
+      lede: 'Not a shelf. A viewing order for each director worth going deep on, through films already on these shelves.' },
   };
   const paths = {};
   const pathFor = i => paths[list.id]?.byName.get(fold(i.c || '')) || null;
-  // A path is done (fully heard, fully read) once every title on its main line is crossed off, published or waiting in
+  // A path is done (fully heard, read or watched) once every title on its main line is crossed off, published or waiting in
   // this browser; it can't be ticked on its own. A work read inside a book on the list (v) counts with that book.
   const pathDone = (p, id) => p.records.filter(r => r.p).every(r => {
     if (r.d) return true;
@@ -238,7 +241,7 @@
     const done = isDone(i);
     const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, list.searchSuffix].filter(Boolean).join(' '))}`, away = ' target="_blank" rel="noopener noreferrer"';
     const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
-    // A title by an artist or author with a path links to it under the name, where it's easy to find, not with the tags.
+    // A title by an artist, author or director with a path links to it under the name, where it's easy to find, not with the tags.
     const path = pathFor(i), kind = PATHS[list.id];
     const pathLink = path ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(`${kind.page}?a=${encodeURIComponent(path.id)}`)}">${esc(kind.label)} →</a></p>` : '';
     const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => filters.has(f)
@@ -326,14 +329,14 @@
   }
 
   // The Paths aside sits above the shelves, outside their numbering, and folds like a shelf. It names everyone with a path;
-  // a name is struck through once the path is fully heard or read. It shows only while nothing narrows the list.
+  // a name is struck through once the path is fully heard, read or watched. It shows only while nothing narrows the list.
   function pathsAside() {
     const kind = PATHS[list.id], all = paths[list.id]?.all || [];
     if (!all.length) return '';
     const open = isOpen(PATHS_FOLD);
     const names = all.map(p => {
       const done = pathDone(p, list.id), start = owner && p.start ? ' <span class="al-paths-start">Start here</span>' : '';
-      return `<li${done ? ' class="al-done"' : ''}><a href="${esc(`${kind.page}?a=${encodeURIComponent(p.id)}`)}"${done ? ` title="${list.id === 'albums' ? 'Fully heard' : 'Fully read'}"` : ''}>${esc(p[kind.who])}</a>${start}</li>`;
+      return `<li${done ? ' class="al-done"' : ''}><a href="${esc(`${kind.page}?a=${encodeURIComponent(p.id)}`)}"${done ? ` title="${fullyLabel(list.id)}"` : ''}>${esc(p[kind.who])}</a>${start}</li>`;
     }).join('');
     return `<aside class="al-shelf al-paths" aria-label="${esc(kind.heading)}"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-paths" data-shelf="${PATHS_FOLD}">` +
       `<span class="index">Aside</span><span class="al-shelf-name">${esc(kind.heading)}</span><span class="al-shelf-count">${number(all.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
@@ -443,7 +446,7 @@
     restoreScroll();
   }
 
-  // Coming back from an artist or author page (or any page) lands where the visitor left the list, once the shelves are drawn.
+  // Coming back from an artist, author or director page (or any page) lands where the visitor left the list, once the shelves are drawn.
   const SCROLL_KEY = 'antilibrary-scroll';
   addEventListener('pagehide', () => { try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ href: location.href, y: scrollY })); } catch {} });
   function restoreScroll() {

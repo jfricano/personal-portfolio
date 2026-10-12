@@ -1,16 +1,18 @@
-// A path: a suggested order through one artist's records (artist.html) or one author's books (author.html), starting
-// at a door, with the works left out still shown in the timeline. The paths live in the jfricano/anti-lib repository
-// (lists/artist-paths.json and lists/author-paths.json, built into data/paths.json and data/author-paths.json), like
+// A path: a suggested order through one artist's records (artist.html), one author's books (author.html) or one
+// director's films (director.html), starting at a door, with the works left out still shown in the timeline. The paths
+// live in the jfricano/anti-lib repository (lists/artist-paths.json, lists/author-paths.json and
+// lists/director-paths.json, built into data/paths.json, data/author-paths.json and data/director-paths.json), like
 // the lists themselves. The page says which with data-kind on <main>. With no one named, the page lists every path.
 // Artist paths: in owner mode each record gets a Heard box. Ticks wait in the same browser store as the list's marks
 // (albums list, "title|artist"), so they go out with the list's Send changes issue and land in progress.json.
-// Author paths have no boxes: a book is marked on the books list, and a step counts once its book is crossed off there.
+// Author and director paths have no boxes: a book or film is marked on its list, and a step counts once it's crossed
+// off there.
 (() => {
   const main = document.getElementById('main'), DATA = main.dataset.source;
   const KINDS = {
     albums: {
       file: 'paths.json', page: 'artist.html', who: 'artist', noun: ['record', 'records'], done: 'heard', cover: 'square',
-      title: 'Artist <em>paths.</em>', crumb: 'Artist paths', what: 'a listening path',
+      title: 'Artist <em>paths.</em>', crumb: 'Artist paths', what: 'a listening path', order: 'Listening order', boxes: true,
       search: 'https://www.discogs.com/search/?type=all&q=', listen: 'https://open.spotify.com/search/',
       intro: "For the artists worth going deep on: a door to start with, then the records that make the study feel complete, in the order I'd play them.",
       lede: 'Every record worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.',
@@ -18,11 +20,19 @@
     },
     books: {
       file: 'author-paths.json', page: 'author.html', who: 'author', noun: ['book', 'books'], done: 'read', cover: 'tall',
-      title: 'Author <em>paths.</em>', crumb: 'Author paths', what: 'a reading path',
+      title: 'Author <em>paths.</em>', crumb: 'Author paths', what: 'a reading path', order: 'Reading order', person: 'author',
       search: 'https://www.goodreads.com/search?q=',
       intro: "For the writers worth going deep on: a door to start with, then the books that make the study feel complete, in the order I'd read them.",
       lede: 'Every book worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.',
       none: "There isn't a reading path for that author. <a href=\"author.html\">See the authors that have one.</a>",
+    },
+    films: {
+      file: 'director-paths.json', page: 'director.html', who: 'director', noun: ['film', 'films'], done: 'watched', cover: 'tall',
+      title: 'Director <em>paths.</em>', crumb: 'Director paths', what: 'a viewing path', order: 'Viewing order', person: 'director',
+      search: 'https://www.imdb.com/find/?s=tt&q=',
+      intro: "For the directors worth going deep on: a door to start with, then the films that make the study feel complete, in the order I'd watch them.",
+      lede: 'Every film worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.',
+      none: "There isn't a viewing path for that director. <a href=\"director.html\">See the directors that have one.</a>",
     },
   };
   const LIST = KINDS[main.dataset.kind] ? main.dataset.kind : 'albums', kind = KINDS[LIST];
@@ -43,7 +53,7 @@
     set(key, value) { try { value === null ? localStorage.removeItem(key) : localStorage.setItem(key, JSON.stringify(value)); } catch {} },
   };
   const owner = store.get(OWNER_KEY, false) === true;
-  const boxes = owner && LIST === 'albums';
+  const boxes = owner && Boolean(kind.boxes);
   let progress = {}, current = null;
 
   // A work read inside a book on the list (v) shares that book's mark.
@@ -74,10 +84,10 @@
 
   function stepHtml(p, r) {
     const cover = web(r.i) ? `<img src="${esc(r.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
-    // Albums show Heard as a tag; a book that's crossed off is struck through, as on the list.
-    const tags = [r.p === 1 && '<li class="al-tag ap-tag-door">The door</li>', LIST === 'albums' && done(r) && '<li class="al-tag al-tag-done">Heard</li>'].filter(Boolean);
+    // Albums show Heard as a tag; a book or film that's crossed off is struck through, as on the list.
+    const tags = [r.p === 1 && '<li class="al-tag ap-tag-door">The door</li>', kind.boxes && done(r) && '<li class="al-tag al-tag-done">Heard</li>'].filter(Boolean);
     const listen = kind.listen ? `<p class="al-more"><a class="al-listen" href="${esc(kind.listen + query(p, r))}" data-app="spotify:search:${esc(query(p, r))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a></p>` : '';
-    return `<li class="al-item ap-step${LIST === 'books' && done(r) ? ' al-done' : ''}" id="step-${r.p}">` +
+    return `<li class="al-item ap-step${!kind.boxes && done(r) ? ' al-done' : ''}" id="step-${r.p}">` +
       `<a class="al-cover" href="${esc(pageLink(p, r))}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(r.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><p class="ap-num index" aria-hidden="true">${r.p}</p><div class="al-ident"><h3><a href="${esc(pageLink(p, r))}" target="_blank" rel="noopener noreferrer"${web(r.l) ? '' : ` title="Search for this ${kind.noun[0]}"`}>${esc(r.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>` +
       `<p class="al-by">${credit(r)}</p></div>` +
@@ -92,7 +102,7 @@
       const extra = [r.b ? r.c : '', r.v && `in ${r.v}`, r.w].filter(Boolean).map(esc).join(' · ');
       return `<li class="ap-row${r.p ? '' : ' ap-skipped'}${done(r) ? ' ap-heard' : ''}"><span class="ap-year">${esc(r.y)}</span>` +
         `<div class="ap-what"><p class="ap-title"><a href="${esc(pageLink(p, r))}" target="_blank" rel="noopener noreferrer">${esc(r.t)}</a>` +
-        `${extra ? ` <span class="ap-credit">${extra}</span>` : ''}${LIST === 'albums' && done(r) ? ' <span class="ap-credit">· heard</span>' : ''}</p>` +
+        `${extra ? ` <span class="ap-credit">${extra}</span>` : ''}${kind.boxes && done(r) ? ' <span class="ap-credit">· heard</span>' : ''}</p>` +
         `${!r.p && r.n ? `<p class="ap-why">${esc(r.n)}</p>` : ''}${boxes && !r.p ? `<p class="al-owner-actions">${heardBox(r)}</p>` : ''}</div>${mark}</li>`;
     }).join('');
   }
@@ -110,7 +120,8 @@
     document.getElementById(`ap-${key}`).hidden = !open;
   }
 
-  // The name goes to the artist's AllMusic page or the author's Goodreads page, in a new tab like every outside link.
+  // The name goes to the artist's AllMusic page, the author's Goodreads page or the director's IMDb page, in a new tab
+  // like every outside link.
   const nameHtml = p => (web(p.g) ? `<a class="ap-name" href="${esc(p.g)}" target="_blank" rel="noopener noreferrer">${esc(nameOf(p))}<span class="al-ext" aria-hidden="true"> ↗</span></a>` : esc(nameOf(p)));
 
   function showPath(p) {
@@ -118,24 +129,24 @@
     const order = steps(p), skipped = p.records.length - order.length, years = p.records.map(r => r.y);
     const finished = order.filter(done).length, all = finished === order.length;
     document.title = `${nameOf(p)}: ${kind.what} — Jason Fricano`;
-    const progressText = LIST === 'albums'
+    const progressText = kind.boxes
       ? (all ? `Fully heard: all ${order.length} on the path` : `${finished} of ${order.length} on the path`)
-      : (all ? `Fully read: all ${order.length} on the path` : `${finished} of ${order.length} on the path crossed off`);
+      : (all ? `Fully ${kind.done}: all ${order.length} on the path` : `${finished} of ${order.length} on the path crossed off`);
     setHead(`${listLink} / <a href="${kind.page}">${kind.crumb}</a>`, nameHtml(p), p.about ? esc(p.about) : '',
       `<div><dt>The door</dt><dd><a href="#step-1">${esc(order[0].t)}</a> (${esc(order[0].y)})</dd></div>` +
       `<div><dt>The path</dt><dd>${count(order.length)}, in this order</dd></div>` +
       `<div><dt>Left out</dt><dd>${skipped ? `${skipped} more from ${Math.min(...years)} to ${Math.max(...years)}, in the timeline` : 'Nothing worth noting'}</dd></div>` +
-      `<div><dt>${LIST === 'albums' ? 'Heard' : 'Read'}</dt><dd>${progressText}</dd></div>`);
+      `<div><dt>${kind.done.charAt(0).toUpperCase() + kind.done.slice(1)}</dt><dd>${progressText}</dd></div>`);
     let bar = '';
-    if (owner && LIST === 'albums') {
+    if (owner && kind.boxes) {
       const n = Object.keys((store.get(PENDING_KEY, {}) || {}).albums || {}).length;
       bar = `<div class="al-owner-bar"><p aria-live="polite">${n
         ? `${n} ${n === 1 ? 'album is' : 'albums are'} ticked in this browser and not yet sent. Send them from the <a href="./?list=albums">albums list</a>.`
         : 'Tick each album as you hear it. The artist counts as fully heard once every album on the path is ticked.'}</p></div>`;
     } else if (owner) {
-      bar = '<div class="al-owner-bar"><p>Mark books as read on the <a href="./?list=books">books list</a>. The author counts as fully read once every book on the path is crossed off there; the books off the path don\'t count.</p></div>';
+      bar = `<div class="al-owner-bar"><p>Mark ${kind.noun[1]} as ${kind.done} on the <a href="./?list=${LIST}">${LIST} list</a>. The ${kind.person} counts as fully ${kind.done} once every ${kind.noun[0]} on the path is crossed off there; the ${kind.noun[1]} off the path don't count.</p></div>`;
     }
-    root.innerHTML = bar + fold('order', '01', LIST === 'albums' ? 'Listening order' : 'Reading order', order.length, `<ol class="al-list ap-steps" data-cover="${kind.cover}">${order.map(r => stepHtml(p, r)).join('')}</ol>`) +
+    root.innerHTML = bar + fold('order', '01', kind.order, order.length, `<ol class="al-list ap-steps" data-cover="${kind.cover}">${order.map(r => stepHtml(p, r)).join('')}</ol>`) +
       fold('run', '02', 'The whole run', p.records.length, `<p class="ap-lede">${kind.lede}</p><ol class="ap-timeline">${timelineHtml(p)}</ol>`);
     root.dataset.cover = kind.cover;
   }
