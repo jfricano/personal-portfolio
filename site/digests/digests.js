@@ -73,23 +73,55 @@
     store.set(PENDING_KEY, Object.keys(pending).length ? pending : null);
   }
   const pendingCount = () => Object.values(pending).reduce((n, entries) => n + Object.values(entries).reduce((m, f) => m + Object.keys(f).length, 0), 0);
-  function issueUrl() {
-    const lines = [];
+  // GitHub turns away issue links much past 8,000 characters, so a big batch is split into parts that each fit, each
+  // with its own json block; the workflow applies every part on its own. A unit is [line, path into the json, value].
+  const MAX_URL = 7000;
+  function issueLinks(repo, prefix, noun, units, footer) {
+    const build = (chunk, part) => {
+      const data = {};
+      for (const [, keys, value] of chunk) keys.slice(0, -1).reduce((o, k) => (o[k] ??= {}), data)[keys.at(-1)] = value;
+      const body = `${chunk.map(u => u[0]).join('\n')}\n\n${footer}\n\n\`\`\`json\n${JSON.stringify(data)}\n\`\`\`\n`;
+      return `https://github.com/${repo}/issues/new?${new URLSearchParams({ title: `${prefix}: update ${chunk.length} ${chunk.length === 1 ? noun : `${noun}s`}${part}`, body })}`;
+    };
+    const parts = [];
+    let chunk = [];
+    for (const unit of units) {
+      if (chunk.length && build([...chunk, unit], ' (part 10 of 10)').length > MAX_URL) { parts.push(chunk); chunk = []; }
+      chunk.push(unit);
+    }
+    if (chunk.length) parts.push(chunk);
+    return parts.map((c, i) => build(c, parts.length > 1 ? ` (part ${i + 1} of ${parts.length})` : ''));
+  }
+  // Shows one send button per part, cloning the first for the rest.
+  function setLinks(anchor, urls, label) {
+    document.querySelectorAll(`[data-part-of="${anchor.id}"]`).forEach(a => a.remove());
+    anchor.hidden = !urls.length;
+    if (!urls.length) return;
+    let last = anchor;
+    urls.forEach((url, i) => {
+      const a = i ? anchor.cloneNode() : anchor;
+      if (i) { a.removeAttribute('id'); a.dataset.partOf = anchor.id; last.after(a); last = a; }
+      a.href = url;
+      a.textContent = urls.length > 1 ? `${label}, part ${i + 1} of ${urls.length} ↗` : `${label} ↗`;
+    });
+  }
+  function issueUrls() {
+    const units = [];
     for (const [list, entries] of Object.entries(pending)) for (const [key, fields] of Object.entries(entries)) {
       const [title, creator] = key.split('|');
-      for (const [mark, value] of Object.entries(fields)) { const on = MARKS[mark](list)[0]; lines.push(`- ${value ? on : `Not ${on.toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`); }
+      for (const [mark, value] of Object.entries(fields)) { const on = MARKS[mark](list)[0]; units.push([`- ${value ? on : `Not ${on.toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`, [list, key, mark], value]); }
     }
-    const count = pendingCount();
-    const body = `${lines.join('\n')}\n\nThe digests page wrote this issue. Submit it to update the marks.\n\n\`\`\`json\n${JSON.stringify(pending)}\n\`\`\`\n`;
-    return `https://github.com/${REPO}/issues/new?${new URLSearchParams({ title: `Digests: update ${count} ${count === 1 ? 'mark' : 'marks'}`, body })}`;
+    return issueLinks(REPO, 'Digests', 'mark', units, 'The digests page wrote this issue. Submit it to update the marks.');
   }
   function renderOwnerBar() {
     const count = pendingCount();
     els.ownerText.textContent = count
       ? `${count} ${count === 1 ? 'mark is' : 'marks are'} saved in this browser and not yet sent.`
       : 'Mark digests as you read them, then send the marks.';
-    els.send.hidden = els.discard.hidden = !count;
-    if (count) els.send.href = issueUrl();
+    const sends = count ? issueUrls() : [];
+    if (sends.length > 1) els.ownerText.textContent += ' That’s too much for one GitHub issue, so it’s split into parts: send each one.';
+    setLinks(els.send, sends, 'Send marks');
+    els.discard.hidden = !count;
   }
 
   const markButtons = d => Object.entries(MARKS).map(([mark, words]) => {

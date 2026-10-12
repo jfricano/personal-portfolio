@@ -411,6 +411,38 @@
   }
 
   // Owner mode.
+  // GitHub turns away issue links much past 8,000 characters, so a big batch is split into parts that each fit, each
+  // with its own json block; the workflow applies every part on its own. A unit is [line, path into the json, value].
+  const MAX_URL = 7000;
+  function issueLinks(repo, prefix, noun, units, footer) {
+    const build = (chunk, part) => {
+      const data = {};
+      for (const [, keys, value] of chunk) keys.slice(0, -1).reduce((o, k) => (o[k] ??= {}), data)[keys.at(-1)] = value;
+      const body = `${chunk.map(u => u[0]).join('\n')}\n\n${footer}\n\n\`\`\`json\n${JSON.stringify(data)}\n\`\`\`\n`;
+      return `https://github.com/${repo}/issues/new?${new URLSearchParams({ title: `${prefix}: update ${chunk.length} ${chunk.length === 1 ? noun : `${noun}s`}${part}`, body })}`;
+    };
+    const parts = [];
+    let chunk = [];
+    for (const unit of units) {
+      if (chunk.length && build([...chunk, unit], ' (part 10 of 10)').length > MAX_URL) { parts.push(chunk); chunk = []; }
+      chunk.push(unit);
+    }
+    if (chunk.length) parts.push(chunk);
+    return parts.map((c, i) => build(c, parts.length > 1 ? ` (part ${i + 1} of ${parts.length})` : ''));
+  }
+  // Shows one send button per part, cloning the first for the rest.
+  function setLinks(anchor, urls, label) {
+    document.querySelectorAll(`[data-part-of="${anchor.id}"]`).forEach(a => a.remove());
+    anchor.hidden = !urls.length;
+    if (!urls.length) return;
+    let last = anchor;
+    urls.forEach((url, i) => {
+      const a = i ? anchor.cloneNode() : anchor;
+      if (i) { a.removeAttribute('id'); a.dataset.partOf = anchor.id; last.after(a); last = a; }
+      a.href = url;
+      a.textContent = urls.length > 1 ? `${label}, part ${i + 1} of ${urls.length} ↗` : `${label} ↗`;
+    });
+  }
   const nested = data => Object.values(data).reduce((n, entries) => n + Object.values(entries).reduce((m, set) => m + Object.keys(set).length, 0), 0);
   const pendingCount = () => Object.values(pending).reduce((n, marks) => n + Object.keys(marks).length, 0) + nested(pendingTags);
   function renderOwnerBar() {
@@ -422,46 +454,40 @@
       : 'Tick titles as you finish them, retag them or remove ones you no longer want, then send the changes to the site.';
     if (count && marks) els.ownerText.textContent += ' Send both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.';
     if (count) els.ownerText.textContent += ' Discard brings back anything you removed.';
-    els.send.hidden = !count;
-    els.sendMarks.hidden = !marks;
+    const sends = count ? issueUrls() : [], markSends = marks ? marksIssueUrls() : [];
+    if (sends.length > 1 || markSends.length > 1) els.ownerText.textContent += ' That’s too much for one GitHub issue, so it’s split into parts: send each one.';
+    setLinks(els.send, sends, 'Send changes to the site');
+    setLinks(els.sendMarks, markSends, 'Send digest marks');
     els.discard.hidden = !count && !marks;
-    if (count) els.send.href = issueUrl();
-    if (marks) els.sendMarks.href = marksIssueUrl();
   }
   // The same issue the digests page writes, for its own repository's workflow.
-  function marksIssueUrl() {
-    const waiting = digestPending(), lines = [];
-    for (const [id, entries] of Object.entries(waiting)) for (const [key, fields] of Object.entries(entries)) {
+  function marksIssueUrls() {
+    const units = [];
+    for (const [id, entries] of Object.entries(digestPending())) for (const [key, fields] of Object.entries(entries)) {
       const [title, creator] = key.split('|');
       for (const [mark, value] of Object.entries(fields)) {
         const on = mark === 'read' ? 'Digested' : fullyLabel(id);
-        lines.push(`- ${value ? on : `Not ${on.toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`);
+        units.push([`- ${value ? on : `Not ${on.toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`, [id, key, mark], value]);
       }
     }
-    const count = nested(waiting);
-    const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the marks.\n\n\`\`\`json\n${JSON.stringify(waiting)}\n\`\`\`\n`;
-    return `https://github.com/${DIGESTS_REPO}/issues/new?${new URLSearchParams({ title: `Digests: update ${count} ${count === 1 ? 'mark' : 'marks'}`, body })}`;
+    return issueLinks(DIGESTS_REPO, 'Digests', 'mark', units, 'The anti-library page wrote this issue. Submit it to update the marks.');
   }
-  function issueUrl() {
-    const lines = [];
+  function issueUrls() {
+    const units = [];
     for (const [listId, marks] of Object.entries(pending)) {
-      const meta = lists.find(l => l.id === listId);
       for (const [key, value] of Object.entries(marks)) {
         const [title, creator] = key.split('|');
-        lines.push(`- ${value === REMOVE ? 'Remove from the list' : value ? 'Crossed off' : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
+        units.push([`- ${value === REMOVE ? 'Remove from the list' : value ? 'Crossed off' : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`, [listId, key], value]);
       }
     }
     for (const [listId, tagged] of Object.entries(pendingTags)) {
       const meta = lists.find(l => l.id === listId);
       for (const [key, set] of Object.entries(tagged)) {
         const [title, creator] = key.split('|');
-        for (const [flag, on] of Object.entries(set)) lines.push(`- ${on ? meta.flags[flag] : `Not ${meta.flags[flag].toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`);
+        for (const [flag, on] of Object.entries(set)) units.push([`- ${on ? meta.flags[flag] : `Not ${meta.flags[flag].toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`, ['tags', listId, key, flag], on]);
       }
     }
-    const marks = Object.keys(pendingTags).length ? { ...pending, tags: pendingTags } : pending;
-    const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the site.\n\n\`\`\`json\n${JSON.stringify(marks)}\n\`\`\`\n`;
-    const count = pendingCount();
-    return `https://github.com/${REPO}/issues/new?${new URLSearchParams({ title: `Anti-library: update ${count} ${count === 1 ? 'title' : 'titles'}`, body })}`;
+    return issueLinks(REPO, 'Anti-library', 'title', units, 'The anti-library page wrote this issue. Submit it to update the site.');
   }
   function setOwner(on) {
     owner = on;
