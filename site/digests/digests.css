@@ -1,6 +1,6 @@
 /* The private digests shelf, built on the anti-library's components (antilibrary.css). */
 .dg-intro{padding-bottom:40px}
-.dg-intro .case-deck{max-width:760px}
+.dg-intro-body{grid-template-columns:minmax(0,760px)}
 
 .dg-lock{border-top:1px solid var(--ink);padding:44px 0 20px;max-width:640px}
 .dg-lock h2{font-size:clamp(32px,3.6vw,46px);margin-bottom:14px}
@@ -15,6 +15,7 @@
 .dg-help{font-size:13px;color:var(--muted);margin-top:8px}
 
 .dg-controls{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.dg-browser .al-tabs{border-top:1px solid var(--ink)}
 .dg-count{font-size:14px;color:var(--muted);padding:18px 0 6px}
 .dg-item{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"head body tags"}
 .dg-item h3 a{text-decoration:none}
@@ -45,6 +46,8 @@
 .dg-reader-hook{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.4;color:var(--muted);margin-top:18px}
 .dg-facts{list-style:none;margin:18px 0 16px;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .dg-reader-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start;margin-top:14px}
+.dg-reader-tags[hidden]{display:none}
+.dg-export{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 
 .dg-prose{font-size:18px;line-height:1.7}
 .dg-prose h3{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.4vw,40px);letter-spacing:-.055em;line-height:1.05;margin:52px 0 16px;padding-top:16px;border-top:1px solid var(--line)}
@@ -71,4 +74,28 @@
 .dg-lock-row{flex-direction:column}
 .dg-item{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "body" "tags"}
 .dg-reader{padding-top:22px}.dg-prose{font-size:17px}.dg-prose blockquote{font-size:18px;padding-left:16px}
+}
+
+/* Printing a digest (and Save as PDF): just the digest, in black on white, with link addresses written out. */
+@media print{
+@page{margin:2cm 2.2cm}
+body{background:#fff;color:#000}body:before{display:none}
+.skip,.masthead,.footer,.dg-intro,.dg-lock,.dg-browser,.dg-back,.dg-marks,.dg-export,.dg-reader-tags,.dg-video{display:none!important}
+main.digests{width:auto;padding:0;max-width:none}
+.dg-reader{max-width:none;padding:0;margin:0}
+.dg-reader-head{padding:0 0 14pt;margin-bottom:6pt;border-bottom:1pt solid #000}
+.dg-reader-head .label{color:#555}
+.dg-reader-title{font-size:30pt;margin:6pt 0 4pt;color:#000}
+.dg-reader-by{font-size:12pt}
+.dg-reader-hook{font-size:13pt;color:#333;margin-top:8pt}
+.dg-facts{font-size:8pt;color:#444;margin:10pt 0 0}
+.dg-prose{font-size:11pt;line-height:1.5;color:#000}
+.dg-prose h3{font-size:19pt;margin:20pt 0 6pt;padding-top:8pt;border-top:.5pt solid #999}
+.dg-prose h4{font-size:14pt;margin:14pt 0 4pt}
+.dg-prose h3,.dg-prose h4,.dg-prose h5,.dg-prose h6{break-after:avoid;page-break-after:avoid}
+.dg-prose p,.dg-prose li{orphans:3;widows:3}
+.dg-prose blockquote{font-size:12pt;border-left-color:#000;break-inside:avoid;page-break-inside:avoid}
+.dg-prose a{color:#000;text-decoration:underline}
+.dg-prose a:not(.dg-bare)::after{content:" (" attr(href) ")";font-size:8.5pt;color:#444;word-break:break-all;text-decoration:none}
+.dg-prose code{background:none;padding:0}
 }

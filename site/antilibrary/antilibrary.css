@@ -28,15 +28,14 @@
 .al-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0;
   -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%)}
 .al-art.is-shown img{opacity:1}
-.al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:0;z-index:4;background:var(--paper);border-bottom:1px solid var(--line)}
+.al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:var(--sticky-top,0px);z-index:3;background:var(--paper);border-bottom:1px solid var(--line)}
 .al-controls label.label,.al-flags legend{display:block;color:var(--muted);margin-bottom:6px}
 .al-controls input[type=search],.al-controls select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fbf8f2;border:1px solid var(--line);border-radius:0;padding:10px 12px;min-height:44px}
 .al-controls select{appearance:none;padding-right:34px;text-overflow:ellipsis;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
 .al-controls input[type=search]{border-color:var(--ink)}
 .al-field[hidden]{display:none}
-/* Shelf gets the extra width, since its names are the longest. The bar pins just under the site header, whose
-   height styles.css sets as --masthead-h; it stays below the header when the two overlap. */
-.al-controls{grid-template-columns:minmax(0,1.6fr) minmax(0,1.4fr) repeat(2,minmax(0,1fr));top:var(--masthead-h,0px);z-index:3}
+/* Shelf gets the extra width, since its names are the longest. */
+.al-controls{grid-template-columns:minmax(0,1.6fr) minmax(0,1.4fr) repeat(2,minmax(0,1fr))}
 
 /* Filters in use sit beside the count as chips that take themselves off; nothing shows when nothing is narrowed. */
 .al-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-width:0}
@@ -116,6 +115,9 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-tag-formative{color:var(--rust);border-color:var(--rust);font-weight:600}
 .al-tag-reading{background:var(--lavender);border-color:var(--ink)}
 .al-tag-done{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.al-tag-digested{border-style:dashed;color:var(--muted)}
+.al-tag-deeper{color:var(--rust);border-color:var(--rust)}
+.al-tag-deeper:before{content:'→ '}
 /* The picked title is simply highlighted; the site does not animate, so neither does this. */
 .al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf}
 .al-picked .al-item-head:before{content:'Picked for you';display:block;font-family:var(--sans);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-bottom:4px}
