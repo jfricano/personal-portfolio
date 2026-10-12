@@ -80,3 +80,7 @@
 /* Keep the complete Treasury capture centered within the shared project frame. */
 .project-art.treasury-art{align-items:center}
 .treasury-art img{width:auto;height:auto;max-width:100%;max-height:100%;object-fit:contain;object-position:center}
+
+/* Three nav links still fit on one line at the narrowest phones. */
+.nav a{white-space:nowrap}
+@media(max-width:340px){.nav{gap:8px;font-size:10.5px}}
