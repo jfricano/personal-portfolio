@@ -29,18 +29,27 @@
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
   let progress = {}, removed = {}, pending = {}, pendingTags = {}, owner = false, picked = false, digestLinks = {}, digestMarks = {};
-  // Artists with a listening path (artist.html), by folded name: the path row itself and the artist's other albums link there.
-  let artistPaths = null;
-  const pathOf = i => (artistPaths && list.id === 'albums' && artistPaths.get(fold(i.f?.includes('path') ? i.t : i.c || ''))) || null;
-  const pathFor = i => pathOf(i)?.id;
-  // An artist path row is fully heard once every album on its path is heard (published or waiting in this browser);
-  // it can't be ticked on its own.
-  const pathHeard = p => p.records.filter(r => r.p).every(r => {
+  // Paths: an order through one artist's albums (artist.html), one author's books (author.html) or one director's films
+  // (director.html). They aren't shelves and have no rows: every step is a title on its own shelf. Each list with paths
+  // gets an unnumbered Paths aside above its shelves, and every title by a path's artist, author or director links to the
+  // path under the name.
+  const PATHS = {
+    albums: { file: 'paths.json', page: 'artist.html', who: 'artist', label: 'Artist path', heading: 'Artist paths',
+      lede: 'Not a shelf. A listening order for each artist worth going deep on, through albums already on these shelves.' },
+    books: { file: 'author-paths.json', page: 'author.html', who: 'author', label: 'Author path', heading: 'Author paths',
+      lede: 'Not a shelf. A reading order for each author worth going deep on, through books already on these shelves.' },
+    films: { file: 'director-paths.json', page: 'director.html', who: 'director', label: 'Director path', heading: 'Director paths',
+      lede: 'Not a shelf. A viewing order for each director worth going deep on, through films already on these shelves.' },
+  };
+  const paths = {};
+  const pathFor = i => paths[list.id]?.byName.get(fold(i.c || '')) || null;
+  // A path is done (fully heard, read or watched) once every title on its main line is crossed off, published or waiting in
+  // this browser; it can't be ticked on its own. A work read inside a book on the list (v) counts with that book.
+  const pathDone = (p, id) => p.records.filter(r => r.p).every(r => {
     if (r.d) return true;
-    const mark = pending.albums?.[`${r.t}|${r.c}`];
-    return Boolean(mark !== undefined && mark !== REMOVE ? mark : progress.albums?.[`${r.t}|${r.c}`]);
+    const key = `${r.v || r.t}|${r.c}`, mark = pending[id]?.[key];
+    return Boolean(mark !== undefined && mark !== REMOVE ? mark : progress[id]?.[key]);
   });
-  const pathRow = i => (i.f?.includes('path') ? pathOf(i) : null);
   // Shelves start folded, so a list opens as its table of contents. Shelves opened while browsing are remembered in
   // this browser per list; while a search, shelf or filter is on, every shelf with matches opens instead, and folds
   // made then last only until the filters change.
@@ -89,7 +98,6 @@
   // A title crossed off before the digest marks existed counts as fully read unless it is marked digested.
   const isFully = i => (digestLinks[list.id]?.[itemKey(i)] ? markOf(i, 'deeper') || (isDone(i) && !(digestCounts(list.id) && markOf(i, 'read'))) : isDone(i));
   const isDone = i => {
-    if (pathRow(i)) return Boolean(i.d || pathHeard(pathRow(i)));
     const mark = pendingFor(i);
     return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
   };
@@ -231,15 +239,12 @@
     if ((state.sort !== 'shelf' || state.thread) && i.s) where.push(splitShelf(i.s)[1]);
     if (i.u) where.push(i.u);
     const done = isDone(i);
-    const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
-    const path = pathFor(i), isPath = Boolean(path && i.f?.includes('path'));
-    // An artist path row's name goes to the artist's AllMusic page; the Artist path button under it opens the path.
-    const outside = (isPath && i.l ? i.l.replace(/\/discography$/, '') : i.l) || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
-    const href = outside, away = ' target="_blank" rel="noopener noreferrer"', pathHref = path ? `artist.html?a=${encodeURIComponent(path)}` : '';
+    const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, list.searchSuffix].filter(Boolean).join(' '))}`, away = ' target="_blank" rel="noopener noreferrer"';
     const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
-    // On an artist's own row the Artist path link sits under the name, where it's easy to find, not with the tags.
-    const pathLink = isPath ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(pathHref)}">${esc(list.flags.path || 'Artist path')} →</a></p>` : '';
-    const tags = (i.f || []).filter(f => visibleFlags.has(f) && !(f === 'path' && isPath)).map(f => filters.has(f)
+    // A title by an artist, author or director with a path links to it under the name, where it's easy to find, not with the tags.
+    const path = pathFor(i), kind = PATHS[list.id];
+    const pathLink = path ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(`${kind.page}?a=${encodeURIComponent(path.id)}`)}">${esc(kind.label)} →</a></p>` : '';
+    const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => filters.has(f)
       ? `<li><button type="button" class="al-tag al-tag-${esc(f)}" data-only="${esc(f)}" title="Show only ${esc(list.flags[f].toLowerCase())}">${esc(list.flags[f])}</button></li>`
       : `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
     const digest = owner ? digestLinks[list.id]?.[itemKey(i)] : null;
@@ -247,8 +252,7 @@
     if (digest && !digestCounts(list.id) && markOf(i, 'read')) tags.push('<li class="al-tag al-tag-digested">Digested</li>');
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
-    const extra = [path && !isPath && `<a href="${esc(pathHref)}">Artist path →</a>`,
-      list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
+    const extra = [list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
       digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}" target="_blank" rel="noopener">${markOf(i, 'read') ? 'Reread digest' : 'Read digest'} ↗</a>`].filter(Boolean);
     const step = state.thread && i.th?.[state.thread]?.[1];
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
@@ -256,8 +260,8 @@
     const toggle = (flag, text, on, unsent, attrs = '') => `<label class="al-toggle${unsent ? ' al-unsent' : ''}"${attrs}>` +
       `<input type="checkbox" data-key="${key}" data-flag="${flag}"${on ? ' checked' : ''}${attrs ? ' disabled' : ''}><span>${esc(text)}</span></label>`;
     const marks = (digest && digestCounts(list.id) ? toggle('digest:read', 'Digested', markOf(i, 'read'), markUnsent(i, 'read')) : '') +
-      toggle(digest ? 'digest:deeper' : '', isPath ? `${fullyLabel(list.id)}, from the path` : fullyLabel(list.id), isFully(i), digest ? markUnsent(i, 'deeper') : pendingFor(i) !== undefined,
-        isPath ? ' title="Ticks itself when every album on the path is heard"' : i.d ? ' title="Marked in the source list"' : '');
+      toggle(digest ? 'digest:deeper' : '', fullyLabel(list.id), isFully(i), digest ? markUnsent(i, 'deeper') : pendingFor(i) !== undefined,
+        i.d ? ' title="Marked in the source list"' : '');
     // Progress (Digested, Fully read) comes first; the few tags owner mode can change (list.toggles, Formative on
     // books) follow behind a rule. Every other tag is edited in the source lists.
     const tagBoxes = (list.toggles || []).map(flag => toggle(esc(flag), list.flags[flag], i.f?.includes(flag), flag in tagged)).join('');
@@ -310,7 +314,7 @@
       if (!groups.has(i.s)) groups.set(i.s, []);
       groups.get(i.s).push(i);
     }
-    let html = '', part = null;
+    let html = filtering() ? '' : pathsAside(), part = null;
     for (const [shelf, rows] of groups) {
       const g = rows[0].g;
       if (g && g !== part && !state.group) { html += `<p class="al-part label">${esc(g)}</p>`; part = g; }
@@ -323,6 +327,23 @@
     els.results.innerHTML = html;
     updateFold();
   }
+
+  // The Paths aside sits above the shelves, outside their numbering, and folds like a shelf. It names everyone with a path;
+  // a name is struck through once the path is fully heard, read or watched. It shows only while nothing narrows the list.
+  function pathsAside() {
+    const kind = PATHS[list.id], all = paths[list.id]?.all || [];
+    if (!all.length) return '';
+    const open = isOpen(PATHS_FOLD);
+    const names = all.map(p => {
+      const done = pathDone(p, list.id), start = owner && p.start ? ' <span class="al-paths-start">Start here</span>' : '';
+      return `<li${done ? ' class="al-done"' : ''}><a href="${esc(`${kind.page}?a=${encodeURIComponent(p.id)}`)}"${done ? ` title="${fullyLabel(list.id)}"` : ''}>${esc(p[kind.who])}</a>${start}</li>`;
+    }).join('');
+    return `<aside class="al-shelf al-paths" aria-label="${esc(kind.heading)}"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-paths" data-shelf="${PATHS_FOLD}">` +
+      `<span class="index">Aside</span><span class="al-shelf-name">${esc(kind.heading)}</span><span class="al-shelf-count">${number(all.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
+      `<div class="al-paths-body" id="al-paths"${open ? '' : ' hidden'}><p class="al-paths-lede">${esc(kind.lede)} <a href="${kind.page}">See every path →</a></p>` +
+      `<ul class="al-paths-names">${names}</ul></div></aside>`;
+  }
+  const PATHS_FOLD = '(paths)';
 
   // Shelf headings fold their shelf away; nothing re-renders, so scroll position and focus stay put.
   const shelfIndex = new Map();
@@ -392,10 +413,13 @@
     return cache[id];
   }
 
-  async function loadPaths() {
-    const paths = await fetch(`${DATA}paths.json`).then(r => (r.ok ? r.json() : [])).catch(() => []);
-    artistPaths = new Map();
-    for (const p of paths) for (const name of [p.artist, ...(p.names || [])]) artistPaths.set(fold(name), p);
+  // A list's paths load with it, once; a list whose paths can't be read just has none.
+  async function loadPaths(id) {
+    const kind = PATHS[id];
+    const all = await fetch(`${DATA}${kind.file}`).then(r => (r.ok ? r.json() : [])).catch(() => []);
+    const byName = new Map();
+    for (const p of all) for (const name of [p[kind.who], ...(p.names || [])]) byName.set(fold(name), p);
+    paths[id] = { all, byName };
   }
 
   async function selectList(id, fromUrl) {
@@ -407,14 +431,14 @@
     els.results.dataset.cover = list.cover || 'tall';
     els.count.textContent = 'Loading the shelves…';
     items = await loadItems(list.id);
-    if (list.id === 'albums' && !artistPaths) await loadPaths();
+    if (PATHS[list.id] && !paths[list.id]) await loadPaths(list.id);
     renderControls();
     render();
     writeUrl();
     restoreScroll();
   }
 
-  // Coming back from an artist page (or any page) lands where the visitor left the list, once the shelves are drawn.
+  // Coming back from an artist, author or director page (or any page) lands where the visitor left the list, once the shelves are drawn.
   const SCROLL_KEY = 'antilibrary-scroll';
   addEventListener('pagehide', () => { try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ href: location.href, y: scrollY })); } catch {} });
   function restoreScroll() {
