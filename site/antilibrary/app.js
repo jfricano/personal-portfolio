@@ -11,7 +11,7 @@
   // read-only key also links each title that has a finished digest and shows its digest marks.
   const DIGESTS_REPO = 'jfricano/reading-list', DIGESTS_TOKEN_KEY = 'digests-token';
   const DATA = document.getElementById('main').dataset.source;
-  const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks', FOLDED_KEY = 'antilibrary-folded';
+  const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks', OPENED_KEY = 'antilibrary-opened';
   const $ = id => document.getElementById(id);
   const els = {
     tabs: $('al-tabs'), q: $('al-q'), shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), show: $('al-show'), showField: $('al-show-field'),
@@ -23,11 +23,12 @@
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
   let progress = {}, removed = {}, pending = {}, owner = false, picked = false, digestLinks = {};
-  // Collapsed shelves. Folds made while browsing are remembered in this browser per list; while a search or filter
-  // is on, every shelf with matches opens, and folds made then last only until the filters change.
-  let folded = {}, foldedNow = new Set();
-  const filtering = () => Boolean(state.q || state.only || (owner && state.hide));
-  const foldSet = () => (filtering() ? foldedNow : (folded[list.id] ??= new Set()));
+  // Shelves start folded, so a list opens as its table of contents. Shelves opened while browsing are remembered in
+  // this browser per list; while a search, shelf or filter is on, every shelf with matches opens instead, and folds
+  // made then last only until the filters change.
+  let opened = {}, foldedNow = new Set();
+  const filtering = () => Boolean(state.q || state.only || state.group || state.shelf || (owner && state.hide));
+  const isOpen = shelf => (filtering() ? !foldedNow.has(shelf) : Boolean(opened[list.id]?.has(shelf)));
   const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', only: '', hide: false });
   const state = { list: '', ...blank() };
 
@@ -238,7 +239,7 @@
       const g = rows[0].g;
       if (g && g !== part && !state.group) { html += `<p class="al-part label">${esc(g)}</p>`; part = g; }
       const [num, name] = splitShelf(shelf);
-      const n = shelfIndex.get(shelf), open = !foldSet().has(shelf);
+      const n = shelfIndex.get(shelf), open = isOpen(shelf);
       html += `<section class="al-shelf"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-shelf-${n}" data-shelf="${esc(shelf)}">` +
         `<span class="index">${esc(num)}</span><span class="al-shelf-name">${esc(name || 'Unshelved')}</span><span class="al-shelf-count">${number(rows.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
         `<div class="al-list" id="al-shelf-${n}"${open ? '' : ' hidden'}>${rows.map(itemHtml).join('')}</div></section>`;
@@ -252,11 +253,12 @@
   function setFold(toggle, open) {
     toggle.setAttribute('aria-expanded', open);
     $(toggle.getAttribute('aria-controls')).hidden = !open;
-    const set = foldSet();
-    open ? set.delete(toggle.dataset.shelf) : set.add(toggle.dataset.shelf);
+    const shelf = toggle.dataset.shelf;
+    if (filtering()) open ? foldedNow.delete(shelf) : foldedNow.add(shelf);
+    else { const set = (opened[list.id] ??= new Set()); open ? set.add(shelf) : set.delete(shelf); }
   }
   function saveFolds() {
-    store.set(FOLDED_KEY, Object.fromEntries(Object.entries(folded).filter(([, set]) => set.size).map(([id, set]) => [id, [...set]])));
+    store.set(OPENED_KEY, Object.fromEntries(Object.entries(opened).filter(([, set]) => set.size).map(([id, set]) => [id, [...set]])));
   }
   function updateFold() {
     const anyOpen = [...els.results.querySelectorAll('.al-shelf-toggle')].some(t => t.getAttribute('aria-expanded') === 'true');
@@ -541,7 +543,7 @@
   if (ownerParam) store.set(OWNER_KEY, ownerParam === 'on' || null);
   owner = store.get(OWNER_KEY, false) === true;
   pending = store.get(PENDING_KEY, {});
-  folded = Object.fromEntries(Object.entries(store.get(FOLDED_KEY, {}) || {}).filter(([, v]) => Array.isArray(v)).map(([id, v]) => [id, new Set(v)]));
+  opened = Object.fromEntries(Object.entries(store.get(OPENED_KEY, {}) || {}).filter(([, v]) => Array.isArray(v)).map(([id, v]) => [id, new Set(v)]));
   Promise.all([
     fetch(`${DATA}lists.json`).then(r => r.json()),
     fetch(`${DATA}progress.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
