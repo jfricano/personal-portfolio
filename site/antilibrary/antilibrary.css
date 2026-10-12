@@ -28,23 +28,26 @@
 .al-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0;
   -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%)}
 .al-art.is-shown img{opacity:1}
-.al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:0;z-index:4;background:var(--paper);border-bottom:1px solid var(--line)}
-.al-controls label.label,.al-flags legend{display:block;color:var(--muted);margin-bottom:6px}
+.al-controls{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.4fr) repeat(2,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:0;z-index:4;background:var(--paper);border-bottom:1px solid var(--line)}
+.al-controls label.label{display:block;color:var(--muted);margin-bottom:6px}
 .al-controls input[type=search],.al-controls select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fbf8f2;border:1px solid var(--line);border-radius:0;padding:10px 12px;min-height:44px}
-.al-controls select{appearance:none;padding-right:34px;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
+.al-controls select{appearance:none;padding-right:34px;text-overflow:ellipsis;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
 .al-controls input[type=search]{border-color:var(--ink)}
 .al-field[hidden]{display:none}
-.al-flags{grid-column:1/-1;border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
-.al-flags legend{float:left;margin:0 8px 0 0}
-.al-flags[hidden]{display:none}
-.al-chip{position:relative;cursor:pointer;font-size:13px}
-.al-chip input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
-.al-chip span{display:inline-block;border:1px solid var(--line);padding:6px 13px;border-radius:999px;background:#fbf8f2}
-.al-chip input:checked+span{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.al-chip input:focus-visible+span{outline:3px solid var(--rust);outline-offset:2px}
-.al-chip input:checked+span:before{content:'✓ '}
+
+/* Filters in use sit beside the count as chips that take themselves off; nothing shows when nothing is narrowed. */
+.al-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-width:0}
+.al-applied{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.al-chip{font:inherit;font-size:13px;color:var(--ink);background:#fbf8f2;border:1px solid var(--ink);border-radius:999px;padding:5px 8px 5px 13px;min-height:32px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;max-width:100%}
+.al-chip span{font-size:16px;line-height:1;color:var(--muted)}
+.al-chip:hover{border-color:var(--rust);color:var(--rust)}
+.al-chip:hover span{color:var(--rust)}
+.al-chip:focus-visible,.al-tag:focus-visible,.al-check input:focus-visible{outline:3px solid var(--rust);outline-offset:2px}
+.al-check{display:inline-flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;min-height:40px;padding:0 6px}
+.al-check input{width:16px;height:16px;margin:0;accent-color:var(--ink)}
 
 .al-status{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 0 6px;font-size:14px;color:var(--muted)}
+.al-status .al-actions{flex:none}
 .al-actions{display:flex;gap:10px;flex-wrap:wrap}
 .al-button{font:inherit;font-size:13px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:9px 16px;cursor:pointer;min-height:40px}
 .al-button:hover{background:var(--rust);border-color:var(--rust)}
@@ -77,7 +80,11 @@
 .al-note{font-size:15px;color:var(--muted);line-height:1.5}
 .al-where{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:8px}
 .al-tags{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.al-tag{font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);white-space:nowrap}
+.al-tag{font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);white-space:nowrap;color:var(--ink);background:none}
+.al-tags li{display:flex}
+/* A tag that is also a filter is a button: picking it shows only titles with the same tag. */
+button.al-tag{font-family:inherit;line-height:inherit;cursor:pointer}
+button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-tag-star{color:var(--rust);border-color:var(--rust)}
 .al-tag-star:before{content:'★ '}
 .al-tag-core{color:var(--ink);border-color:var(--ink);font-weight:600}
@@ -110,6 +117,7 @@
 .al-owner-bar a.al-button:hover{color:var(--paper)}
 .al-owner-bar a.al-button.al-quiet:hover{color:var(--rust)}
 .al-empty{padding:50px 0;font-family:var(--serif);font-size:24px;color:var(--muted)}
+.al-empty .al-button{margin-top:18px;font-family:var(--sans)}
 
 @media(max-width:1000px){.al-intro{gap:0 32px}.al-art{width:100%}.al-controls{grid-template-columns:1fr 1fr 1fr}.al-search{grid-column:1/-1}.al-item{grid-template-columns:64px minmax(0,1fr) minmax(0,1.4fr);grid-template-areas:"cover head body" "cover . tags";gap:8px 24px}.al-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start}}
 @media(max-width:700px){
@@ -117,8 +125,8 @@
 .al-intro{display:block}.al-intro h1{margin-bottom:0}.al-intro-body{grid-template-columns:1fr;gap:26px;margin-top:28px}.al-intro-body .case-deck{font-size:17px}.al-intro-note{font-size:15px}.al-art{grid-area:auto;width:auto;margin:0 -8px}
 .al-tabs{gap:18px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:24px;white-space:nowrap;flex:none}
 .al-controls{grid-template-columns:1fr 1fr;gap:12px;padding:16px 0 14px;position:static}
-.al-search{grid-column:1/-1}.al-flags{gap:8px}.al-flags legend{float:none;width:100%;margin-bottom:4px}
-.al-status{flex-direction:column;align-items:flex-start;gap:12px}
+.al-search,.al-field-shelf{grid-column:1/-1}
+.al-status{flex-wrap:wrap;gap:12px}.al-summary{display:contents}#al-count{flex:1}.al-applied{order:1;flex:1 1 100%}
 .al-shelf h2{font-size:28px;gap:12px;margin-top:36px}
 .al-item{grid-template-columns:56px minmax(0,1fr);grid-template-areas:"cover head" "cover body" "cover tags";gap:6px 16px;padding:16px 0}.al-cover{width:56px}.al-ext{opacity:1}
 .al-item h3{font-size:21px}.al-note{font-size:14px}

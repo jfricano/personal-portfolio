@@ -14,16 +14,16 @@
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
   const $ = id => document.getElementById(id);
   const els = {
-    tabs: $('al-tabs'), q: $('al-q'), group: $('al-group'), groupField: $('al-group-field'), groupLabel: $('al-group-label'),
-    shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), sort: $('al-sort'), flags: $('al-flags'),
-    count: $('al-count'), results: $('al-results'), random: $('al-random'), reset: $('al-reset'),
+    tabs: $('al-tabs'), q: $('al-q'), shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), show: $('al-show'), showField: $('al-show-field'),
+    sort: $('al-sort'), count: $('al-count'), applied: $('al-applied'), results: $('al-results'), random: $('al-random'),
+    hide: $('al-hide'), hideLabel: $('al-hide-label'),
     owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), send: $('al-send'), discard: $('al-discard'),
     exportButton: $('al-export'),
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
   let progress = {}, removed = {}, pending = {}, owner = false, picked = false, digestLinks = {};
-  const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', flags: new Set(), hide: false });
+  const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', only: '', hide: false });
   const state = { list: '', ...blank() };
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -44,8 +44,10 @@
     const mark = pendingFor(i);
     return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
   };
-  // Flags such as "Start here" are Jason's own and only show in owner mode.
+  // Flags such as "Start here" are Jason's own and only show in owner mode. Of the flags a visitor sees, the ones
+  // that are not private filters make up the Show menu, and their tags on each title apply the same filter.
   const shownFlags = () => Object.entries(list.flags).filter(([key]) => owner || !(list.privateFlags || []).includes(key));
+  const filterFlags = () => shownFlags().filter(([key]) => owner || !(list.privateFilters || []).includes(key));
   const SORTS = {
     shelf: { label: 'Shelf order' },
     title: { label: 'Title A–Z', cmp: (a, b) => a._t.localeCompare(b._t) },
@@ -62,10 +64,10 @@
     const p = new URLSearchParams(location.search);
     state.list = p.get('list') || '';
     state.q = p.get('q') || '';
-    state.group = p.get('part') || '';
     state.shelf = p.get('shelf') || '';
+    state.group = state.shelf ? '' : p.get('part') || '';
     state.sort = SORTS[p.get('sort')] ? p.get('sort') : 'shelf';
-    state.flags = new Set((p.get('only') || '').split(',').filter(Boolean));
+    state.only = (p.get('only') || '').split(',')[0];
     state.hide = p.get('hide') === '1';
   }
   function writeUrl() {
@@ -74,7 +76,7 @@
     if (state.group) p.set('part', state.group);
     if (state.shelf) p.set('shelf', state.shelf);
     if (state.sort !== 'shelf') p.set('sort', state.sort);
-    if (state.flags.size) p.set('only', [...state.flags].join(','));
+    if (state.only) p.set('only', state.only);
     if (owner && state.hide) p.set('hide', '1');
     // A visit with no list in the URL opens a random one. The list goes into the URL once someone
     // picks a tab or narrows the view, so a shared link opens the same list.
@@ -83,11 +85,12 @@
     try { history.replaceState(null, '', query ? `?${query}` : location.pathname); } catch {}
   }
 
-  function options(select, values, allLabel, current) {
-    select.innerHTML = `<option value="">${esc(allLabel)}</option>` +
-      values.map(v => `<option value="${esc(v)}"${v === current ? ' selected' : ''}>${esc(v)}</option>`).join('');
-  }
   const unique = values => [...new Set(values.filter(Boolean))];
+  const shelfName = shelf => splitShelf(shelf)[1] || 'Unshelved';
+  // Menu choices carry their counts; the chosen one and the "all" choice leave it off, since the count line says it.
+  const option = (value, text, n, current) => value === current || !value
+    ? `<option value="${esc(value)}"${value === current ? ' selected' : ''}>${esc(text)}</option>`
+    : `<option value="${esc(value)}"${n ? '' : ' disabled'}>${esc(text)} (${number(n)})</option>`;
 
   function renderTabs() {
     els.tabs.innerHTML = lists.map(l => `<button type="button" role="tab" id="al-tab-${esc(l.id)}" data-id="${esc(l.id)}" aria-controls="al-results" aria-selected="${l === list}" tabindex="${l === list ? 0 : -1}">${esc(l.label)} <span>${number(l.count)}</span></button>`).join('');
@@ -95,35 +98,68 @@
     els.results.setAttribute('aria-labelledby', `al-tab-${list.id}`);
   }
 
+  // Checks run once per list change: drop filters the list (or the visitor) cannot use, then build the sort menu.
   function renderControls() {
-    const groups = unique(items.map(i => i.g));
-    els.groupField.hidden = !groups.length;
-    els.groupLabel.textContent = list.groupLabel || 'Part';
-    if (!groups.includes(state.group)) state.group = '';
-    options(els.group, groups, `All ${(list.groupLabel || 'part').toLowerCase()}s`, state.group);
-    renderShelves();
+    if (state.group && !items.some(i => i.g === state.group)) state.group = '';
+    if (state.shelf && !items.some(i => i.s === state.shelf)) state.shelf = '';
+    if (state.only && !filterFlags().some(([key]) => key === state.only)) state.only = '';
+    if (!owner) state.hide = false;
     els.shelfLabel.textContent = list.shelfLabel || 'Shelf';
     const sorts = Object.entries(SORTS).filter(([, s]) => !s.year || list.hasYear);
     if (!sorts.some(([key]) => key === state.sort)) state.sort = 'shelf';
     els.sort.innerHTML = sorts.map(([key, s]) => `<option value="${key}"${key === state.sort ? ' selected' : ''}>${key === 'creator' ? `${esc(list.creatorLabel)} A–Z` : s.label}</option>`).join('');
-    const flags = shownFlags().filter(([key]) => owner || !(list.privateFilters || []).includes(key));
-    for (const key of state.flags) if (!flags.some(([k]) => k === key)) state.flags.delete(key);
-    els.flags.innerHTML = '<legend class="label">Only show</legend>' + flags.map(([key, label]) =>
-      `<label class="al-chip al-chip-${esc(key)}"><input type="checkbox" value="${esc(key)}"${state.flags.has(key) ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('') +
-      (owner ? `<label class="al-chip al-chip-hide"><input type="checkbox" value="" data-hide${state.hide ? ' checked' : ''}><span>Hide ${esc(list.doneLabel.toLowerCase())}</span></label>` : '');
-    els.flags.hidden = !flags.length && !owner;
+    els.hide.checked = state.hide;
+    els.hideLabel.textContent = `Hide ${list.doneLabel.toLowerCase()}`;
     els.q.value = state.q;
   }
-  function renderShelves() {
-    const shelves = unique(items.filter(i => !state.group || i.g === state.group).map(i => i.s));
-    if (!shelves.includes(state.shelf)) state.shelf = '';
-    options(els.shelf, shelves, `All ${(list.shelfLabel || 'shelf').toLowerCase().replace(/f$/, 've')}s`, state.shelf);
+
+  // The Shelf and Show menus count what each choice would show alongside the other filters in use, the way the
+  // shelf headings below count their titles, and a choice that would show nothing is greyed out.
+  function renderMenus() {
+    const others = items.filter(i => matches(i, 'shelf')), byFlag = items.filter(i => matches(i, 'only'));
+    const shelves = new Map(), parts = new Map();
+    for (const i of items) {
+      if (!parts.has(i.g || '')) parts.set(i.g || '', []);
+      if (!shelves.has(i.s)) { shelves.set(i.s, 0); parts.get(i.g || '').push(i.s); }
+    }
+    for (const i of others) shelves.set(i.s, shelves.get(i.s) + 1);
+    const plural = (list.shelfLabel || 'shelf').toLowerCase().replace(/f$/, 've') + 's';
+    const current = state.shelf ? `shelf:${state.shelf}` : state.group ? `part:${state.group}` : '';
+    let html = option('', `All ${plural}`, others.length, current);
+    for (const [part, names] of parts) {
+      const rows = names.map(name => option(`shelf:${name}`, name, shelves.get(name), current)).join('');
+      html += part ? `<optgroup label="${esc(part)}">${option(`part:${part}`, `All of ${part}`, others.filter(i => i.g === part).length, current)}${rows}</optgroup>` : rows;
+    }
+    els.shelf.innerHTML = html;
+    const flags = filterFlags();
+    els.showField.hidden = !flags.length;
+    els.show.innerHTML = option('', 'Everything', byFlag.length, state.only) +
+      flags.map(([key, label]) => option(key, label, byFlag.filter(i => i.f && i.f.includes(key)).length, state.only)).join('');
   }
 
+  // Every filter in use shows as a removable chip beside the count, so the view never narrows without saying how.
+  function renderApplied() {
+    const chips = [];
+    if (state.q) chips.push(['q', `“${state.q}”`]);
+    if (state.group) chips.push(['group', state.group]);
+    if (state.shelf) chips.push(['shelf', shelfName(state.shelf)]);
+    if (state.only) chips.push(['only', list.flags[state.only]]);
+    if (owner && state.hide) chips.push(['hide', `Hiding ${list.doneLabel.toLowerCase()}`]);
+    els.applied.hidden = !chips.length;
+    els.applied.innerHTML = chips.map(([key, text]) =>
+      `<li><button type="button" class="al-chip" data-clear="${key}" aria-label="Remove filter: ${esc(text)}">${esc(text)}<span aria-hidden="true">×</span></button></li>`).join('') +
+      (chips.length > 1 ? '<li><button type="button" class="al-link" data-clear="all">Clear all</button></li>' : '');
+  }
+
+  function matches(i, skip) {
+    return !(owner && isRemoving(i)) &&
+      (skip === 'shelf' || ((!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf))) &&
+      (skip === 'only' || !state.only || (i.f && i.f.includes(state.only))) &&
+      (!owner || !state.hide || !isDone(i)) && filter.terms.every(t => i._h.includes(t));
+  }
   function filter() {
-    const terms = fold(state.q).split(/\s+/).filter(Boolean);
-    visible = items.filter(i => !(owner && isRemoving(i)) && (!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf) &&
-      [...state.flags].every(f => i.f && i.f.includes(f)) && (!owner || !state.hide || !isDone(i)) && terms.every(t => i._h.includes(t)));
+    filter.terms = fold(state.q).split(/\s+/).filter(Boolean);
+    visible = items.filter(i => matches(i));
     const sort = SORTS[state.sort];
     if (sort.cmp) visible = [...visible].sort(sort.cmp);
   }
@@ -134,8 +170,10 @@
     if (state.sort !== 'shelf' && i.s) where.push(splitShelf(i.s)[1]);
     if (i.u) where.push(i.u);
     const done = isDone(i);
-    const visibleFlags = new Set(shownFlags().map(([key]) => key));
-    const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
+    const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
+    const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => filters.has(f)
+      ? `<li><button type="button" class="al-tag al-tag-${esc(f)}" data-only="${esc(f)}" title="Show only ${esc(list.flags[f].toLowerCase())}">${esc(list.flags[f])}</button></li>`
+      : `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
     if (done) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel)}</li>`);
     const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
     const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
@@ -169,10 +207,12 @@
   function render() {
     filter();
     updateCount();
+    renderMenus();
+    renderApplied();
     els.random.disabled = !visible.length;
     renderOwnerBar();
     if (!visible.length) {
-      els.results.innerHTML = `<p class="al-empty">Nothing on these shelves matches. Try fewer words, or clear the filters.</p>`;
+      els.results.innerHTML = `<div class="al-empty"><p>Nothing on these shelves matches. Try fewer words, or start over.</p><button type="button" class="al-button al-quiet" data-clear="all">Clear all filters</button></div>`;
       return;
     }
     if (state.sort !== 'shelf') {
@@ -371,16 +411,36 @@
 
   let timer;
   els.q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { state.q = els.q.value.trim(); render(); writeUrl(); }, 120); });
-  els.group.addEventListener('change', () => { state.group = els.group.value; renderShelves(); render(); writeUrl(); });
-  els.shelf.addEventListener('change', () => { state.shelf = els.shelf.value; render(); writeUrl(); });
-  els.sort.addEventListener('change', () => { state.sort = els.sort.value; render(); writeUrl(); });
-  els.flags.addEventListener('change', event => {
-    const box = event.target;
-    if ('hide' in box.dataset) state.hide = box.checked;
-    else box.checked ? state.flags.add(box.value) : state.flags.delete(box.value);
+  els.shelf.addEventListener('change', () => {
+    const [kind, ...rest] = els.shelf.value.split(':'), value = rest.join(':');
+    state.group = kind === 'part' ? value : '';
+    state.shelf = kind === 'shelf' ? value : '';
     render(); writeUrl();
   });
-  els.reset.addEventListener('click', () => { Object.assign(state, blank()); renderControls(); render(); writeUrl(); });
+  els.show.addEventListener('change', () => { state.only = els.show.value; render(); writeUrl(); });
+  els.sort.addEventListener('change', () => { state.sort = els.sort.value; render(); writeUrl(); });
+  els.hide.addEventListener('change', () => { state.hide = els.hide.checked; render(); writeUrl(); });
+  // Chips beside the count and the empty-shelf message take filters off; a tag on a title puts its filter on.
+  document.querySelector('.al-browser').addEventListener('click', event => {
+    const clear = event.target.closest('[data-clear]'), tag = event.target.closest('[data-only]');
+    if (clear) {
+      const key = clear.dataset.clear;
+      if (key === 'all') Object.assign(state, blank(), { sort: state.sort });
+      else if (key === 'hide') state.hide = false;
+      else state[key] = '';
+      renderControls(); render(); writeUrl();
+      // Focus moves to the next chip, or to the search box once none are left.
+      (els.applied.querySelector('button') || els.q).focus();
+    } else if (tag) {
+      state.only = tag.dataset.only;
+      render(); writeUrl();
+      // Back to the top of the results, just under the filter bar when it is pinned, so the new chip is in view.
+      const controls = $('al-controls'), status = els.count.closest('.al-status');
+      const pinned = getComputedStyle(controls).position === 'sticky' ? controls.offsetHeight : 0;
+      scrollTo({ top: status.getBoundingClientRect().top + scrollY - pinned, behavior: 'instant' });
+      els.applied.querySelector(`[data-clear=only]`)?.focus({ preventScroll: true });
+    }
+  });
   els.random.addEventListener('click', () => {
     // Finished titles are skipped unless nothing else is left in view.
     const pool = visible.filter(i => !isDone(i)).length ? visible.filter(i => !isDone(i)) : visible;
