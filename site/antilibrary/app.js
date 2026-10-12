@@ -470,6 +470,53 @@
     built.waiting = all.length - units.length;
     return built;
   }
+  // Without a key, a batch goes as one prefilled link. To fit, the issue's json names each title by an 8-character
+  // code (a hash of "title|creator") grouped under its list and value, which the workflows match back against the
+  // list data: {"v":2,"m":{list:{value:codes}},"t":{list:{flag:{"1"|"0":codes}}}}. That holds MAX_LINK_CHANGES
+  // with room to spare; owner mode stops new marks at that count until they're sent.
+  const MAX_LINK_CHANGES = 500, CODE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  function shortKey(key) {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < key.length; i++) { const ch = key.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    let n = 4294967296 * (2097151 & h2) + (h1 >>> 0), code = '';
+    for (let i = 0; i < 8; i++) { code += CODE[n % 64]; n = Math.floor(n / 64); }
+    return code;
+  }
+  function linkPart(repo, prefix, noun, all, footer) {
+    const sent = sentAt(), unitId = ([, keys, value]) => JSON.stringify([repo, ...keys, value]);
+    const units = all.filter(u => !sent[unitId(u)]);
+    if (!units.length) return Object.assign([], { waiting: all.length });
+    const m = {}, t = {}, add = (group, value, key) => { group[value] = (group[value] || '') + shortKey(key); };
+    for (const [, keys, value] of units) {
+      if (keys[0] === 'tags') add(((t[keys[1]] ??= {})[keys[3]] ??= {}), value ? '1' : '0', keys[2]);
+      else if (keys.length === 3) add(((m[keys[0]] ??= {})[keys[2]] ??= {}), String(value), keys[1]);
+      else add((m[keys[0]] ??= {}), String(value), keys[1]);
+    }
+    const tally = {};
+    for (const [line] of units) { const what = line.slice(2, line.indexOf(':')).replace('Remove from the list', 'Removed'); tally[what] = (tally[what] || 0) + 1; }
+    const summary = `${units.length} ${units.length === 1 ? 'change' : 'changes'}: ${Object.entries(tally).map(([what, n]) => `${n} ${what.toLowerCase()}`).join(', ')}.`;
+    const json = `\`\`\`json\n${JSON.stringify({ v: 2, m, ...(Object.keys(t).length ? { t } : {}) })}\n\`\`\`\n`;
+    const title = `${prefix}: update ${units.length} ${units.length === 1 ? noun : `${noun}s`}`;
+    const full = { repo, title, body: `${summary}\n\n${units.map(u => u[0]).join('\n')}\n\n${footer}\n\n${json}`, ids: units.map(unitId) };
+    const part = newIssueUrl(repo, full).length <= MAX_URL ? full : { ...full, body: `${summary}\n\n${footer}\n\n${json}` };
+    // Past the cap, fall back to parts rather than a link GitHub won't open.
+    if (newIssueUrl(repo, part).length > MAX_URL) return issueParts(repo, prefix, noun, all, footer, p => newIssueUrl(repo, p).length > MAX_URL);
+    return Object.assign([part], { waiting: all.length - units.length });
+  }
+  const linkCount = () => {
+    const sent = sentAt();
+    return siteUnits().filter(([, keys, value]) => !sent[JSON.stringify([REPO, ...keys, value])]).length
+      + markUnits().filter(([, keys, value]) => !sent[JSON.stringify([DIGESTS_REPO, ...keys, value])]).length;
+  };
+  // Without a key, owner mode stops at MAX_LINK_CHANGES unsent changes; returns true (and says so) when it's full.
+  function atCap() {
+    if (canSave && token()) return false;
+    if (linkCount() < MAX_LINK_CHANGES) return false;
+    renderOwnerBar();
+    return true;
+  }
   // Shows one send link per part, cloning the first for the rest.
   function setLinks(anchor, parts, label) {
     document.querySelectorAll(`[data-part-of="${anchor.id}"]`).forEach(a => a.remove());
@@ -497,8 +544,8 @@
     if (!owner) return;
     const direct = canSave && Boolean(token());
     const tooBig = direct ? part => part.body.length > MAX_BODY : part => newIssueUrl(part.repo, part).length > MAX_URL;
-    const sends = pendingCount() ? issueParts(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER, tooBig) : [];
-    const markSends = nested(digestPending()) ? issueParts(DIGESTS_REPO, 'Digests', 'mark', markUnits(), MARKS_FOOTER, tooBig) : [];
+    const sends = !pendingCount() ? [] : direct ? issueParts(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER, tooBig) : linkPart(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER);
+    const markSends = !nested(digestPending()) ? [] : direct ? issueParts(DIGESTS_REPO, 'Digests', 'mark', markUnits(), MARKS_FOOTER, tooBig) : linkPart(DIGESTS_REPO, 'Digests', 'mark', markUnits(), MARKS_FOOTER);
     const units = parts => parts.reduce((n, p) => n + p.ids.length, 0);
     const count = units(sends), marks = units(markSends), waiting = (sends.waiting || 0) + (markSends.waiting || 0);
     const words = n => `${number(n)} ${n === 1 ? 'change' : 'changes'}`;
@@ -510,6 +557,8 @@
     if (!text.length) text.push('Tick titles as you finish them, retag them or remove ones you no longer want, then save.');
     if (!direct && count && marks) text.push('Send both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.');
     if ((count || marks) && !saving) text.push('Discard brings back anything you removed.');
+    if (!direct && count + marks >= MAX_LINK_CHANGES) text.push(`Max ${number(MAX_LINK_CHANGES)} changes reached: send these before marking more.`);
+    else if (!direct && count + marks >= MAX_LINK_CHANGES * 0.8) text.push(`${number(count + marks)} of max ${number(MAX_LINK_CHANGES)} changes.`);
     if (!direct && (sends.length > 1 || markSends.length > 1)) text.push('That’s too much for one GitHub issue, so it’s split into parts: send each one.');
     els.ownerText.textContent = text.join(' ');
     els.save.hidden = !direct || (!count && !marks && !saving);
@@ -678,7 +727,7 @@
   }
   els.results.addEventListener('click', event => {
     const button = event.target.closest('.al-remove');
-    if (!button || !owner) return;
+    if (!button || !owner || atCap()) return;
     const key = button.dataset.key, item = items.find(i => itemKey(i) === key);
     const article = button.closest('.al-item');
     (pending[list.id] ??= {})[key] = REMOVE;
@@ -702,6 +751,7 @@
   els.results.addEventListener('change', event => {
     const box = event.target.closest('.al-owner-actions input');
     if (!box || !owner) return;
+    if (atCap()) { box.checked = !box.checked; return; }
     const key = box.dataset.key, flag = box.dataset.flag, item = items.find(i => itemKey(i) === key);
     if (flag.startsWith('digest:')) {
       setDigestMark(item, flag.slice(7), box.checked);
