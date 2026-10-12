@@ -36,13 +36,31 @@ See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for sco
 
 ## Anti-library
 
-`site/antilibrary/` is a searchable page, linked from the site navigation, of the books, films, TV and albums Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
+`site/antilibrary/` is a searchable page of the books, films, TV and albums Jason hasn’t gotten to yet (plus what he has already read, watched or heard that shaped him), served at `/antilibrary/` and linked from the site navigation as Anti-Library. Like `/moreprojects/`, it keeps noindex and stays out of the sitemap. This repository holds only the page: markup, styles, search, sort and filter, owner mode, artist path pages and the header art slot. The lists, threads, artist paths, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib), whose README is the authoritative description of the data and of what owner mode can change.
 
-The page fetches `lists.json`, one `<id>.json` per list and `progress.json` from `https://raw.githubusercontent.com/jfricano/anti-lib/main/data/` (the `data-source` attribute on `<main>`), so list changes and finished titles show up without redeploying this site. Search, filters and sort are kept in the URL, so a filtered view can be shared as a link. Links from the data are only used if they are `https:`.
+The page fetches `lists.json`, one `<id>.json` per list, `paths.json` and `progress.json` from `https://raw.githubusercontent.com/jfricano/anti-lib/main/data/` (the `data-source` attribute on `<main>`), so list changes and finished titles show up without redeploying this site. Links from the data are only used if they are `https:`.
 
-**Owner mode** is not linked anywhere: open `/antilibrary/?owner=on` once and the browser remembers it (Leave owner mode turns it off). It adds a mark button to each title and an **Export spreadsheet** button that downloads every list, with status and finish dates, as one XLSX (SheetJS, vendored in `site/antilibrary/vendor/` and loaded only on export). Marks wait in that browser until **Send changes to the site** opens a prefilled issue in jfricano/anti-lib, whose workflow applies issues Jason opens. The page holds no credentials.
+**Browsing.** A visit with no list in the URL opens a random list. Shelves start folded, so a list opens as its table of contents; shelves opened while browsing are remembered in that browser. The filter bar has Search, Shelf, Show (the public tags), Thread and Sort, and every filter in use shows as a removable chip. Picking a thread shows its titles in path order with each stop’s line, whatever the sort. Search, filters, thread and sort are kept in the URL, so a filtered view can be shared as a link. **Pick one for me** chooses a title from the current view. Albums have a Listen on Spotify link that tries the desktop app first. Smooth scrolling is the only motion.
+
+**Artist paths.** `site/antilibrary/artist.html?a=<slug>` (with `artist.js`) shows one artist’s listening order: a door record, the steps after it, and a timeline of the records left out. With no `a` it lists every path. An artist path row on the albums list links there from its title and tag, and other albums by a path artist get an “Artist path →” link.
+
+**Owner mode** is not linked anywhere: open `/antilibrary/?owner=on` once and the browser remembers it (Leave owner mode turns it off). It marks and removes titles already on the lists; it never adds them. Each title gets checkboxes grouped as progress, then tags:
+
+- **Fully read**, **Fully watched** or **Fully heard** (by list) crosses a title off. The public only ever sees the strikethrough.
+- **Digested** appears on books that have a digest, when the browser holds the digests key (below), with a Read digest link that opens in a new tab. On films, shows and albums a digest doesn’t cross the title off, so it shows as a note instead.
+- **Formative** on books is the one tag owner mode can change. Every other tag is edited in the anti-lib source lists.
+- **Remove** is a small link; the title leaves the page at once, and Discard brings it back until changes are sent.
+- Pending (PR #40): on an artist path page, each album gets a Heard box, and the artist’s row on the list ticks Fully heard by itself once every album on the path is heard.
+
+Marks wait in that browser until **Send changes to the site** opens a prefilled issue in jfricano/anti-lib, whose workflow applies issues Jason opens. Digest marks go out separately with **Send digest marks**, to the digests repository. **Hide finished** hides crossed-off titles, and **Export spreadsheet** downloads every list, with status and finish dates, as one XLSX (SheetJS, vendored in `site/antilibrary/vendor/` and loaded only on export). The page holds no credentials.
 
 Header art: `site/antilibrary/art/<list>.jpg`, specs in `docs/antilibrary-artwork.md`.
+
+## Digests
+
+`site/digests/` is Jason’s private reader for digests (long write-ups of single books and films) at `/digests/`, noindex and linked only from the anti-library’s owner-mode bar. The page itself holds nothing private: the digests live in the private repository jfricano/reading-list, and the page reads them through GitHub’s API with a fine-grained read-only key Jason pastes once per browser (kept in that browser’s storage as `digests-token`). Without the key the page shows only a prompt for it. That repository’s README explains how to make the key, and its `docs/FORMAT.md` is the contract between the digests and this page.
+
+The page has Books and Films tabs (reusing the anti-library header art), a Show menu, a Next up list from the digest queue, and per-digest Print/PDF and Word export (`docx.js`, built in the browser and loaded the first time it is used). YouTube links in film digests play as embeds that start at the linked moment. Two marks work like owner mode on the anti-library: **Digested** and **Fully read** (Fully watched for films). They wait in the browser, shared with the anti-library’s owner mode, until Jason sends them as one prefilled issue, which the digests repository’s Marks workflow applies.
 
 ## License
 
