@@ -11,18 +11,23 @@
   // read-only key also links each title that has a finished digest.
   const DIGESTS_REPO = 'jfricano/reading-list', DIGESTS_TOKEN_KEY = 'digests-token';
   const DATA = document.getElementById('main').dataset.source;
-  const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
+  const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks', FOLDED_KEY = 'antilibrary-folded';
   const $ = id => document.getElementById(id);
   const els = {
     tabs: $('al-tabs'), q: $('al-q'), shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), show: $('al-show'), showField: $('al-show-field'),
     sort: $('al-sort'), count: $('al-count'), applied: $('al-applied'), results: $('al-results'), random: $('al-random'),
-    hide: $('al-hide'), hideLabel: $('al-hide-label'),
+    hide: $('al-hide'), hideLabel: $('al-hide-label'), fold: $('al-fold'),
     owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), send: $('al-send'), discard: $('al-discard'),
     exportButton: $('al-export'),
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
   let progress = {}, removed = {}, pending = {}, owner = false, picked = false, digestLinks = {};
+  // Collapsed shelves. Folds made while browsing are remembered in this browser per list; while a search or filter
+  // is on, every shelf with matches opens, and folds made then last only until the filters change.
+  let folded = {}, foldedNow = new Set();
+  const filtering = () => Boolean(state.q || state.only || (owner && state.hide));
+  const foldSet = () => (filtering() ? foldedNow : (folded[list.id] ??= new Set()));
   const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', only: '', hide: false });
   const state = { list: '', ...blank() };
 
@@ -210,7 +215,9 @@
     renderMenus();
     renderApplied();
     els.random.disabled = !visible.length;
+    foldedNow = new Set();
     renderOwnerBar();
+    els.fold.hidden = !visible.length || state.sort !== 'shelf' || Boolean(state.shelf);
     if (!visible.length) {
       els.results.innerHTML = `<div class="al-empty"><p>Nothing on these shelves matches. Try fewer words, or start over.</p><button type="button" class="al-button al-quiet" data-clear="all">Clear all filters</button></div>`;
       return;
@@ -229,10 +236,43 @@
       const g = rows[0].g;
       if (g && g !== part && !state.group) { html += `<p class="al-part label">${esc(g)}</p>`; part = g; }
       const [num, name] = splitShelf(shelf);
-      html += `<section class="al-shelf"><h2><span class="index">${esc(num)}</span>${esc(name || 'Unshelved')}<span class="al-shelf-count">${number(rows.length)}</span></h2><div class="al-list">${rows.map(itemHtml).join('')}</div></section>`;
+      const n = shelfIndex.get(shelf), open = !foldSet().has(shelf);
+      html += `<section class="al-shelf"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-shelf-${n}" data-shelf="${esc(shelf)}">` +
+        `<span class="index">${esc(num)}</span><span class="al-shelf-name">${esc(name || 'Unshelved')}</span><span class="al-shelf-count">${number(rows.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
+        `<div class="al-list" id="al-shelf-${n}"${open ? '' : ' hidden'}>${rows.map(itemHtml).join('')}</div></section>`;
     }
     els.results.innerHTML = html;
+    updateFold();
   }
+
+  // Shelf headings fold their shelf away; nothing re-renders, so scroll position and focus stay put.
+  const shelfIndex = new Map();
+  function setFold(toggle, open) {
+    toggle.setAttribute('aria-expanded', open);
+    $(toggle.getAttribute('aria-controls')).hidden = !open;
+    const set = foldSet();
+    open ? set.delete(toggle.dataset.shelf) : set.add(toggle.dataset.shelf);
+  }
+  function saveFolds() {
+    store.set(FOLDED_KEY, Object.fromEntries(Object.entries(folded).filter(([, set]) => set.size).map(([id, set]) => [id, [...set]])));
+  }
+  function updateFold() {
+    const anyOpen = [...els.results.querySelectorAll('.al-shelf-toggle')].some(t => t.getAttribute('aria-expanded') === 'true');
+    els.fold.textContent = anyOpen ? 'Collapse all' : 'Expand all';
+  }
+  els.results.addEventListener('click', event => {
+    const toggle = event.target.closest('.al-shelf-toggle');
+    if (!toggle) return;
+    setFold(toggle, toggle.getAttribute('aria-expanded') !== 'true');
+    if (!filtering()) saveFolds();
+    updateFold();
+  });
+  els.fold.addEventListener('click', () => {
+    const open = els.fold.textContent === 'Expand all';
+    els.results.querySelectorAll('.al-shelf-toggle').forEach(t => setFold(t, open));
+    if (!filtering()) saveFolds();
+    updateFold();
+  });
 
   // Each list's illustration lives at art/<list id>.jpg and sits beside the headline; a list without one shows no
   // picture. On phones the picture moves down between the two intro paragraphs, where it reads better.
@@ -260,6 +300,7 @@
         // The data comes from another repository, so only web links are kept.
         for (const key of ['l', 'i', 'r']) if (i[key] && !/^https:\/\//.test(i[key])) delete i[key];
         i._id = n; i._t = titleKey(i.t); i._c = creatorKey(i.c);
+        if (!shelfIndex.has(i.s)) shelfIndex.set(i.s, shelfIndex.size);
         i._h = fold([i.t, i.c, i.y, i.g, i.s, i.u, i.n, ...(i.k || [])].filter(Boolean).join(' '));
       });
       cache[id] = data;
@@ -449,6 +490,8 @@
     const pick = pool[Math.floor(Math.random() * pool.length)];
     document.querySelectorAll('.al-picked').forEach(el => el.classList.remove('al-picked'));
     const el = $(`item-${pick._id}`);
+    const shelf = el.closest('.al-list');
+    if (shelf?.hidden) { setFold(els.results.querySelector(`[aria-controls="${shelf.id}"]`), true); if (!filtering()) saveFolds(); updateFold(); }
     el.classList.add('al-picked');
     el.focus({ preventScroll: true });
     el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
@@ -471,6 +514,7 @@
   if (ownerParam) store.set(OWNER_KEY, ownerParam === 'on' || null);
   owner = store.get(OWNER_KEY, false) === true;
   pending = store.get(PENDING_KEY, {});
+  folded = Object.fromEntries(Object.entries(store.get(FOLDED_KEY, {}) || {}).filter(([, v]) => Array.isArray(v)).map(([id, v]) => [id, new Set(v)]));
   Promise.all([
     fetch(`${DATA}lists.json`).then(r => r.json()),
     fetch(`${DATA}progress.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),

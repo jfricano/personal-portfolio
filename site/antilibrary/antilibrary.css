@@ -63,6 +63,16 @@
 .al-part+.al-shelf h2{margin-top:26px}
 .al-shelf h2 .index{font-size:20px;letter-spacing:0}
 .al-shelf-count{margin-left:auto;font-family:var(--sans);font-size:12px;letter-spacing:.08em;color:var(--muted)}
+/* The heading is the button that folds its shelf. The mark flips between open and closed without moving. */
+.al-shelf-toggle{all:unset;box-sizing:border-box;display:flex;align-items:baseline;gap:inherit;width:100%;cursor:pointer}
+.al-shelf-toggle:hover .al-shelf-name{color:var(--rust)}
+.al-shelf-toggle:focus-visible{outline:3px solid var(--rust);outline-offset:4px}
+.al-fold-mark{font-family:var(--sans);font-size:20px;line-height:1;color:var(--muted);width:20px;text-align:center}
+.al-fold-mark:before{content:'−'}
+.al-shelf-toggle[aria-expanded=false] .al-fold-mark:before{content:'+'}
+.al-shelf-toggle[aria-expanded=false]{color:var(--muted)}
+/* Folded shelves stack closer, so a fully folded list reads as a table of contents. */
+.al-shelf:has(.al-list[hidden]) + .al-shelf h2{margin-top:22px}
 .al-list{display:grid}
 .al-item{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"cover head body tags";gap:6px 28px;padding:18px 0;border-bottom:1px solid var(--line);scroll-margin:160px;align-items:start}
 .al-item-head{grid-area:head;min-width:0}.al-item-body{grid-area:body;min-width:0}.al-tags{grid-area:tags}
@@ -102,6 +112,8 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-credit{font-size:12px;color:var(--muted);padding-top:40px}
 .al-link{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer;margin-left:6px}
 .al-link:hover{color:var(--rust)}
+.al-fold{font-size:13px;color:var(--ink);margin:0 10px 0 0;min-height:40px}
+.al-status .al-actions{align-items:center}
 .al-link:focus-visible,.al-mark:focus-visible,.al-remove:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
 
 /* Finished titles stay on the shelf, struck through. */
