@@ -602,6 +602,15 @@
     if (saving) return;
     saving = true; saveNote = '';
     renderOwnerBar();
+    try { await saveParts(); } catch (error) { saveNote = `The save didn’t go through (${error.message || error}). Try again.`; }
+    saving = false;
+    renderOwnerBar();
+    watchSaves();
+  }
+  async function saveParts() {
+    // Changes the published data already has (saved from another tab or an earlier link) are dropped, not resent.
+    await refreshPublished();
+    if (!pendingCount() && !nested(digestPending())) { saveNote = 'Those changes were already saved.'; return; }
     const tooBig = part => part.body.length > MAX_BODY;
     const parts = [
       ...(pendingCount() ? issueParts(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER, tooBig) : []),
@@ -622,9 +631,6 @@
       markSent(part.ids);
       store.set(SAVING_KEY, watched);
     }
-    saving = false;
-    renderOwnerBar();
-    watchSaves();
   }
   // Polls the saved issues: the workflow closes one once it's applied, or comments on it and leaves it open if not.
   let watchTimer = 0;
@@ -651,13 +657,16 @@
     if (left.length) watchTimer = setTimeout(watchSaves, 5000);
   }
   // Re-reads the published data (through the API, so it's current) once a save is applied.
-  async function refreshData() {
+  async function refreshPublished() {
     const [done, gone] = await Promise.all(['progress.json', 'removed.json'].map(name => getData(name).catch(() => null)));
     if (done) progress = done;
     if (gone) removed = gone;
-    for (const id of Object.keys(cache)) delete cache[id];
     prunePending();
     await loadDigests();
+  }
+  async function refreshData() {
+    await refreshPublished();
+    for (const id of Object.keys(cache)) delete cache[id];
     if (list) { items = await loadItems(list.id); renderControls(); render(); }
   }
   function setOwner(on) {
@@ -819,6 +828,11 @@
     setTimeout(renderOwnerBar, 500);
   });
   els.save.addEventListener('click', save);
+  // Coming back to the tab re-reads what's published, so changes saved elsewhere stop showing as unsaved.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden || !owner || saving || !lists.length) return;
+    refreshPublished().then(() => { if (list) { render(); renderOwnerBar(); } });
+  });
   els.discard.addEventListener('click', () => {
     pending = {}; pendingTags = {};
     store.set(SENT_KEY, null);
