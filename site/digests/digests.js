@@ -154,11 +154,42 @@
       `<header class="dg-reader-head"><p class="label">${esc(LISTS[d.list] || 'Digest')}${d.status === 'draft' ? ' · draft' : ''}</p><h2 class="dg-reader-title">${esc(d.title)}</h2>` +
       `${d.creator || d.year ? `<p class="dg-reader-by">${[d.creator, d.year].filter(Boolean).map(esc).join(' · ')}</p>` : ''}` +
       `${d.hook ? `<p class="dg-reader-hook">${esc(d.hook)}</p>` : ''}<ul class="dg-facts">${facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` +
-      `<div class="dg-marks">${markButtons(d)}</div>${tagsFor(d) ? `<ul class="al-tags dg-reader-tags">${tagsFor(d)}</ul>` : ''}</header>` +
+      `<div class="dg-marks">${markButtons(d)}</div>${tagsFor(d) ? `<ul class="al-tags dg-reader-tags">${tagsFor(d)}</ul>` : ''}` +
+      `<div class="dg-export"><button type="button" class="al-button al-quiet" data-export="print">Print or save as PDF</button><button type="button" class="al-button al-quiet" data-export="docx">Download Word file</button></div></header>` +
       `<div class="dg-prose">${window.renderDigest(body)}</div>` +
       `<p class="dg-back dg-back-end"><a href="#">← All digests</a> · <a href="../antilibrary/?list=${encodeURIComponent(d.list)}&amp;q=${encodeURIComponent(d.title)}">Find it in the anti-library</a></p>`;
+    current = { d, facts };
     els.reader.focus({ preventScroll: true });
     window.scrollTo(0, 0);
+  }
+
+  // Printing uses the print styles in digests.css; the browser's print dialog also saves a PDF.
+  // The Word file is built in this browser by docx.js, loaded the first time it's asked for.
+  let current = null;
+  const loadScript = src => new Promise((resolve, reject) => {
+    document.head.append(Object.assign(document.createElement('script'), { src, onload: resolve, onerror: reject }));
+  });
+  async function downloadDocx(button) {
+    const { d, facts } = current;
+    button.disabled = true;
+    button.textContent = 'Preparing…';
+    try {
+      if (!window.digestDocx) await loadScript('docx.js');
+      const blob = window.digestDocx({
+        label: `${LISTS[d.list] || 'Digest'}${d.status === 'draft' ? ' · draft' : ''}`, title: d.title,
+        by: [d.creator, d.year].filter(Boolean).join(' · '), hook: d.hook, facts,
+      }, els.reader.querySelector('.dg-prose'));
+      const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${d.slug || 'digest'}.docx` });
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+      button.textContent = 'Download Word file';
+    } catch {
+      button.textContent = 'Couldn’t build it. Try again';
+    } finally {
+      button.disabled = false;
+    }
   }
 
   function showView(view) {
@@ -221,6 +252,12 @@
     showView('lock');
   });
   els.discard.addEventListener('click', () => { pending = {}; store.set(PENDING_KEY, null); route(); });
+  els.reader.addEventListener('click', event => {
+    const button = event.target.closest('[data-export]');
+    if (!button || !current) return;
+    if (button.dataset.export === 'print') window.print();
+    else downloadDocx(button);
+  });
   document.addEventListener('click', event => {
     const button = event.target.closest('.al-mark[data-mark]');
     if (!button) return;
