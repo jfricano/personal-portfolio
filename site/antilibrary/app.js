@@ -840,6 +840,7 @@
   function rereadPending() {
     pending = store.get(PENDING_KEY, {}) || {};
     pendingTags = store.get(TAGS_KEY, {}) || {};
+    Object.keys(cache).forEach(applyTags);
     prunePending();
   }
   addEventListener('pageshow', event => {
