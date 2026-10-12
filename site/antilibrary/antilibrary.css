@@ -87,6 +87,9 @@
 .al-tag-formative{color:var(--rust);border-color:var(--rust);font-weight:600}
 .al-tag-reading{background:var(--lavender);border-color:var(--ink)}
 .al-tag-done{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.al-tag-digested{border-style:dashed;color:var(--muted)}
+.al-tag-deeper{color:var(--rust);border-color:var(--rust)}
+.al-tag-deeper:before{content:'→ '}
 /* The picked title is simply highlighted; the site does not animate, so neither does this. */
 .al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf}
 .al-credit{font-size:12px;color:var(--muted);padding-top:40px}

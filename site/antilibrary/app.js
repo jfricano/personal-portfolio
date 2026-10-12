@@ -8,7 +8,7 @@
 (() => {
   const REPO = 'jfricano/anti-lib';
   // Digests live in a private repository; in owner mode, a browser holding the digests page's
-  // read-only key also links each title that has a finished digest.
+  // read-only key also links each title that has a finished digest and shows its digest marks.
   const DIGESTS_REPO = 'jfricano/reading-list', DIGESTS_TOKEN_KEY = 'digests-token';
   const DATA = document.getElementById('main').dataset.source;
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
@@ -137,6 +137,9 @@
     const visibleFlags = new Set(shownFlags().map(([key]) => key));
     const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
     if (done) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel)}</li>`);
+    const digest = owner ? digestLinks[list.id]?.[itemKey(i)] : null;
+    if (digest?.read) tags.push('<li class="al-tag al-tag-digested">Digested</li>');
+    if (digest?.deeper) tags.push('<li class="al-tag al-tag-deeper">Reading in full</li>');
     const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
     const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
@@ -144,7 +147,7 @@
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [i.r && `<a href="${esc(i.r)}" target="_blank" rel="noopener noreferrer">Rate Your Music ↗</a>`,
       list.listen && `<a href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
-      owner && digestLinks[list.id]?.[itemKey(i)] && `<a class="al-digest" href="../digests/#${esc(digestLinks[list.id][itemKey(i)])}">Read digest</a>`].filter(Boolean);
+      digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}">${digest.read ? 'Reread digest' : 'Read digest'}</a>`].filter(Boolean);
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
     const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
       `<button type="button" class="al-remove" data-key="${esc(itemKey(i))}">Remove</button></span>` : '';
@@ -276,14 +279,18 @@
     const token = store.get(DIGESTS_TOKEN_KEY, '');
     if (!owner || !token) return;
     try {
-      const response = await fetch(`https://api.github.com/repos/${DIGESTS_REPO}/contents/index.json`, {
+      const get = path => fetch(`https://api.github.com/repos/${DIGESTS_REPO}/contents/${path}`, {
         headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github.raw+json', 'X-GitHub-Api-Version': '2022-11-28' },
         cache: 'no-cache',
       });
-      if (!response.ok) return;
+      const [index, marks] = await Promise.all([get('index.json'), get('marks.json')]);
+      if (!index.ok) return;
+      const marked = marks.ok ? await marks.json() : {};
       digestLinks = {};
-      for (const d of await response.json()) {
-        if (d.status === 'ready' && /^[a-z0-9-]+$/.test(d.slug || '')) (digestLinks[d.list] ??= {})[d.key] = `${d.list}/${d.slug}`;
+      for (const d of await index.json()) {
+        if (d.status !== 'ready' || !/^[a-z0-9-]+$/.test(d.slug || '')) continue;
+        const m = marked[d.list]?.[d.key] || {};
+        (digestLinks[d.list] ??= {})[d.key] = { id: `${d.list}/${d.slug}`, read: Boolean(m.read), deeper: Boolean(m.deeper) };
       }
       if (list) render();
     } catch {}
