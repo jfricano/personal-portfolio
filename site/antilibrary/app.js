@@ -11,7 +11,7 @@
   // read-only key also links each title that has a finished digest and shows its digest marks.
   const DIGESTS_REPO = 'jfricano/reading-list', DIGESTS_TOKEN_KEY = 'digests-token';
   const DATA = document.getElementById('main').dataset.source;
-  const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks', OPENED_KEY = 'antilibrary-opened';
+  const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks', TAGS_KEY = 'antilibrary-pending-tags', OPENED_KEY = 'antilibrary-opened';
   const $ = id => document.getElementById(id);
   const els = {
     tabs: $('al-tabs'), q: $('al-q'), shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), show: $('al-show'), showField: $('al-show-field'),
@@ -22,7 +22,7 @@
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
-  let progress = {}, removed = {}, pending = {}, owner = false, picked = false, digestLinks = {};
+  let progress = {}, removed = {}, pending = {}, pendingTags = {}, owner = false, picked = false, digestLinks = {};
   // Shelves start folded, so a list opens as its table of contents. Shelves opened while browsing are remembered in
   // this browser per list; while a search, shelf or filter is on, every shelf with matches opens instead, and folds
   // made then last only until the filters change.
@@ -46,6 +46,20 @@
   const pendingFor = i => pending[list.id]?.[itemKey(i)];
   const REMOVE = 'remove';
   const isRemoving = i => pendingFor(i) === REMOVE;
+  // Owner-toggle flags (list.toggles, such as On my shelf) switched in this browser apply over the published flags
+  // in i._f until they are sent, so the tags, Show filter and counts all read the same i.f.
+  function applyTags(id) {
+    const meta = lists.find(l => l.id === id), tagged = pendingTags[id] || {};
+    for (const i of cache[id] || []) {
+      const set = tagged[itemKey(i)];
+      if (set) for (const flag of Object.keys(set)) if (set[flag] === i._f.includes(flag) || !(meta.toggles || []).includes(flag)) delete set[flag];
+      if (set && !Object.keys(set).length) delete tagged[itemKey(i)];
+      const f = set ? Object.keys(meta.flags).filter(flag => set[flag] ?? i._f.includes(flag)) : i._f;
+      if (f.length) i.f = f; else delete i.f;
+    }
+    if (cache[id] && !Object.keys(tagged).length) delete pendingTags[id];
+    store.set(TAGS_KEY, Object.keys(pendingTags).length ? pendingTags : null);
+  }
   const isDone = i => {
     const mark = pendingFor(i);
     return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
@@ -199,14 +213,17 @@
     const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
     const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
-    const label = list.doneLabel.toLowerCase();
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
       digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}">${digest.read ? 'Reread digest' : 'Read digest'}</a>`].filter(Boolean);
     const step = state.thread && i.th?.[state.thread]?.[1];
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
-    const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
-      `<button type="button" class="al-remove" data-key="${esc(itemKey(i))}">Remove</button></span>` : '';
+    const key = esc(itemKey(i)), tagged = pendingTags[list.id]?.[itemKey(i)] || {};
+    const toggle = (flag, text, on, unsent, attrs = '') => `<label class="al-toggle${unsent ? ' al-unsent' : ''}"${attrs}>` +
+      `<input type="checkbox" data-key="${key}" data-flag="${flag}"${on ? ' checked' : ''}${attrs ? ' disabled' : ''}><span>${esc(text)}</span></label>`;
+    const mark = owner ? `<span class="al-owner-actions">${toggle('', list.doneLabel, done, pendingFor(i) !== undefined, i.d ? ' title="Marked in the source list"' : '')}` +
+      (list.toggles || []).map(flag => toggle(esc(flag), list.flags[flag], i.f?.includes(flag), flag in tagged)).join('') +
+      `<button type="button" class="al-remove" data-key="${key}">Remove</button></span>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${genres}${more}${mark}</div>` +
@@ -322,11 +339,12 @@
       data.forEach((i, n) => {
         // The data comes from another repository, so only web links are kept.
         for (const key of ['l', 'i']) if (i[key] && !/^https:\/\//.test(i[key])) delete i[key];
-        i._id = n; i._t = titleKey(i.t); i._c = creatorKey(i.c);
+        i._f = i.f || []; i._id = n; i._t = titleKey(i.t); i._c = creatorKey(i.c);
         if (!shelfIndex.has(i.s)) shelfIndex.set(i.s, shelfIndex.size);
         i._h = fold([i.t, i.c, i.y, i.g, i.s, i.u, i.n, ...(i.k || [])].filter(Boolean).join(' '));
       });
       cache[id] = data;
+      applyTags(id);
     }
     return cache[id];
   }
@@ -346,14 +364,15 @@
   }
 
   // Owner mode.
-  const pendingCount = () => Object.values(pending).reduce((n, marks) => n + Object.keys(marks).length, 0);
+  const pendingCount = () => Object.values(pending).reduce((n, marks) => n + Object.keys(marks).length, 0) +
+    Object.values(pendingTags).reduce((n, tagged) => n + Object.values(tagged).reduce((m, set) => m + Object.keys(set).length, 0), 0);
   function renderOwnerBar() {
     els.ownerBar.hidden = !owner;
     if (!owner) return;
     const count = pendingCount();
     els.ownerText.textContent = count
       ? `${number(count)} ${count === 1 ? 'change is' : 'changes are'} saved in this browser and not yet on the site.`
-      : 'Mark titles as you finish them or remove ones you no longer want, then send the changes to the site.';
+      : 'Tick titles as you finish them, retag them or remove ones you no longer want, then send the changes to the site.';
     if (count) els.ownerText.textContent += ' Discard brings back anything you removed.';
     els.send.hidden = els.discard.hidden = !count;
     if (count) els.send.href = issueUrl();
@@ -367,7 +386,15 @@
         lines.push(`- ${value === REMOVE ? 'Remove from the list' : value ? meta.doneLabel : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
       }
     }
-    const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the site.\n\n\`\`\`json\n${JSON.stringify(pending)}\n\`\`\`\n`;
+    for (const [listId, tagged] of Object.entries(pendingTags)) {
+      const meta = lists.find(l => l.id === listId);
+      for (const [key, set] of Object.entries(tagged)) {
+        const [title, creator] = key.split('|');
+        for (const [flag, on] of Object.entries(set)) lines.push(`- ${on ? meta.flags[flag] : `Not ${meta.flags[flag].toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`);
+      }
+    }
+    const marks = Object.keys(pendingTags).length ? { ...pending, tags: pendingTags } : pending;
+    const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the site.\n\n\`\`\`json\n${JSON.stringify(marks)}\n\`\`\`\n`;
     const count = pendingCount();
     return `https://github.com/${REPO}/issues/new?${new URLSearchParams({ title: `Anti-library: update ${count} ${count === 1 ? 'title' : 'titles'}`, body })}`;
   }
@@ -407,29 +434,41 @@
     store.set(PENDING_KEY, Object.keys(pending).length ? pending : null);
   }
   els.results.addEventListener('click', event => {
-    const button = event.target.closest('.al-mark, .al-remove');
+    const button = event.target.closest('.al-remove');
     if (!button || !owner) return;
     const key = button.dataset.key, item = items.find(i => itemKey(i) === key);
-    pending[list.id] ??= {};
     const article = button.closest('.al-item');
-    if (button.classList.contains('al-remove')) {
-      pending[list.id][key] = REMOVE;
-      prunePending();
-      // The title leaves the page now; Discard brings it back until the changes are sent.
-      const shelf = article.closest('.al-shelf'), next = article.nextElementSibling || article.previousElementSibling;
-      visible = visible.filter(i => i !== item);
-      article.remove();
-      if (shelf) {
-        const left = shelf.querySelectorAll('.al-item').length;
-        if (left) shelf.querySelector('.al-shelf-count').textContent = number(left); else shelf.remove();
-      }
-      (next?.isConnected ? next : els.results).focus?.();
-    } else {
-      pending[list.id][key] = !isDone(item) ? new Date().toISOString().slice(0, 10) : null;
-      prunePending();
-      article.outerHTML = itemHtml(item);
-      $(`item-${item._id}`).querySelector('.al-mark').focus();
+    (pending[list.id] ??= {})[key] = REMOVE;
+    if (pendingTags[list.id]) delete pendingTags[list.id][key];
+    applyTags(list.id);
+    prunePending();
+    // The title leaves the page now; Discard brings it back until the changes are sent.
+    const shelf = article.closest('.al-shelf'), next = article.nextElementSibling || article.previousElementSibling;
+    visible = visible.filter(i => i !== item);
+    article.remove();
+    if (shelf) {
+      const left = shelf.querySelectorAll('.al-item').length;
+      if (left) shelf.querySelector('.al-shelf-count').textContent = number(left); else shelf.remove();
     }
+    (next?.isConnected ? next : els.results).focus?.();
+    updateCount();
+    renderOwnerBar();
+  });
+  // Each owner checkbox changes one title in place: Read (or Watched, Heard) is a progress mark, the rest are tags.
+  els.results.addEventListener('change', event => {
+    const box = event.target.closest('.al-owner-actions input');
+    if (!box || !owner) return;
+    const key = box.dataset.key, flag = box.dataset.flag, item = items.find(i => itemKey(i) === key);
+    if (flag) {
+      ((pendingTags[list.id] ??= {})[key] ??= {})[flag] = box.checked;
+      applyTags(list.id);
+      renderMenus();
+    } else {
+      (pending[list.id] ??= {})[key] = box.checked ? new Date().toISOString().slice(0, 10) : null;
+      prunePending();
+    }
+    $(`item-${item._id}`).outerHTML = itemHtml(item);
+    $(`item-${item._id}`).querySelector(`input[data-flag="${flag || ''}"]`).focus();
     updateCount();
     renderOwnerBar();
   });
@@ -472,7 +511,12 @@
       els.exportButton.textContent = 'Export spreadsheet';
     }
   });
-  els.discard.addEventListener('click', () => { pending = {}; store.set(PENDING_KEY, null); render(); });
+  els.discard.addEventListener('click', () => {
+    pending = {}; pendingTags = {};
+    store.set(PENDING_KEY, null);
+    Object.keys(cache).forEach(applyTags);
+    render();
+  });
 
   // On a computer, Listen on Spotify tries the Spotify app first. If the page keeps focus (no app took over) the web
   // player opens instead, soon enough to count as the same click so pop-up blockers allow it. Phones and tablets keep
@@ -563,6 +607,7 @@
   if (ownerParam) store.set(OWNER_KEY, ownerParam === 'on' || null);
   owner = store.get(OWNER_KEY, false) === true;
   pending = store.get(PENDING_KEY, {});
+  pendingTags = store.get(TAGS_KEY, {}) || {};
   opened = Object.fromEntries(Object.entries(store.get(OPENED_KEY, {}) || {}).filter(([, v]) => Array.isArray(v)).map(([id, v]) => [id, new Set(v)]));
   Promise.all([
     fetch(`${DATA}lists.json`).then(r => r.json()),
