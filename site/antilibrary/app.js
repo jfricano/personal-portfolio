@@ -31,7 +31,16 @@
   let progress = {}, removed = {}, pending = {}, pendingTags = {}, owner = false, picked = false, digestLinks = {}, digestMarks = {};
   // Artists with a listening path (artist.html), by folded name: the path row itself and the artist's other albums link there.
   let artistPaths = null;
-  const pathFor = i => artistPaths && list.id === 'albums' && artistPaths.get(fold(i.f?.includes('path') ? i.t : i.c || ''));
+  const pathOf = i => (artistPaths && list.id === 'albums' && artistPaths.get(fold(i.f?.includes('path') ? i.t : i.c || ''))) || null;
+  const pathFor = i => pathOf(i)?.id;
+  // An artist path row is fully heard once every album on its path is heard (published or waiting in this browser);
+  // it can't be ticked on its own.
+  const pathHeard = p => p.records.filter(r => r.p).every(r => {
+    if (r.d) return true;
+    const mark = pending.albums?.[`${r.t}|${r.c}`];
+    return Boolean(mark !== undefined && mark !== REMOVE ? mark : progress.albums?.[`${r.t}|${r.c}`]);
+  });
+  const pathRow = i => (i.f?.includes('path') ? pathOf(i) : null);
   // Shelves start folded, so a list opens as its table of contents. Shelves opened while browsing are remembered in
   // this browser per list; while a search, shelf or filter is on, every shelf with matches opens instead, and folds
   // made then last only until the filters change.
@@ -80,6 +89,7 @@
   // A title crossed off before the digest marks existed counts as fully read unless it is marked digested.
   const isFully = i => (digestLinks[list.id]?.[itemKey(i)] ? markOf(i, 'deeper') || (isDone(i) && !(digestCounts(list.id) && markOf(i, 'read'))) : isDone(i));
   const isDone = i => {
+    if (pathRow(i)) return Boolean(i.d || pathHeard(pathRow(i)));
     const mark = pendingFor(i);
     return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
   };
@@ -246,7 +256,8 @@
     const toggle = (flag, text, on, unsent, attrs = '') => `<label class="al-toggle${unsent ? ' al-unsent' : ''}"${attrs}>` +
       `<input type="checkbox" data-key="${key}" data-flag="${flag}"${on ? ' checked' : ''}${attrs ? ' disabled' : ''}><span>${esc(text)}</span></label>`;
     const marks = (digest && digestCounts(list.id) ? toggle('digest:read', 'Digested', markOf(i, 'read'), markUnsent(i, 'read')) : '') +
-      toggle(digest ? 'digest:deeper' : '', fullyLabel(list.id), isFully(i), digest ? markUnsent(i, 'deeper') : pendingFor(i) !== undefined, i.d ? ' title="Marked in the source list"' : '');
+      toggle(digest ? 'digest:deeper' : '', fullyLabel(list.id), isFully(i), digest ? markUnsent(i, 'deeper') : pendingFor(i) !== undefined,
+        isPath ? ' title="Ticks itself when every album on the path is heard"' : i.d ? ' title="Marked in the source list"' : '');
     // Progress (Digested, Fully read) comes first; the few tags owner mode can change (list.toggles, Formative on
     // books) follow behind a rule. Every other tag is edited in the source lists.
     const tagBoxes = (list.toggles || []).map(flag => toggle(esc(flag), list.flags[flag], i.f?.includes(flag), flag in tagged)).join('');
@@ -381,7 +392,7 @@
   async function loadPaths() {
     const paths = await fetch(`${DATA}paths.json`).then(r => (r.ok ? r.json() : [])).catch(() => []);
     artistPaths = new Map();
-    for (const p of paths) for (const name of [p.artist, ...(p.names || [])]) artistPaths.set(fold(name), p.id);
+    for (const p of paths) for (const name of [p.artist, ...(p.names || [])]) artistPaths.set(fold(name), p);
   }
 
   async function selectList(id, fromUrl) {

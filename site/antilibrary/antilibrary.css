@@ -208,3 +208,9 @@ a.al-tag-path{text-decoration:none}
 a.al-tag-path:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:700px){.ap-head{padding:35px 0 36px}.ap-head h1{font-size:clamp(46px,12vw,59px)}.ap-head .case-deck{font-size:17px}
 .ap-row{grid-template-columns:48px minmax(0,1fr);gap:4px 14px}.ap-mark{grid-column:2;justify-self:start}.ap-title{font-size:18px}}
+.ap-head .case-facts{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ap .al-owner-bar{margin:0 0 26px}
+.ap .al-owner-bar a{color:var(--ink)}
+.ap-what .al-owner-actions{margin-top:6px}
+@media(max-width:1000px){.ap-head .case-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.ap-head .case-facts{grid-template-columns:1fr}}
