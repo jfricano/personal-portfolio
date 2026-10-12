@@ -174,6 +174,7 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 /* Artist paths (artist.html): a door, the listening order, then every record by year on one rail, with the
    skipped ones muted. Same paper, serif and rust as the list; nothing moves. */
 .ap-head{padding:55px 0 50px}
+.ap-back{margin:0 0 26px}
 .ap-head .label a{text-decoration:none}.ap-head .label a:hover{text-decoration:underline}
 .ap-head h1{font-size:clamp(50px,6.8vw,96px);margin:22px 0 26px}
 .ap-head h1 em{color:var(--rust)}
@@ -223,6 +224,7 @@ a.ap-mark:hover{border-color:var(--rust);color:var(--rust)}
 .ap-index a:hover .ap-index-name{color:var(--rust)}
 /* On the list, an artist's path is a link rather than a filter. */
 a.al-tag-path{text-decoration:none}
+.al-path-link{margin:10px 0 4px}.al-path-link .al-tag{display:inline-block;font-size:11px;padding:5px 11px}
 a.al-tag-path:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:1000px){.ap-steps .ap-step{grid-template-columns:88px minmax(0,1fr) minmax(0,1.2fr)}.ap-steps .al-cover{width:88px}}
 @media(max-width:700px){.ap-head{padding:35px 0 36px}.ap-head h1{font-size:clamp(46px,12vw,59px)}.ap-head .case-deck{font-size:17px}
