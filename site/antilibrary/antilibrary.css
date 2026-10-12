@@ -175,6 +175,9 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
    skipped ones muted. Same paper, serif and rust as the list; nothing moves. */
 .ap-head{padding:55px 0 50px}
 .ap-back{margin:0 0 26px}
+/* Back to albums is a link dressed as the site's filled button: no underline, ink on paper, rust on hover. */
+.ap-back a.al-button{display:inline-flex;align-items:center;text-decoration:none;background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.ap-back a.al-button:hover,.ap-back a.al-button:focus-visible{background:var(--rust);border-color:var(--rust);color:var(--paper)}
 .ap-head .label a{text-decoration:none}.ap-head .label a:hover{text-decoration:underline}
 .ap-head h1{font-size:clamp(50px,6.8vw,96px);margin:22px 0 26px}
 .ap-head h1 em{color:var(--rust)}
