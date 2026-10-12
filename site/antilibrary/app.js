@@ -831,7 +831,26 @@
   // Coming back to the tab re-reads what's published, so changes saved elsewhere stop showing as unsaved.
   document.addEventListener('visibilitychange', () => {
     if (document.hidden || !owner || saving || !lists.length) return;
+    rereadPending();
     refreshPublished().then(() => { if (list) { render(); renderOwnerBar(); } });
+  });
+  // Ticks made on an artist page (or in another tab) are written to the browser store at once. When the browser
+  // brings this page back from its cache (Back, or Back to albums) the copy held here is stale, so read it again;
+  // otherwise the next tick here would overwrite them.
+  function rereadPending() {
+    pending = store.get(PENDING_KEY, {}) || {};
+    pendingTags = store.get(TAGS_KEY, {}) || {};
+    prunePending();
+  }
+  addEventListener('pageshow', event => {
+    if (!event.persisted || !lists.length) return;
+    rereadPending();
+    if (list) { render(); renderOwnerBar(); }
+  });
+  addEventListener('storage', event => {
+    if (![PENDING_KEY, TAGS_KEY].includes(event.key) || !lists.length) return;
+    rereadPending();
+    if (list) { render(); renderOwnerBar(); }
   });
   els.discard.addEventListener('click', () => {
     pending = {}; pendingTags = {};
