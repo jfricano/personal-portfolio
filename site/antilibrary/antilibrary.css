@@ -84,15 +84,14 @@
 .al-ext{font-family:var(--sans);font-size:13px;color:var(--rust);opacity:0}
 .al-item h3 a:hover .al-ext,.al-item h3 a:focus-visible .al-ext{opacity:1}
 .al-item h3{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.02em;line-height:1.2}
-/* The whole row opens the title's page: the title link stretches over the row, and the row's own buttons and
-   other links sit above it so they still work. Hovering anywhere on the row marks the title the way hovering it does. */
-.al-item{position:relative}
-.al-item h3 a:after{content:'';position:absolute;inset:0;z-index:1}
-.al-item:hover h3 a{text-decoration:underline}
-.al-item:hover .al-ext{opacity:1}
-.al-item h3 a:focus-visible{outline:none}
-.al-item:has(h3 a:focus-visible){outline:3px solid var(--rust);outline-offset:3px}
-.al-more,.al-owner-actions,.al-tags button{position:relative;z-index:2}
+/* The title, creator and year open the title's page as one link: the title link stretches over that block, and
+   hovering anywhere on it marks the title the way hovering the title does. */
+.al-ident{position:relative;width:fit-content;max-width:100%}
+.al-ident h3 a:after{content:'';position:absolute;inset:0}
+.al-ident:hover h3 a{text-decoration:underline}
+.al-ident:hover .al-ext{opacity:1}
+.al-ident h3 a:focus-visible{outline:none}
+.al-ident:has(h3 a:focus-visible){outline:3px solid var(--rust);outline-offset:3px}
 .al-by{font-size:14px;margin-top:5px}
 .al-genres{font-size:12px;color:var(--rust);margin-top:4px;letter-spacing:.01em}
 .al-more{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:12px}
