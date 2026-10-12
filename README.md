@@ -42,7 +42,7 @@ The page fetches `lists.json`, one `<id>.json` per list, `paths.json` and `progr
 
 **Browsing.** A visit with no list in the URL opens a random list. Shelves start folded, so a list opens as its table of contents; shelves opened while browsing are remembered in that browser. The filter bar has Search, Shelf, Show (the public tags), Thread and Sort, and every filter in use shows as a removable chip. Picking a thread shows its titles in path order with each stop’s line, whatever the sort. Search, filters, thread and sort are kept in the URL, so a filtered view can be shared as a link. **Pick one for me** chooses a title from the current view. Albums have a Listen on Spotify link that tries the desktop app first. Smooth scrolling is the only motion.
 
-**Artist paths.** `site/antilibrary/artist.html?a=<slug>` (with `artist.js`) shows one artist’s listening order: a door record, the steps after it, and a timeline of the records left out. With no `a` it lists every path. An artist path row on the albums list links there from its title and tag, and other albums by a path artist get an “Artist path →” link.
+**Artist paths.** `site/antilibrary/artist.html?a=<slug>` (with `artist.js`) shows one artist’s listening order: a door record, the steps after it, and a timeline of the records left out. With no `a` it lists every path. An artist path row on the albums list links there from its title and tag, the albums on the path’s main line follow it as rows of their own, and other albums by a path artist get an “Artist path →” link. Not every artist has a path.
 
 **Owner mode** is not linked anywhere: open `/antilibrary/?owner=on` once and the browser remembers it (Leave owner mode turns it off). It marks and removes titles already on the lists; it never adds them. Each title gets checkboxes grouped as progress, then tags:
 
@@ -50,7 +50,7 @@ The page fetches `lists.json`, one `<id>.json` per list, `paths.json` and `progr
 - **Digested** appears on books that have a digest, when the browser holds the digests key (below), with a Read digest link that opens in a new tab. On films, shows and albums a digest doesn’t cross the title off, so it shows as a note instead.
 - **Formative** on books is the one tag owner mode can change. Every other tag is edited in the anti-lib source lists.
 - **Remove** is a small link; the title leaves the page at once, and Discard brings it back until changes are sent.
-- Pending (PR #40): on an artist path page, each album gets a Heard box, and the artist’s row on the list ticks Fully heard by itself once every album on the path is heard.
+- **Heard** boxes on an artist path page mark each album on the path; they are the same marks as Fully heard on those albums’ rows in the list, and go out with the same Send changes issue. The artist’s own row ticks Fully heard by itself once every album on the path’s main line is heard.
 
 Marks wait in that browser until **Send changes to the site** opens a prefilled issue in jfricano/anti-lib, whose workflow applies issues Jason opens. Digest marks go out separately with **Send digest marks**, to the digests repository. **Hide finished** hides crossed-off titles, and **Export spreadsheet** downloads every list, with status and finish dates, as one XLSX (SheetJS, vendored in `site/antilibrary/vendor/` and loaded only on export). The page holds no credentials.
 
