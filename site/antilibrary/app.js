@@ -233,11 +233,12 @@
     const done = isDone(i);
     const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
     const path = pathFor(i), isPath = Boolean(path && i.f?.includes('path'));
-    const outside = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
-    const href = isPath ? `artist.html?a=${encodeURIComponent(path)}` : outside, away = isPath ? '' : ' target="_blank" rel="noopener noreferrer"';
+    // An artist path row's name goes to the artist's AllMusic page; the Artist path button under it opens the path.
+    const outside = (isPath && i.l ? i.l.replace(/\/discography$/, '') : i.l) || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
+    const href = outside, away = ' target="_blank" rel="noopener noreferrer"', pathHref = path ? `artist.html?a=${encodeURIComponent(path)}` : '';
     const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
     // On an artist's own row the Artist path link sits under the name, where it's easy to find, not with the tags.
-    const pathLink = isPath ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(href)}">${esc(list.flags.path || 'Artist path')} →</a></p>` : '';
+    const pathLink = isPath ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(pathHref)}">${esc(list.flags.path || 'Artist path')} →</a></p>` : '';
     const tags = (i.f || []).filter(f => visibleFlags.has(f) && !(f === 'path' && isPath)).map(f => filters.has(f)
       ? `<li><button type="button" class="al-tag al-tag-${esc(f)}" data-only="${esc(f)}" title="Show only ${esc(list.flags[f].toLowerCase())}">${esc(list.flags[f])}</button></li>`
       : `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
@@ -246,8 +247,7 @@
     if (digest && !digestCounts(list.id) && markOf(i, 'read')) tags.push('<li class="al-tag al-tag-digested">Digested</li>');
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
-    const extra = [isPath && i.l && `<a href="${esc(i.l)}" target="_blank" rel="noopener noreferrer">Discography ↗</a>`,
-      path && !isPath && `<a href="artist.html?a=${esc(encodeURIComponent(path))}">Artist path →</a>`,
+    const extra = [path && !isPath && `<a href="${esc(pathHref)}">Artist path →</a>`,
       list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
       digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}" target="_blank" rel="noopener">${markOf(i, 'read') ? 'Reread digest' : 'Read digest'} ↗</a>`].filter(Boolean);
     const step = state.thread && i.th?.[state.thread]?.[1];
@@ -266,7 +266,7 @@
       `<button type="button" class="al-remove" data-key="${key}">Remove</button></div>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}"${away} tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
-      `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}"${away}${i.l || isPath ? '' : ' title="Search for this title"'}>${esc(i.t)}${isPath ? '' : '<span class="al-ext" aria-hidden="true"> ↗</span>'}</a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${pathLink}${genres}${more}${mark}</div>` +
+      `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}"${away}${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${pathLink}${genres}${more}${mark}</div>` +
       `<div class="al-item-body">${step ? `<p class="al-step">${esc(step)}</p>` : ''}${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
   }
