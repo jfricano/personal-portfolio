@@ -408,6 +408,16 @@
     renderControls();
     render();
     writeUrl();
+    restoreScroll();
+  }
+
+  // Coming back from an artist page (or any page) lands where the visitor left the list, once the shelves are drawn.
+  const SCROLL_KEY = 'antilibrary-scroll';
+  addEventListener('pagehide', () => { try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ href: location.href, y: scrollY })); } catch {} });
+  function restoreScroll() {
+    let saved = null;
+    try { saved = JSON.parse(sessionStorage.getItem(SCROLL_KEY)); sessionStorage.removeItem(SCROLL_KEY); } catch {}
+    if (saved?.href === location.href && saved.y > 0) scrollTo(0, saved.y);
   }
 
   // Owner mode.

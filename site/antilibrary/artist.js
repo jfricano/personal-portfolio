@@ -126,10 +126,28 @@
     const toggle = event.target.closest('[data-fold]');
     if (toggle) setFold(toggle.dataset.fold, toggle.getAttribute('aria-expanded') !== 'true');
   });
-  // A link to a step (the door in the header, a mark in the timeline) opens the listening order first.
+  // A link to a step (the door in the header, a mark in the timeline) opens the listening order first. It scrolls
+  // without adding to the history, so Back to albums still has one step to go back.
   document.addEventListener('click', event => {
-    if (event.target.closest('a[href^="#step-"]')) setFold('order', true);
+    const link = event.target.closest('a[href^="#step-"]');
+    if (!link) return;
+    event.preventDefault();
+    setFold('order', true);
+    document.querySelector(link.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
+  // Back to albums returns to the list as it was left (filters, open shelves, scroll) when the visitor came from it;
+  // otherwise it opens the albums list.
+  const back = document.getElementById('ap-back');
+  let from = null;
+  try { from = new URL(document.referrer); } catch {}
+  if (from && from.origin === location.origin && /\/antilibrary\/(index\.html)?$/.test(from.pathname)) {
+    back.href = from.href;
+    back.addEventListener('click', event => {
+      if (history.length < 2 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      history.back();
+    });
+  }
   root.addEventListener('click', event => {
     const link = event.target.closest('.al-listen');
     if (!link || !desktop || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
