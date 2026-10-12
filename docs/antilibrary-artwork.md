@@ -1,6 +1,6 @@
 # Anti-library header art
 
-Each list on `/antilibrary/` shows its illustration small, beside the headline, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. It changes with the selected tab and crossfades in when its file exists in `site/antilibrary/art/`; a list without a file shows no picture.
+The page shows one combined still life, `site/antilibrary/art/anti-library.jpg`, beside the headline on every tab, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. Each list's own illustration shows small at the end of the tab row, next to the medium selector; it changes with the selected tab and swaps in without motion once its file exists in `site/antilibrary/art/`. A list without a file shows no small picture. The `/digests` page reuses the per-list files, so their names stay fixed.
 
 | List   | File         |
 |--------|--------------|
@@ -9,7 +9,7 @@ Each list on `/antilibrary/` shows its illustration small, beside the headline, 
 | TV     | `tv.jpg`     |
 | Albums | `albums.jpg` |
 
-- **Size:** the current set is 1536 × 1024 px (3:2). The slot shows the whole image, never cropped, at 3:2: up to 440 px wide beside the headline on desktop and full width on phones. Its edges are feathered into the paper with a radial mask, so keep the subject inside the middle three-quarters of the frame.
+- **Size:** the current set is 1536 × 1024 px (3:2). The slot shows the whole image, never cropped, at 3:2: up to 440 px wide beside the headline on desktop and full width on phones; the per-list picture by the tabs is about 130 px wide, so its subject must read at thumbnail size. Its edges are feathered into the paper with a radial mask, so keep the subject inside the middle three-quarters of the frame.
 - **Format:** JPEG, sRGB. The page's paper color is `#f5f0e7`, and the image is multiplied onto it, so a cream background blends in.
 - **No text in the image**, since the list name is already in the tab above it.
 
