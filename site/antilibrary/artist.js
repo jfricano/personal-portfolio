@@ -5,6 +5,12 @@
   const DATA = document.getElementById('main').dataset.source;
   const SPOTIFY = 'https://open.spotify.com/search/', DISCOGS = 'https://www.discogs.com/search/?type=all&q=';
   const root = document.getElementById('ap');
+  const head = { crumb: document.getElementById('ap-crumb'), title: document.getElementById('ap-title'), deck: document.getElementById('ap-deck'), facts: document.getElementById('ap-facts') };
+  // The heading is in the page itself; each view fills in its words.
+  function setHead(crumb, title, deck, facts = '') {
+    head.crumb.innerHTML = crumb; head.title.innerHTML = title; head.deck.innerHTML = deck;
+    head.deck.hidden = !deck; head.facts.innerHTML = facts; head.facts.hidden = !facts;
+  }
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const web = url => (/^https:\/\//.test(url || '') ? url : '');
   const id = new URLSearchParams(location.search).get('a') || '';
@@ -41,12 +47,11 @@
   function showPath(p) {
     const order = steps(p), skipped = p.records.length - order.length, years = p.records.map(r => r.y);
     document.title = `${p.artist}: a listening path — Jason Fricano`;
-    root.innerHTML = `<header class="ap-head"><p class="label"><a href="./?list=albums">Anti-library albums</a> / <a href="artist.html">Artist paths</a></p>` +
-      `<h1>${esc(p.artist)}</h1>${p.about ? `<p class="case-deck">${esc(p.about)}</p>` : ''}` +
-      `<dl class="case-facts"><div><dt>The door</dt><dd><a href="#step-1">${esc(order[0].t)}</a> (${esc(order[0].y)})</dd></div>` +
+    setHead('<a href="./?list=albums">Anti-library albums</a> / <a href="artist.html">Artist paths</a>', esc(p.artist), p.about ? esc(p.about) : '',
+      `<div><dt>The door</dt><dd><a href="#step-1">${esc(order[0].t)}</a> (${esc(order[0].y)})</dd></div>` +
       `<div><dt>The path</dt><dd>${order.length} ${order.length === 1 ? 'record' : 'records'}, in this order</dd></div>` +
-      `<div><dt>Left out</dt><dd>${skipped ? `${skipped} more from ${Math.min(...years)} to ${Math.max(...years)}, in the timeline` : 'Nothing worth noting'}</dd></div></dl></header>` +
-      `<section class="ap-section" aria-labelledby="ap-order"><h2 id="ap-order"><span class="index">01</span>Listening order</h2><ol class="al-list ap-steps" data-cover="square">${order.map(r => stepHtml(p, r)).join('')}</ol></section>` +
+      `<div><dt>Left out</dt><dd>${skipped ? `${skipped} more from ${Math.min(...years)} to ${Math.max(...years)}, in the timeline` : 'Nothing worth noting'}</dd></div>`);
+    root.innerHTML = `<section class="ap-section" aria-labelledby="ap-order"><h2 id="ap-order"><span class="index">01</span>Listening order</h2><ol class="al-list ap-steps" data-cover="square">${order.map(r => stepHtml(p, r)).join('')}</ol></section>` +
       `<section class="ap-section" aria-labelledby="ap-time"><h2 id="ap-time"><span class="index">02</span>The whole run</h2>` +
       `<p class="ap-lede">Every record worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.</p>` +
       `<ol class="ap-timeline">${timelineHtml(p)}</ol></section>`;
@@ -55,9 +60,9 @@
 
   function showIndex(paths) {
     document.title = 'Artist paths — Jason Fricano';
-    root.innerHTML = `<header class="ap-head"><p class="label"><a href="./?list=albums">Anti-library albums</a> / Artist paths</p>` +
-      `<h1>Artist <em>paths.</em></h1><p class="case-deck">For the artists worth going deep on: a door to start with, then the records that make the study feel complete, in the order I'd play them.</p></header>` +
-      `<ol class="ap-index">${paths.map(p => {
+    setHead('<a href="./?list=albums">Anti-library albums</a> / Artist paths', 'Artist <em>paths.</em>',
+      "For the artists worth going deep on: a door to start with, then the records that make the study feel complete, in the order I'd play them.");
+    root.innerHTML = `<ol class="ap-index">${paths.map(p => {
         const order = steps(p);
         return `<li><a href="artist.html?a=${encodeURIComponent(p.id)}"><span class="ap-index-name">${esc(p.artist)}</span>` +
           `<span class="ap-index-door">Start with ${esc(order[0].t)} · ${order.length} on the path</span></a></li>`;
@@ -68,7 +73,8 @@
     if (!id) return showIndex(paths);
     const p = paths.find(x => x.id === id);
     if (p) return showPath(p);
-    root.innerHTML = `<header class="ap-head"><h1>No path <em>yet.</em></h1><p class="case-deck">There isn't a listening path for that artist. <a href="artist.html">See the artists that have one.</a></p></header>`;
+    setHead('<a href="./?list=albums">Anti-library albums</a> / <a href="artist.html">Artist paths</a>', 'No path <em>yet.</em>',
+      'There isn\'t a listening path for that artist. <a href="artist.html">See the artists that have one.</a>');
   }
 
   // As on the list, Listen on Spotify tries the desktop app first and falls back to the web player.
@@ -94,5 +100,5 @@
     fetch(`${DATA}paths.json`).then(r => r.json()),
     fetch(`${DATA}progress.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
   ]).then(([paths, done]) => { progress = done.albums || {}; show(paths); })
-    .catch(() => { root.innerHTML = '<p class="al-empty">The artist paths could not be loaded. Try refreshing the page.</p>'; });
+    .catch(() => { head.deck.textContent = 'The artist paths could not be loaded. Try refreshing the page.'; });
 })();
