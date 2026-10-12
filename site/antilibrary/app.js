@@ -15,7 +15,7 @@
   const $ = id => document.getElementById(id);
   const els = {
     tabs: $('al-tabs'), q: $('al-q'), shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), show: $('al-show'), showField: $('al-show-field'),
-    sort: $('al-sort'), count: $('al-count'), applied: $('al-applied'), results: $('al-results'), random: $('al-random'),
+    thread: $('al-thread'), threadField: $('al-thread-field'), sort: $('al-sort'), count: $('al-count'), applied: $('al-applied'), results: $('al-results'), random: $('al-random'),
     hide: $('al-hide'), hideLabel: $('al-hide-label'), fold: $('al-fold'),
     owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), send: $('al-send'), discard: $('al-discard'),
     exportButton: $('al-export'),
@@ -27,9 +27,9 @@
   // this browser per list; while a search, shelf or filter is on, every shelf with matches opens instead, and folds
   // made then last only until the filters change.
   let opened = {}, foldedNow = new Set();
-  const filtering = () => Boolean(state.q || state.only || state.group || state.shelf || (owner && state.hide));
+  const filtering = () => Boolean(state.q || state.only || state.thread || state.group || state.shelf || (owner && state.hide));
   const isOpen = shelf => (filtering() ? !foldedNow.has(shelf) : Boolean(opened[list.id]?.has(shelf)));
-  const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', only: '', hide: false });
+  const blank = () => ({ q: '', group: '', shelf: '', sort: 'shelf', only: '', thread: '', hide: false });
   const state = { list: '', ...blank() };
 
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -74,6 +74,7 @@
     state.group = state.shelf ? '' : p.get('part') || '';
     state.sort = SORTS[p.get('sort')] ? p.get('sort') : 'shelf';
     state.only = (p.get('only') || '').split(',')[0];
+    state.thread = p.get('thread') || '';
     state.hide = p.get('hide') === '1';
   }
   function writeUrl() {
@@ -83,6 +84,7 @@
     if (state.shelf) p.set('shelf', state.shelf);
     if (state.sort !== 'shelf') p.set('sort', state.sort);
     if (state.only) p.set('only', state.only);
+    if (state.thread) p.set('thread', state.thread);
     if (owner && state.hide) p.set('hide', '1');
     // A visit with no list in the URL opens a random one. The list goes into the URL once someone
     // picks a tab or narrows the view, so a shared link opens the same list.
@@ -91,6 +93,8 @@
     try { history.replaceState(null, '', query ? `?${query}` : location.pathname); } catch {}
   }
 
+  // Threads are named paths through titles on the list; picking one shows its titles in path order.
+  const threadOf = id => (list.threads || []).find(t => t.id === id);
   const unique = values => [...new Set(values.filter(Boolean))];
   const shelfName = shelf => splitShelf(shelf)[1] || 'Unshelved';
   // Menu choices carry their counts; the chosen one and the "all" choice leave it off, since the count line says it.
@@ -109,6 +113,7 @@
     if (state.group && !items.some(i => i.g === state.group)) state.group = '';
     if (state.shelf && !items.some(i => i.s === state.shelf)) state.shelf = '';
     if (state.only && !filterFlags().some(([key]) => key === state.only)) state.only = '';
+    if (state.thread && !threadOf(state.thread)) state.thread = '';
     if (!owner) state.hide = false;
     els.shelfLabel.textContent = list.shelfLabel || 'Shelf';
     const sorts = Object.entries(SORTS).filter(([, s]) => !s.year || list.hasYear);
@@ -141,6 +146,10 @@
     els.showField.hidden = !flags.length;
     els.show.innerHTML = option('', 'Everything', byFlag.length, state.only) +
       flags.map(([key, label]) => option(key, label, byFlag.filter(i => i.f && i.f.includes(key)).length, state.only)).join('');
+    const threads = list.threads || [], byThread = items.filter(i => matches(i, 'thread'));
+    els.threadField.hidden = !threads.length;
+    els.thread.innerHTML = option('', 'None', 0, state.thread) +
+      threads.map(t => option(t.id, t.name, byThread.filter(i => i.th && i.th[t.id]).length, state.thread)).join('');
   }
 
   // Every filter in use shows as a removable chip beside the count, so the view never narrows without saying how.
@@ -150,6 +159,7 @@
     if (state.group) chips.push(['group', state.group]);
     if (state.shelf) chips.push(['shelf', shelfName(state.shelf)]);
     if (state.only) chips.push(['only', list.flags[state.only]]);
+    if (state.thread) chips.push(['thread', `Thread: ${threadOf(state.thread).name}`]);
     if (owner && state.hide) chips.push(['hide', `Hiding ${list.doneLabel.toLowerCase()}`]);
     els.applied.hidden = !chips.length;
     els.applied.innerHTML = chips.map(([key, text]) =>
@@ -161,19 +171,21 @@
     return !(owner && isRemoving(i)) &&
       (skip === 'shelf' || ((!state.group || i.g === state.group) && (!state.shelf || i.s === state.shelf))) &&
       (skip === 'only' || !state.only || (i.f && i.f.includes(state.only))) &&
+      (skip === 'thread' || !state.thread || Boolean(i.th && i.th[state.thread])) &&
       (!owner || !state.hide || !isDone(i)) && filter.terms.every(t => i._h.includes(t));
   }
   function filter() {
     filter.terms = fold(state.q).split(/\s+/).filter(Boolean);
     visible = items.filter(i => matches(i));
-    const sort = SORTS[state.sort];
+    // A thread keeps its own order, whatever the Sort menu says.
+    const sort = state.thread ? { cmp: (a, b) => a.th[state.thread][0] - b.th[state.thread][0] } : SORTS[state.sort];
     if (sort.cmp) visible = [...visible].sort(sort.cmp);
   }
 
   function itemHtml(i) {
     const by = [i.c, i.y].filter(Boolean).map(esc).join(' · ');
     const where = [];
-    if (state.sort !== 'shelf' && i.s) where.push(splitShelf(i.s)[1]);
+    if ((state.sort !== 'shelf' || state.thread) && i.s) where.push(splitShelf(i.s)[1]);
     if (i.u) where.push(i.u);
     const done = isDone(i);
     const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
@@ -191,13 +203,14 @@
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
       digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}">${digest.read ? 'Reread digest' : 'Read digest'}</a>`].filter(Boolean);
+    const step = state.thread && i.th?.[state.thread]?.[1];
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
     const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
       `<button type="button" class="al-remove" data-key="${esc(itemKey(i))}">Remove</button></span>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${genres}${more}${mark}</div>` +
-      `<div class="al-item-body">${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
+      `<div class="al-item-body">${step ? `<p class="al-step">${esc(step)}</p>` : ''}${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
   }
 
@@ -220,9 +233,15 @@
     els.random.disabled = !visible.length;
     foldedNow = new Set();
     renderOwnerBar();
-    els.fold.hidden = !visible.length || state.sort !== 'shelf' || Boolean(state.shelf);
+    els.fold.hidden = !visible.length || state.sort !== 'shelf' || Boolean(state.shelf || state.thread);
     if (!visible.length) {
       els.results.innerHTML = `<div class="al-empty"><p>Nothing on these shelves matches. Try fewer words, or start over.</p><button type="button" class="al-button al-quiet" data-clear="all">Clear all filters</button></div>`;
+      return;
+    }
+    if (state.thread) {
+      const thread = threadOf(state.thread);
+      els.results.innerHTML = `<header class="al-thread-head"><p class="label">Thread · ${number(thread.count)} stops</p><h2>${esc(thread.name)}</h2>` +
+        `${thread.why ? `<p>${esc(thread.why)}</p>` : ''}</header><div class="al-list al-thread-list">${visible.map(itemHtml).join('')}</div>`;
       return;
     }
     if (state.sort !== 'shelf') {
@@ -488,6 +507,7 @@
     render(); writeUrl();
   });
   els.show.addEventListener('change', () => { state.only = els.show.value; render(); writeUrl(); });
+  els.thread.addEventListener('change', () => { state.thread = els.thread.value; render(); writeUrl(); });
   els.sort.addEventListener('change', () => { state.sort = els.sort.value; render(); writeUrl(); });
   els.hide.addEventListener('change', () => { state.hide = els.hide.checked; render(); writeUrl(); });
   // Chips beside the count and the empty-shelf message take filters off; a tag on a title puts its filter on.
