@@ -68,6 +68,19 @@
     }).join('');
   }
 
+  // Both sections fold like the list's shelves and start folded; they stay as they were when a tick re-renders the page.
+  const opened = new Set();
+  const fold = (key, num, name, count, body) => `<section class="ap-section"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${opened.has(key)}" aria-controls="ap-${key}" data-fold="${key}">` +
+    `<span class="index">${num}</span><span class="al-shelf-name">${name}</span><span class="al-shelf-count">${count}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
+    `<div id="ap-${key}"${opened.has(key) ? '' : ' hidden'}>${body}</div></section>`;
+  function setFold(key, open) {
+    open ? opened.add(key) : opened.delete(key);
+    const toggle = root.querySelector(`[data-fold="${key}"]`);
+    if (!toggle) return;
+    toggle.setAttribute('aria-expanded', open);
+    document.getElementById(`ap-${key}`).hidden = !open;
+  }
+
   function showPath(p) {
     current = p;
     const order = steps(p), skipped = p.records.length - order.length, years = p.records.map(r => r.y);
@@ -82,10 +95,9 @@
     const bar = owner ? `<div class="al-owner-bar"><p aria-live="polite">${count
       ? `${count} ${count === 1 ? 'album is' : 'albums are'} ticked in this browser and not yet sent. Send them from the <a href="./?list=albums">albums list</a>.`
       : 'Tick each album as you hear it. The artist counts as fully heard once every album on the path is ticked.'}</p></div>` : '';
-    root.innerHTML = bar + `<section class="ap-section" aria-labelledby="ap-order"><h2 id="ap-order"><span class="index">01</span>Listening order</h2><ol class="al-list ap-steps" data-cover="square">${order.map(r => stepHtml(p, r)).join('')}</ol></section>` +
-      `<section class="ap-section" aria-labelledby="ap-time"><h2 id="ap-time"><span class="index">02</span>The whole run</h2>` +
-      `<p class="ap-lede">Every record worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.</p>` +
-      `<ol class="ap-timeline">${timelineHtml(p)}</ol></section>`;
+    root.innerHTML = bar + fold('order', '01', 'Listening order', order.length, `<ol class="al-list ap-steps" data-cover="square">${order.map(r => stepHtml(p, r)).join('')}</ol>`) +
+      fold('run', '02', 'The whole run', p.records.length, '<p class="ap-lede">Every record worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.</p>' +
+        `<ol class="ap-timeline">${timelineHtml(p)}</ol>`);
     root.dataset.cover = 'square';
   }
 
@@ -110,6 +122,14 @@
 
   // As on the list, Listen on Spotify tries the desktop app first and falls back to the web player.
   const desktop = !/Android|iPhone|iPad|iPod|Firefox/i.test(navigator.userAgent) && !(navigator.maxTouchPoints > 0);
+  root.addEventListener('click', event => {
+    const toggle = event.target.closest('[data-fold]');
+    if (toggle) setFold(toggle.dataset.fold, toggle.getAttribute('aria-expanded') !== 'true');
+  });
+  // A link to a step (the door in the header, a mark in the timeline) opens the listening order first.
+  document.addEventListener('click', event => {
+    if (event.target.closest('a[href^="#step-"]')) setFold('order', true);
+  });
   root.addEventListener('click', event => {
     const link = event.target.closest('.al-listen');
     if (!link || !desktop || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
