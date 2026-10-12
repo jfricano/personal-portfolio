@@ -116,7 +116,7 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-tag-done{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .al-tag-digested{border-style:dashed;color:var(--muted)}
 .al-tag-deeper{color:var(--rust);border-color:var(--rust)}
-.al-tag-deeper:before{content:'→ '}
+.al-tag-deeper:before{content:'✓ '}
 /* The picked title is simply highlighted; the site does not animate, so neither does this. */
 .al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf}
 .al-picked .al-item-head:before{content:'Picked for you';display:block;font-family:var(--sans);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-bottom:4px}
