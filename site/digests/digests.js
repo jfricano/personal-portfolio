@@ -10,7 +10,9 @@
   // "In full" means reading a book, watching a film or show, listening to an album.
   const VERBS = { books: ['Read', 'Reading'], films: ['Watch', 'Watching'], tv: ['Watch', 'Watching'], albums: ['Listen to', 'Listening to'] };
   const verbs = list => VERBS[list] || VERBS.books;
-  const MARKS = { read: () => ['Digested', 'Mark digested'], deeper: list => [`${verbs(list)[1]} in full`, `${verbs(list)[0]} it in full`] };
+  // The second mark records finishing the title itself: "Fully read" for a book (not "Read", which reads as "reed").
+  const FULLY = { books: 'Fully read', films: 'Fully watched', tv: 'Fully watched', albums: 'Fully heard' };
+  const MARKS = { read: () => ['Digested', 'Mark digested'], deeper: list => [FULLY[list] || FULLY.books, `Mark ${(FULLY[list] || FULLY.books).toLowerCase()}`] };
   const VERDICTS = { yes: list => `Worth ${verbs(list)[1].toLowerCase()} in full`, sample: () => 'Sample it', enough: () => 'The digest is enough' };
   const SHOW = { '': () => 'Everything', unread: () => 'Not digested yet', read: () => 'Digested', deeper: list => MARKS.deeper(list)[0], draft: () => 'Drafts' };
   const TAB_KEY = 'digests-tab';

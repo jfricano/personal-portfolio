@@ -218,7 +218,7 @@
     if (done) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel)}</li>`);
     const digest = owner ? digestLinks[list.id]?.[itemKey(i)] : null;
     if (digest?.read) tags.push('<li class="al-tag al-tag-digested">Digested</li>');
-    if (digest?.deeper) tags.push(`<li class="al-tag al-tag-deeper">${{ films: 'Watching', tv: 'Watching', albums: 'Listening to' }[list.id] || 'Reading'} in full</li>`);
+    if (digest?.deeper) tags.push(`<li class="al-tag al-tag-deeper">${{ films: 'Fully watched', tv: 'Fully watched', albums: 'Fully heard' }[list.id] || 'Fully read'}</li>`);
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [isPath && i.l && `<a href="${esc(i.l)}" target="_blank" rel="noopener noreferrer">Discography ↗</a>`,
