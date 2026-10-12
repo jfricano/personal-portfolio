@@ -172,6 +172,9 @@
     showPath(current);
     root.querySelectorAll('.al-owner-actions input')[at]?.focus();
   });
+  // Back from the list (or another tab) can bring this page back from the browser's cache; draw the ticks as stored.
+  addEventListener('pageshow', event => { if (event.persisted && current) showPath(current); });
+  addEventListener('storage', event => { if (event.key === PENDING_KEY && current) showPath(current); });
   root.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, true);
 
   Promise.all([
