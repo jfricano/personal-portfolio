@@ -7,13 +7,17 @@
   const REPO = document.getElementById('main').dataset.repo;
   const TOKEN_KEY = 'digests-token', PENDING_KEY = 'digests-pending-marks';
   const LISTS = { books: 'Books', films: 'Films', tv: 'TV', albums: 'Albums' };
-  const MARKS = { read: ['Digested', 'Mark digested'], deeper: ['Reading in full', 'Read it in full'] };
-  const VERDICTS = { yes: 'Worth reading in full', sample: 'Sample it', enough: 'The digest is enough' };
-  const FILTERS = { unread: 'Not digested yet', read: 'Digested', deeper: 'Reading in full', draft: 'Drafts' };
+  // "In full" means reading a book, watching a film or show, listening to an album.
+  const VERBS = { books: ['Read', 'Reading'], films: ['Watch', 'Watching'], tv: ['Watch', 'Watching'], albums: ['Listen to', 'Listening to'] };
+  const verbs = list => VERBS[list] || VERBS.books;
+  const MARKS = { read: () => ['Digested', 'Mark digested'], deeper: list => [`${verbs(list)[1]} in full`, `${verbs(list)[0]} it in full`] };
+  const VERDICTS = { yes: list => `Worth ${verbs(list)[1].toLowerCase()} in full`, sample: () => 'Sample it', enough: () => 'The digest is enough' };
+  const SHOW = { '': () => 'Everything', unread: () => 'Not digested yet', read: () => 'Digested', deeper: list => MARKS.deeper(list)[0], draft: () => 'Drafts' };
+  const TAB_KEY = 'digests-tab';
   const $ = id => document.getElementById(id);
   const els = {
     lock: $('dg-lock'), lockForm: $('dg-lock-form'), key: $('dg-key'), unlock: $('dg-unlock'), lockError: $('dg-lock-error'),
-    browser: $('dg-browser'), q: $('dg-q'), list: $('dg-list'), flags: $('dg-flags'), count: $('dg-count'), results: $('dg-results'),
+    browser: $('dg-browser'), tabs: $('dg-tabs'), q: $('dg-q'), show: $('dg-show'), count: $('dg-count'), results: $('dg-results'),
     queue: $('dg-queue'), queueList: $('dg-queue-list'), ownerText: $('dg-owner-text'), send: $('dg-send'), discard: $('dg-discard'),
     forget: $('dg-forget'), reader: $('dg-reader'), intro: document.querySelector('.dg-intro'),
   };
@@ -28,7 +32,7 @@
 
   let token = store.get(TOKEN_KEY, '');
   let digests = [], marks = {}, queue = [], pending = store.get(PENDING_KEY, {});
-  const state = { q: '', list: '', flags: new Set() };
+  const state = { q: '', list: store.get(TAB_KEY, 'books'), show: '' };
 
   class Locked extends Error {}
   async function get(path) {
@@ -71,7 +75,7 @@
     const lines = [];
     for (const [list, entries] of Object.entries(pending)) for (const [key, fields] of Object.entries(entries)) {
       const [title, creator] = key.split('|');
-      for (const [mark, value] of Object.entries(fields)) lines.push(`- ${value ? MARKS[mark][0] : `Not ${MARKS[mark][0].toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`);
+      for (const [mark, value] of Object.entries(fields)) { const on = MARKS[mark](list)[0]; lines.push(`- ${value ? on : `Not ${on.toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`); }
     }
     const count = pendingCount();
     const body = `${lines.join('\n')}\n\nThe digests page wrote this issue. Submit it to update the marks.\n\n\`\`\`json\n${JSON.stringify(pending)}\n\`\`\`\n`;
@@ -86,15 +90,15 @@
     if (count) els.send.href = issueUrl();
   }
 
-  const markButtons = d => Object.entries(MARKS).map(([mark, [on, off]]) => {
-    const value = markOf(d, mark);
+  const markButtons = d => Object.entries(MARKS).map(([mark, words]) => {
+    const [on, off] = words(d.list), value = markOf(d, mark);
     return `<button type="button" class="al-mark${isUnsent(d, mark) ? ' al-unsent' : ''}" data-mark="${mark}" data-id="${esc(d.id)}" aria-pressed="${Boolean(value)}">${value ? `✓ ${esc(on)}` : esc(off)}</button>`;
   }).join('');
   const tagsFor = d => [
     d.status === 'draft' && '<li class="al-tag dg-tag-draft">Draft</li>',
     d.fringe && '<li class="al-tag dg-tag-fringe">Respectful fringe</li>',
     markOf(d, 'read') && '<li class="al-tag al-tag-done">Digested</li>',
-    markOf(d, 'deeper') && '<li class="al-tag al-tag-start">Reading in full</li>',
+    markOf(d, 'deeper') && `<li class="al-tag al-tag-start">${esc(MARKS.deeper(d.list)[0])}</li>`,
   ].filter(Boolean).join('');
 
   // The list.
@@ -103,40 +107,60 @@
     const tests = {
       unread: d => !markOf(d, 'read'), read: d => markOf(d, 'read'), deeper: d => markOf(d, 'deeper'), draft: d => d.status === 'draft',
     };
-    return digests.filter(d => (!state.list || d.list === state.list) && [...state.flags].every(f => tests[f](d)) && terms.every(t => d._h.includes(t)));
+    return digests.filter(d => d.list === state.list && (!state.show || tests[state.show](d)) && terms.every(t => d._h.includes(t)));
   }
   function cardHtml(d) {
     const by = [d.creator, d.year].filter(Boolean).map(esc).join(' · ');
-    const meta = [LISTS[d.list], d.track, d.minutes && `${d.minutes} min read`].filter(Boolean).map(esc).join(' / ');
+    const meta = [d.track, d.minutes && `${d.minutes} min read`].filter(Boolean).map(esc).join(' / ');
     return `<article class="al-item dg-item${markOf(d, 'read') ? ' dg-read' : ''}" id="dg-${esc(d.id.replace('/', '-'))}">` +
       `<div class="al-item-head"><h3><a href="#${esc(d.id)}">${esc(d.title)}</a></h3>${by ? `<p class="al-by">${by}</p>` : ''}<div class="dg-marks">${markButtons(d)}</div></div>` +
       `<div class="al-item-body">${d.hook ? `<p class="al-note">${esc(d.hook)}</p>` : ''}${meta ? `<p class="al-where">${meta}</p>` : ''}</div>` +
       `<ul class="al-tags">${tagsFor(d)}</ul></article>`;
   }
   function renderList() {
-    const shown = filtered();
-    const read = digests.filter(d => markOf(d, 'read')).length;
-    els.count.textContent = digests.length
-      ? `${shown.length === digests.length ? `All ${digests.length}` : `Showing ${shown.length} of ${digests.length}`} ${digests.length === 1 ? 'digest' : 'digests'}, ${read} digested.`
-      : 'No digests yet. The first ones are on their way.';
+    const shown = filtered(), inList = digests.filter(d => d.list === state.list);
+    const read = inList.filter(d => markOf(d, 'read')).length;
+    els.count.textContent = inList.length
+      ? `${shown.length === inList.length ? `All ${inList.length}` : `Showing ${shown.length} of ${inList.length}`} ${inList.length === 1 ? 'digest' : 'digests'}, ${read} digested.`
+      : 'No digests here yet. The first ones are on their way.';
     els.results.innerHTML = shown.length ? `<div class="al-list">${shown.map(cardHtml).join('')}</div>`
-      : digests.length ? '<p class="al-empty">Nothing matches. Try fewer words, or clear the filters.</p>' : '';
-    const waiting = queue.filter(q => !digests.some(d => d.list === q.list && d.key === `${q.title}|${q.creator || ''}`));
+      : inList.length ? '<p class="al-empty">Nothing matches. Try fewer words, or show everything.</p>' : '';
+    const waiting = queue.filter(q => q.list === state.list && !digests.some(d => d.list === q.list && d.key === `${q.title}|${q.creator || ''}`));
     els.queue.hidden = !waiting.length;
     els.queueList.innerHTML = waiting.map(q => `<li><span class="dg-queue-title">${esc(q.title)}</span>${q.creator ? ` <span class="dg-queue-by">${esc(q.creator)}</span>` : ''}${q.why ? `<span class="dg-queue-why">${esc(q.why)}</span>` : ''}</li>`).join('');
     renderOwnerBar();
   }
+  // One tab per list that has digests or titles waiting, like the anti-library's tab row.
+  const tabLists = () => Object.keys(LISTS).filter(id => digests.some(d => d.list === id) || queue.some(q => q.list === id));
   function renderControls() {
-    const used = Object.keys(LISTS).filter(id => digests.some(d => d.list === id));
-    els.list.innerHTML = '<option value="">All lists</option>' + used.map(id => `<option value="${id}"${id === state.list ? ' selected' : ''}>${LISTS[id]}</option>`).join('');
-    els.flags.innerHTML = '<legend class="label">Only show</legend>' + Object.entries(FILTERS).map(([key, label]) =>
-      `<label class="al-chip"><input type="checkbox" value="${key}"${state.flags.has(key) ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('');
+    const ids = tabLists();
+    if (ids.length && !ids.includes(state.list)) state.list = ids[0];
+    els.tabs.innerHTML = ids.map(id => `<button type="button" role="tab" id="dg-tab-${id}" data-id="${id}" aria-controls="dg-results" aria-selected="${id === state.list}" tabindex="${id === state.list ? 0 : -1}">${LISTS[id]} <span>${digests.filter(d => d.list === id).length}</span></button>`).join('');
+    els.show.innerHTML = Object.entries(SHOW).map(([key, label]) => `<option value="${key}"${key === state.show ? ' selected' : ''}>${esc(label(state.list))}</option>`).join('');
     els.q.value = state.q;
+    showArt();
+  }
+  function selectList(id) {
+    state.list = id;
+    store.set(TAB_KEY, id);
+    renderControls();
+    renderList();
+  }
+  // The anti-library's illustration for the list sits beside the headline.
+  function showArt() {
+    const figure = $('dg-art'), image = $('dg-art-img');
+    if (image.dataset.list === state.list) return;
+    figure.classList.remove('is-shown');
+    image.onload = () => { if (image.dataset.list === state.list) { figure.hidden = false; figure.classList.add('is-shown'); } };
+    image.onerror = () => { figure.hidden = true; };
+    image.dataset.list = state.list;
+    image.src = `../antilibrary/art/${encodeURIComponent(state.list)}.jpg`;
   }
 
   // One digest.
   const stripFrontMatter = text => text.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
   async function openDigest(d) {
+    if (d.list !== state.list) { state.list = d.list; store.set(TAB_KEY, d.list); renderControls(); }
     els.reader.innerHTML = `<p class="dg-back"><a href="#">← All digests</a></p><p class="dg-count">Opening ${esc(d.title)}…</p>`;
     showView('reader');
     let body;
@@ -146,7 +170,7 @@
       [LISTS[d.list], d.track].filter(Boolean).join(' · '),
       d.axis && `Style: ${d.axis}`,
       d.neighbor && `Shelf neighbor: ${d.neighbor}`,
-      d.verdict && VERDICTS[d.verdict],
+      d.verdict && VERDICTS[d.verdict]?.(d.list),
       d.minutes && `${d.minutes} min read`,
       (d.updated || d.written) && `Updated ${longDate(d.updated || d.written)}`,
     ].filter(Boolean);
@@ -154,11 +178,42 @@
       `<header class="dg-reader-head"><p class="label">${esc(LISTS[d.list] || 'Digest')}${d.status === 'draft' ? ' · draft' : ''}</p><h2 class="dg-reader-title">${esc(d.title)}</h2>` +
       `${d.creator || d.year ? `<p class="dg-reader-by">${[d.creator, d.year].filter(Boolean).map(esc).join(' · ')}</p>` : ''}` +
       `${d.hook ? `<p class="dg-reader-hook">${esc(d.hook)}</p>` : ''}<ul class="dg-facts">${facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` +
-      `<div class="dg-marks">${markButtons(d)}</div>${tagsFor(d) ? `<ul class="al-tags dg-reader-tags">${tagsFor(d)}</ul>` : ''}</header>` +
+      `<div class="dg-marks">${markButtons(d)}</div><ul class="al-tags dg-reader-tags"${tagsFor(d) ? '' : ' hidden'}>${tagsFor(d)}</ul>` +
+      `<div class="dg-export"><button type="button" class="al-button al-quiet" data-export="print">Print or save as PDF</button><button type="button" class="al-button al-quiet" data-export="docx">Download Word file</button></div></header>` +
       `<div class="dg-prose">${window.renderDigest(body)}</div>` +
       `<p class="dg-back dg-back-end"><a href="#">← All digests</a> · <a href="../antilibrary/?list=${encodeURIComponent(d.list)}&amp;q=${encodeURIComponent(d.title)}">Find it in the anti-library</a></p>`;
+    current = { d, facts };
     els.reader.focus({ preventScroll: true });
     window.scrollTo(0, 0);
+  }
+
+  // Printing uses the print styles in digests.css; the browser's print dialog also saves a PDF.
+  // The Word file is built in this browser by docx.js, loaded the first time it's asked for.
+  let current = null;
+  const loadScript = src => new Promise((resolve, reject) => {
+    document.head.append(Object.assign(document.createElement('script'), { src, onload: resolve, onerror: reject }));
+  });
+  async function downloadDocx(button) {
+    const { d, facts } = current;
+    button.disabled = true;
+    button.textContent = 'Preparing…';
+    try {
+      if (!window.digestDocx) await loadScript('docx.js');
+      const blob = window.digestDocx({
+        label: `${LISTS[d.list] || 'Digest'}${d.status === 'draft' ? ' · draft' : ''}`, title: d.title,
+        by: [d.creator, d.year].filter(Boolean).join(' · '), hook: d.hook, facts,
+      }, els.reader.querySelector('.dg-prose'));
+      const link = Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: `${d.slug || 'digest'}.docx` });
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 10000);
+      button.textContent = 'Download Word file';
+    } catch {
+      button.textContent = 'Couldn’t build it. Try again';
+    } finally {
+      button.disabled = false;
+    }
   }
 
   function showView(view) {
@@ -221,6 +276,12 @@
     showView('lock');
   });
   els.discard.addEventListener('click', () => { pending = {}; store.set(PENDING_KEY, null); route(); });
+  els.reader.addEventListener('click', event => {
+    const button = event.target.closest('[data-export]');
+    if (!button || !current) return;
+    if (button.dataset.export === 'print') window.print();
+    else downloadDocx(button);
+  });
   document.addEventListener('click', event => {
     const button = event.target.closest('.al-mark[data-mark]');
     if (!button) return;
@@ -230,16 +291,25 @@
     const pressed = Boolean(markOf(d, mark));
     button.setAttribute('aria-pressed', pressed);
     button.classList.toggle('al-unsent', isUnsent(d, mark));
-    button.textContent = pressed ? `✓ ${MARKS[mark][0]}` : MARKS[mark][1];
+    const [on, off] = MARKS[mark](d.list);
+    button.textContent = pressed ? `✓ ${on}` : off;
     const tags = button.closest('.al-item, .dg-reader-head')?.querySelector('.al-tags');
-    if (tags) tags.innerHTML = tagsFor(d);
+    if (tags) { tags.innerHTML = tagsFor(d); tags.hidden = !tags.innerHTML; }
     if (!els.browser.hidden) { els.count.textContent = els.count.textContent.replace(/[\d,]+ digested\.$/, `${digests.filter(x => markOf(x, 'read')).length} digested.`); renderOwnerBar(); }
     else renderOwnerBar();
   });
   let timer;
   els.q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { state.q = els.q.value.trim(); renderList(); }, 120); });
-  els.list.addEventListener('change', () => { state.list = els.list.value; renderList(); });
-  els.flags.addEventListener('change', event => { const box = event.target; box.checked ? state.flags.add(box.value) : state.flags.delete(box.value); renderList(); });
+  els.show.addEventListener('change', () => { state.show = els.show.value; renderList(); });
+  els.tabs.addEventListener('click', event => { const tab = event.target.closest('[role=tab]'); if (tab) selectList(tab.dataset.id); });
+  els.tabs.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    const tabs = [...els.tabs.querySelectorAll('[role=tab]')], at = tabs.indexOf(document.activeElement);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (at + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+    event.preventDefault();
+    selectList(tabs[next].dataset.id);
+    $(`dg-tab-${tabs[next].dataset.id}`).focus();
+  });
   window.addEventListener('hashchange', () => { if (token && els.lock.hidden) route(); });
 
   load();

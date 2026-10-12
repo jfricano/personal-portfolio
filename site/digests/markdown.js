@@ -26,7 +26,8 @@ window.renderDigest = (() => {
     const link = (label, href) => {
       const video = youtube(href);
       if (video) videos.push(video);
-      return hold(`<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+      const bare = label.replace(/&amp;/g, '&') === href ? ' class="dg-bare"' : '';
+      return hold(`<a href="${esc(href)}"${bare} target="_blank" rel="noopener noreferrer">${label}</a>`);
     };
     let s = esc(text);
     s = s.replace(/`([^`]+)`/g, (_, code) => hold(`<code>${code}</code>`));
