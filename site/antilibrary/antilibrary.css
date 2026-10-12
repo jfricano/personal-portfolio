@@ -1,12 +1,15 @@
 /* The anti-library: a searchable list in the personal site's editorial frame. */
 .antilibrary [hidden]{display:none!important}
 .antilibrary{padding-bottom:90px;min-height:70vh}
-.al-intro{padding:55px 0 50px;display:grid;grid-template-columns:1fr;gap:0}
-.al-intro h1{font-size:clamp(54px,7.6vw,105px);margin:22px 0 32px}
+/* The headline takes the left of the top section and the open list's small illustration fills the space beside
+   it; the two text columns sit underneath, with the headline centred on the picture so the gap stays even. */
+.al-intro{padding:55px 0 50px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-template-areas:"head art" "body body";gap:0 48px;align-items:center}
+.al-intro-head{grid-area:head}
+.al-intro h1{font-size:clamp(50px,6.8vw,96px);margin:22px 0 0}
 .al-intro h1 em{color:var(--rust)}
-.al-intro-body{display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:start}
-.al-intro-body .case-deck{font-size:19px;line-height:1.55}
-.al-intro-body>p:last-child{color:var(--muted);font-size:16px;border-left:1px solid var(--rust);padding-left:22px}
+.al-intro-body{grid-area:body;display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:start;margin-top:34px}
+.al-intro-body .case-deck{font-size:19px;line-height:1.55;max-width:none}
+.al-intro-note{color:var(--muted);font-size:16px;border-left:1px solid var(--rust);padding-left:22px}
 .al-intro cite{font-style:italic}
 .al-term{font-style:normal;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rust);text-decoration-thickness:2px;text-underline-offset:5px}
 
@@ -18,25 +21,35 @@
 .al-tabs button:hover{color:var(--rust)}
 .al-tabs button:focus-visible,.al-button:focus-visible,.al-controls input:focus-visible,.al-controls select:focus-visible,.al-item:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
 
-.al-art{margin:22px 0 0;height:clamp(200px,27vw,340px);overflow:hidden;background:var(--paper)}
-.al-art img{width:100%;height:100%;object-fit:contain;object-position:center;mix-blend-mode:multiply}
-.al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:0;z-index:4;background:var(--paper);border-bottom:1px solid var(--line)}
+/* The illustration's edges feather into the paper. Like everything on the site it changes without motion: the
+   picture stays hidden until the new file has loaded, then swaps in. On phones the script moves it down
+   between the two intro paragraphs. */
+.al-art{grid-area:art;margin:0;width:min(100%,440px);justify-self:end;aspect-ratio:3/2;overflow:hidden}
+.al-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0;
+  -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%)}
+.al-art.is-shown img{opacity:1}
+.al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:var(--sticky-top,0px);z-index:3;background:var(--paper);border-bottom:1px solid var(--line)}
 .al-controls label.label,.al-flags legend{display:block;color:var(--muted);margin-bottom:6px}
 .al-controls input[type=search],.al-controls select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fbf8f2;border:1px solid var(--line);border-radius:0;padding:10px 12px;min-height:44px}
-.al-controls select{appearance:none;padding-right:34px;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
+.al-controls select{appearance:none;padding-right:34px;text-overflow:ellipsis;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
 .al-controls input[type=search]{border-color:var(--ink)}
 .al-field[hidden]{display:none}
-.al-flags{grid-column:1/-1;border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
-.al-flags legend{float:left;margin:0 8px 0 0}
-.al-flags[hidden]{display:none}
-.al-chip{position:relative;cursor:pointer;font-size:13px}
-.al-chip input{position:absolute;opacity:0;inset:0;cursor:pointer;margin:0}
-.al-chip span{display:inline-block;border:1px solid var(--line);padding:6px 13px;border-radius:999px;background:#fbf8f2}
-.al-chip input:checked+span{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.al-chip input:focus-visible+span{outline:3px solid var(--rust);outline-offset:2px}
-.al-chip input:checked+span:before{content:'✓ '}
+/* Shelf gets the extra width, since its names are the longest. */
+.al-controls{grid-template-columns:minmax(0,1.6fr) minmax(0,1.4fr) repeat(2,minmax(0,1fr))}
+
+/* Filters in use sit beside the count as chips that take themselves off; nothing shows when nothing is narrowed. */
+.al-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-width:0}
+.al-applied{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.al-chip{font:inherit;font-size:13px;color:var(--ink);background:#fbf8f2;border:1px solid var(--ink);border-radius:999px;padding:5px 8px 5px 13px;min-height:32px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;max-width:100%}
+.al-chip span{font-size:16px;line-height:1;color:var(--muted)}
+.al-chip:hover{border-color:var(--rust);color:var(--rust)}
+.al-chip:hover span{color:var(--rust)}
+.al-chip:focus-visible,.al-tag:focus-visible,.al-check input:focus-visible{outline:3px solid var(--rust);outline-offset:2px}
+.al-check{display:inline-flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;min-height:40px;padding:0 6px}
+.al-check input{width:16px;height:16px;margin:0;accent-color:var(--ink)}
 
 .al-status{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:18px 0 6px;font-size:14px;color:var(--muted)}
+.al-status .al-actions{flex:none}
 .al-actions{display:flex;gap:10px;flex-wrap:wrap}
 .al-button{font:inherit;font-size:13px;background:var(--ink);color:var(--paper);border:1px solid var(--ink);padding:9px 16px;cursor:pointer;min-height:40px}
 .al-button:hover{background:var(--rust);border-color:var(--rust)}
@@ -49,6 +62,16 @@
 .al-part+.al-shelf h2{margin-top:26px}
 .al-shelf h2 .index{font-size:20px;letter-spacing:0}
 .al-shelf-count{margin-left:auto;font-family:var(--sans);font-size:12px;letter-spacing:.08em;color:var(--muted)}
+/* The heading is the button that folds its shelf. The mark flips between open and closed without moving. */
+.al-shelf-toggle{all:unset;box-sizing:border-box;display:flex;align-items:baseline;gap:inherit;width:100%;cursor:pointer}
+.al-shelf-toggle:hover .al-shelf-name{color:var(--rust)}
+.al-shelf-toggle:focus-visible{outline:3px solid var(--rust);outline-offset:4px}
+.al-fold-mark{font-family:var(--sans);font-size:20px;line-height:1;color:var(--muted);width:20px;text-align:center}
+.al-fold-mark:before{content:'−'}
+.al-shelf-toggle[aria-expanded=false] .al-fold-mark:before{content:'+'}
+.al-shelf-toggle[aria-expanded=false]{color:var(--muted)}
+/* Folded shelves stack closer, so a fully folded list reads as a table of contents. */
+.al-shelf:has(.al-list[hidden]) + .al-shelf h2{margin-top:22px}
 .al-list{display:grid}
 .al-item{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"cover head body tags";gap:6px 28px;padding:18px 0;border-bottom:1px solid var(--line);scroll-margin:160px;align-items:start}
 .al-item-head{grid-area:head;min-width:0}.al-item-body{grid-area:body;min-width:0}.al-tags{grid-area:tags}
@@ -58,9 +81,17 @@
 .al-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#e6dccb}
 .al-item h3 a{text-decoration:none}
 .al-item h3 a:hover{text-decoration:underline}
-.al-ext{font-family:var(--sans);font-size:13px;color:var(--rust);opacity:0;transition:opacity .15s}
+.al-ext{font-family:var(--sans);font-size:13px;color:var(--rust);opacity:0}
 .al-item h3 a:hover .al-ext,.al-item h3 a:focus-visible .al-ext{opacity:1}
 .al-item h3{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.02em;line-height:1.2}
+/* The title, creator and year open the title's page as one link: the title link stretches over that block, and
+   hovering anywhere on it marks the title the way hovering the title does. */
+.al-ident{position:relative;width:fit-content;max-width:100%}
+.al-ident h3 a:after{content:'';position:absolute;inset:0}
+.al-ident:hover h3 a{text-decoration:underline}
+.al-ident:hover .al-ext{opacity:1}
+.al-ident h3 a:focus-visible{outline:none}
+.al-ident:has(h3 a:focus-visible){outline:3px solid var(--rust);outline-offset:3px}
 .al-by{font-size:14px;margin-top:5px}
 .al-genres{font-size:12px;color:var(--rust);margin-top:4px;letter-spacing:.01em}
 .al-more{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:6px;font-size:12px}
@@ -69,45 +100,71 @@
 .al-note{font-size:15px;color:var(--muted);line-height:1.5}
 .al-where{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:8px}
 .al-tags{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.al-tag{font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);white-space:nowrap}
+.al-tag{font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);white-space:nowrap;color:var(--ink);background:none}
+.al-tags li{display:flex}
+/* A tag that is also a filter is a button: picking it shows only titles with the same tag. */
+button.al-tag{font-family:inherit;line-height:inherit;cursor:pointer}
+button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-tag-star{color:var(--rust);border-color:var(--rust)}
 .al-tag-star:before{content:'★ '}
+.al-tag-core{color:var(--ink);border-color:var(--ink);font-weight:600}
+.al-tag-core:before{content:'↻ '}
 .al-tag-owned{background:var(--lavender);border-color:var(--lavender)}
 .al-tag-start{color:var(--rust);border-color:var(--rust)}
 .al-tag-formative{color:var(--rust);border-color:var(--rust);font-weight:600}
 .al-tag-reading{background:var(--lavender);border-color:var(--ink)}
 .al-tag-done{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf;animation:al-glow 1.6s ease-out}
-@keyframes al-glow{from{background:#e8c9b6;box-shadow:-14px 0 0 #e8c9b6,14px 0 0 #e8c9b6}}
+.al-tag-digested{border-style:dashed;color:var(--muted)}
+.al-tag-deeper{color:var(--rust);border-color:var(--rust)}
+.al-tag-deeper:before{content:'→ '}
+/* The picked title is simply highlighted; the site does not animate, so neither does this. */
+.al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf}
+.al-picked .al-item-head:before{content:'Picked for you';display:block;font-family:var(--sans);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-bottom:4px}
 .al-credit{font-size:12px;color:var(--muted);padding-top:40px}
 .al-link{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer;margin-left:6px}
 .al-link:hover{color:var(--rust)}
-.al-link:focus-visible,.al-mark:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
+.al-fold{font-size:13px;color:var(--ink);margin:0 10px 0 0;min-height:40px}
+.al-status .al-actions{align-items:center}
+.al-link:focus-visible,.al-toggle input:focus-visible,.al-remove:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
 
 /* Finished titles stay on the shelf, struck through. */
 .al-done h3 a{text-decoration:line-through;text-decoration-thickness:1px;color:var(--muted)}
 .al-done .al-by,.al-done .al-note{color:var(--muted);opacity:.75}
 .al-done .al-cover{filter:grayscale(1);opacity:.55}
-.al-mark{margin-top:10px;font:inherit;font-size:12px;background:none;border:1px solid var(--ink);color:var(--ink);padding:5px 11px;cursor:pointer;min-height:32px}
-.al-mark[aria-pressed=true]{background:var(--ink);color:var(--paper)}
-.al-mark.al-unsent{border-style:dashed}
-.al-mark:disabled{opacity:.5;cursor:default}
+.al-owner-actions{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-top:10px}
+/* Owner checkboxes: a dashed underline marks a change not yet sent to the site. */
+.al-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;min-height:32px;border-bottom:1px solid transparent}
+.al-toggle input{width:15px;height:15px;margin:0;accent-color:var(--ink);cursor:inherit}
+.al-toggle.al-unsent{border-bottom:1px dashed var(--ink)}
+.al-toggle:has(input:disabled){opacity:.5;cursor:default}
+.al-remove{font:inherit;font-size:12px;background:none;border:0;color:var(--rust);padding:0;margin-left:auto;cursor:pointer;min-height:32px;text-decoration:underline;text-underline-offset:3px}
 .al-owner-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-top:16px;padding:12px 16px;background:var(--lavender);font-size:14px}
 .al-owner-bar a.al-button{text-decoration:none;display:inline-flex;align-items:center}
 .al-owner-bar a.al-button:hover{color:var(--paper)}
+.al-owner-bar a.al-button.al-quiet:hover{color:var(--rust)}
 .al-empty{padding:50px 0;font-family:var(--serif);font-size:24px;color:var(--muted)}
+.al-empty .al-button{margin-top:18px;font-family:var(--sans)}
 
-@media(max-width:1000px){.al-controls{grid-template-columns:1fr 1fr 1fr}.al-search{grid-column:1/-1}.al-item{grid-template-columns:64px minmax(0,1fr) minmax(0,1.4fr);grid-template-areas:"cover head body" "cover . tags";gap:8px 24px}.al-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start}}
+@media(max-width:1000px){.al-intro{gap:0 32px}.al-art{width:100%}.al-controls{grid-template-columns:1fr 1fr 1fr}.al-search{grid-column:1/-1}.al-item{grid-template-columns:64px minmax(0,1fr) minmax(0,1.4fr);grid-template-areas:"cover head body" "cover . tags";gap:8px 24px}.al-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start}}
 @media(max-width:700px){
-.al-art{height:auto;aspect-ratio:3/2;margin-top:16px}
 .antilibrary{padding-bottom:60px}.al-intro{padding:35px 0 36px}.al-intro h1{font-size:clamp(46px,12vw,59px)}
-.al-intro-body{grid-template-columns:1fr;gap:22px}.al-intro-body .case-deck{font-size:17px}.al-intro-body>p:last-child{font-size:15px}
-.al-tabs{gap:22px}.al-tabs button{font-size:25px}
+.al-intro{display:block}.al-intro h1{margin-bottom:0}.al-intro-body{grid-template-columns:1fr;gap:26px;margin-top:28px}.al-intro-body .case-deck{font-size:17px}.al-intro-note{font-size:15px}.al-art{grid-area:auto;width:auto;margin:0 -8px}
+.al-tabs{gap:18px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:24px;white-space:nowrap;flex:none}
 .al-controls{grid-template-columns:1fr 1fr;gap:12px;padding:16px 0 14px;position:static}
-.al-search{grid-column:1/-1}.al-flags{gap:8px}.al-flags legend{float:none;width:100%;margin-bottom:4px}
-.al-status{flex-direction:column;align-items:flex-start;gap:12px}
+.al-search,.al-field-shelf{grid-column:1/-1}
+.al-status{flex-wrap:wrap;gap:12px}.al-summary{display:contents}#al-count{flex:1}.al-applied{order:1;flex:1 1 100%}
 .al-shelf h2{font-size:28px;gap:12px;margin-top:36px}
 .al-item{grid-template-columns:56px minmax(0,1fr);grid-template-areas:"cover head" "cover body" "cover tags";gap:6px 16px;padding:16px 0}.al-cover{width:56px}.al-ext{opacity:1}
 .al-item h3{font-size:21px}.al-note{font-size:14px}
 }
 @media(max-width:380px){.al-controls{grid-template-columns:1fr}}
+/* Threads: a fifth control when the list has threads, and a header over the path. */
+.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:minmax(0,1.5fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr)}
+.al-thread-head{margin:34px 0 6px;padding-bottom:18px;border-bottom:1px solid var(--ink);max-width:68ch}
+.al-thread-head .label{color:var(--rust)}
+.al-thread-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,40px);line-height:1.1;margin:8px 0 10px;text-wrap:balance}
+.al-thread-head p:not(.label){font-size:16px;line-height:1.55;color:var(--ink)}
+.al-step{font-size:15px;line-height:1.5;color:var(--ink);margin-bottom:8px;padding-left:12px;border-left:2px solid var(--rust)}
+@media(max-width:1000px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:700px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:1fr 1fr;grid-auto-flow:dense}#al-thread-field{grid-column:1/-1}}
+@media(max-width:380px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:1fr}}

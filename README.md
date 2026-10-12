@@ -26,7 +26,7 @@ The existing mockups and design brief remain below as historical context. Produc
 
 ## V1 review candidate
 
-The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, GetFit → bellos and Orca Solutions. StreamOtter pairs its public banner with a local Pup Patrol game capture and links to toolkit and game case studies; both retain access to the field-station case. iYosi and the archived StatBatt record appear alongside Vespa Law at `/moreprojects/`. Eight case studies remain in the source, including the retained iYosi and StatBatt URLs. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
+The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, GetFit → bellos and Orca Solutions. StreamOtter pairs its flowing-stream front-page visualization with a local Pup Patrol game capture and links to toolkit and game case studies; both retain access to the field-station case. iYosi and the archived StatBatt record appear alongside Vespa Law at `/moreprojects/`. Eight case studies remain in the source, including the retained iYosi and StatBatt URLs. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
 
 `npm run check` validates every shipped HTML page, including the additional-project gallery, identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
 
@@ -36,7 +36,7 @@ See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for sco
 
 ## Anti-library
 
-`site/antilibrary/` is an unlisted, searchable page of the books, films, albums and TV Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
+`site/antilibrary/` is a searchable page, linked from the site navigation, of the books, films, TV and albums Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
 
 The page fetches `lists.json`, one `<id>.json` per list and `progress.json` from `https://raw.githubusercontent.com/jfricano/anti-lib/main/data/` (the `data-source` attribute on `<main>`), so list changes and finished titles show up without redeploying this site. Search, filters and sort are kept in the URL, so a filtered view can be shared as a link. Links from the data are only used if they are `https:`.
 
@@ -62,10 +62,16 @@ Local review: http://127.0.0.1:4176/moreprojects/. No homepage or navigation lin
 
 ## GetFit → bellos and archived StatBatt
 
-Selected-work C follows open-source GetFit into bellos, the commercial phone-first version in development. The case study focuses on why the personal app was built, its records and architecture, open-source customization, and the gym use case behind the phone-first design. It does not explain the training method. GetFit’s public repository remains MIT-licensed, and its v1 app is at https://getfit.orcasolutions.dev/. Three portrait screenshots show the live v1 app at phone width: a generated workout plan, training calendar, and movement guide. They appear as static images together on the homepage and larger in the case study, stacking on phones. No workout history is shown; the images are explicitly v1 references until a running bellos interface is ready. The existing `getfit.html` route is retained.
+Selected-work C follows open-source GetFit into bellos, the commercial phone-first version in development. The case study focuses on why the personal app was built, its records and architecture, open-source customization, and the gym use case behind the phone-first design. It does not explain the training method. GetFit’s public repository remains MIT-licensed. Three portrait screenshots show the live v1 app at phone width: a generated workout plan, training calendar, and movement guide. They appear as static images together on the homepage and larger in the case study, stacking on phones. No workout history is shown; the images are explicitly v1 references until a running bellos interface is ready. The existing `getfit.html` route is retained.
 
 StatBatt has no release planned. Its implementation record remains at `statbatt.html` through `/moreprojects/`, without homepage promotion. These archive pages are unlisted and accessible by URL.
+
+Homepage framing retains the entire Personal Treasury dashboard capture, centered with the shared project-card inset. bellos links directly to https://bellos.app/. Direct GetFit v1 app links are removed; its open-source link remains in the case study.
 
 ## Pup Patrol on Lontra Creek
 
 `pup-patrol.html` covers the game as another StreamOtter consumer: React subscriptions, a separate TypeScript engine, canvas rendering, and visible stale-state handling. The homepage still has four cards. Its StreamOtter pair shows the toolkit banner beside actual local gameplay, explicitly labeled recording mode. The game uses prerelease React hooks and is not yet hosted at its planned lontracreek.com destination. The field station remains live at StreamOtter.dev and retains its existing case-study URL.
+
+## Delivery workflow
+
+See [the delivery workflow](docs/WORKFLOW.md) for author verification, focused review of high-risk changes and scoped release authority. Existing project behavior and setup commands above remain authoritative.
