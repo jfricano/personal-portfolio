@@ -1,6 +1,6 @@
 # Anti-library header art
 
-The page shows one combined still life, `site/antilibrary/art/anti-library.jpg`, beside the headline on every tab, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. Each list's own illustration shows small at the end of the tab row, next to the medium selector; it changes with the selected tab and swaps in without motion once its file exists in `site/antilibrary/art/`. A list without a file shows no small picture. The `/digests` page reuses the per-list files, so their names stay fixed.
+The page shows one combined still life, `site/antilibrary/art/anti-library.jpg`, beside the headline on every tab, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. Each list's own illustration shows small at the end of the tab row, next to the medium selector; it changes with the selected tab and swaps in without motion once its file exists in `site/antilibrary/art/`. A list without a file shows no small picture. The `/digests` page follows the same pattern with `digests.jpg` beside its headline and the per-list files by its tabs, so those file names stay fixed.
 
 | List   | File         |
 |--------|--------------|

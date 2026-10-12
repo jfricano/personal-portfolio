@@ -180,9 +180,10 @@
     renderControls();
     renderList();
   }
-  // The anti-library's illustration for the list sits beside the headline.
+  // The anti-library's illustration for the list sits small at the end of the tab row; the notebook beside the
+  // headline is static markup.
   function showArt() {
-    const figure = $('dg-art'), image = $('dg-art-img');
+    const figure = $('dg-medium'), image = $('dg-medium-img');
     if (image.dataset.list === state.list) return;
     figure.classList.remove('is-shown');
     image.onload = () => { if (image.dataset.list === state.list) { figure.hidden = false; figure.classList.add('is-shown'); } };

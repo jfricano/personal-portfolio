@@ -1,12 +1,13 @@
 # Anti-library illustration set
 
-Five original AI-generated gouache illustrations. The first four were made with the built-in image-generation tool; `anti-library.png` was supplied by Jason on 2026-10-12. The initial set used `artwork/attention-still-life.png` as the style reference; the TV addition used `films.png` from this set. The compositions are symbolic rather than depictions of Jason’s actual possessions.
+Six original AI-generated gouache illustrations. The first four were made with the built-in image-generation tool; `anti-library.png` and `digests.png` were supplied by Jason on 2026-10-12. The initial set used `artwork/attention-still-life.png` as the style reference; the TV addition used `films.png` from this set. The compositions are symbolic rather than depictions of Jason’s actual possessions.
 
 - `books.png`: unread books and a ribbon bookmark.
 - `films.png`: reel, canister, film strip and lavender light.
 - `albums.png`: record, sleeves and a rhythmic ribbon.
 - `tv.png`: ochre television, lavender screen, sage remote and rust ribbon. Delivery: `site/antilibrary/art/tv.jpg`, 1536 × 1024 (3:2), for the `tv` list ID.
 - `anti-library.png`: the combined still life (record, books, open book with rust ribbon, television, reel, lavender moon) that sits beside the headline on every tab. Delivery: `site/antilibrary/art/anti-library.jpg`, 1536 × 1024 (3:2), encoded with Pillow at JPEG quality 84.
+- `digests.png`: open notebook with a rust ribbon, an index card and a pencil, beside the headline on `/digests`. Delivery: `site/antilibrary/art/digests.jpg`, 1536 × 1024 (3:2), encoded with Pillow at JPEG quality 84.
 
 The corresponding `site/antilibrary/art/*.jpg` files are delivery derivatives encoded with macOS sips at JPEG quality 84. The list IDs select the files for the small picture at the end of the tab row; Albums uses `albums.jpg`. The `/digests` page reuses the same per-list files, so their names stay fixed. The compositions use a shared 3:2 ratio and are contained, not cropped, in the page’s artwork slot. Artwork is decorative (`alt=""`); the selected tab supplies the medium’s accessible name. The original PNGs and this provenance document are excluded from the production build.
 
