@@ -36,7 +36,7 @@ See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for sco
 
 ## Anti-library
 
-`site/antilibrary/` is an unlisted, searchable page of the books, films and albums Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
+`site/antilibrary/` is a searchable page, linked from the site navigation, of the books, films, TV and albums Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
 
 The page fetches `lists.json`, one `<id>.json` per list and `progress.json` from `https://raw.githubusercontent.com/jfricano/anti-lib/main/data/` (the `data-source` attribute on `<main>`), so list changes and finished titles show up without redeploying this site. Search, filters and sort are kept in the URL, so a filtered view can be shared as a link. Links from the data are only used if they are `https:`.
 
