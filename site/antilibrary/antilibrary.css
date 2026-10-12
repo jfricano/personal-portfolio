@@ -21,10 +21,11 @@
 .al-tabs button:hover{color:var(--rust)}
 .al-tabs button:focus-visible,.al-button:focus-visible,.al-controls input:focus-visible,.al-controls select:focus-visible,.al-item:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
 
-/* The illustration's edges feather into the paper and the picture crossfades when the tab changes. On phones
-   the script moves it down between the two intro paragraphs. */
+/* The illustration's edges feather into the paper. Like everything on the site it changes without motion: the
+   picture stays hidden until the new file has loaded, then swaps in. On phones the script moves it down
+   between the two intro paragraphs. */
 .al-art{grid-area:art;margin:0;width:min(100%,440px);justify-self:end;aspect-ratio:3/2;overflow:hidden}
-.al-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0;transition:opacity .35s ease;
+.al-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0;
   -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%)}
 .al-art.is-shown img{opacity:1}
 .al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:0;z-index:4;background:var(--paper);border-bottom:1px solid var(--line)}
@@ -65,7 +66,7 @@
 .al-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#e6dccb}
 .al-item h3 a{text-decoration:none}
 .al-item h3 a:hover{text-decoration:underline}
-.al-ext{font-family:var(--sans);font-size:13px;color:var(--rust);opacity:0;transition:opacity .15s}
+.al-ext{font-family:var(--sans);font-size:13px;color:var(--rust);opacity:0}
 .al-item h3 a:hover .al-ext,.al-item h3 a:focus-visible .al-ext{opacity:1}
 .al-item h3{font-family:var(--serif);font-weight:400;font-size:22px;letter-spacing:-.02em;line-height:1.2}
 .al-by{font-size:14px;margin-top:5px}
@@ -86,8 +87,8 @@
 .al-tag-formative{color:var(--rust);border-color:var(--rust);font-weight:600}
 .al-tag-reading{background:var(--lavender);border-color:var(--ink)}
 .al-tag-done{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf;animation:al-glow 1.6s ease-out}
-@keyframes al-glow{from{background:#e8c9b6;box-shadow:-14px 0 0 #e8c9b6,14px 0 0 #e8c9b6}}
+/* The picked title is simply highlighted; the site does not animate, so neither does this. */
+.al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf}
 .al-credit{font-size:12px;color:var(--muted);padding-top:40px}
 .al-link{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer;margin-left:6px}
 .al-link:hover{color:var(--rust)}
