@@ -130,11 +130,10 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-done h3 a{text-decoration:line-through;text-decoration-thickness:1px;color:var(--muted)}
 .al-done .al-by,.al-done .al-note{color:var(--muted);opacity:.75}
 .al-done .al-cover{filter:grayscale(1);opacity:.55}
-.al-owner-actions{margin-top:10px}
-.al-owner-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px}
-.al-owner-tags{margin-top:4px;padding-top:4px;border-top:1px solid var(--line)}
+.al-owner-actions{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-top:10px}
+.al-owner-group{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 14px}
+.al-owner-tags{padding-left:14px;border-left:1px solid var(--line)}
 .al-owner-tags .al-toggle{color:var(--muted)}
-.al-owner-label{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 /* Owner checkboxes: a dashed underline marks a change not yet sent to the site. */
 .al-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;min-height:32px;border-bottom:1px solid transparent}
 .al-toggle input{width:15px;height:15px;margin:0;accent-color:var(--ink);cursor:inherit}
