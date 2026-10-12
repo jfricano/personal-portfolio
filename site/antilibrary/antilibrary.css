@@ -70,7 +70,6 @@
 .al-paths-names a{display:inline-block;font-family:var(--serif);font-size:18px;letter-spacing:-.01em;padding:4px 12px;border:1px solid var(--line);text-decoration:none}
 .al-paths-names a:hover,.al-paths-names a:focus-visible{border-color:var(--rust);color:var(--rust)}
 .al-paths-names .al-done a{text-decoration:line-through;text-decoration-thickness:1px;color:var(--muted)}
-.al-paths-start{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-left:4px}
 .al-shelf-count{margin-left:auto;font-family:var(--sans);font-size:12px;letter-spacing:.08em;color:var(--muted)}
 /* The heading is the button that folds its shelf. The mark flips between open and closed without moving. */
 .al-shelf-toggle{all:unset;box-sizing:border-box;display:flex;align-items:baseline;gap:inherit;width:100%;cursor:pointer}

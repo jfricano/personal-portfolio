@@ -335,8 +335,8 @@
     if (!all.length) return '';
     const open = isOpen(PATHS_FOLD);
     const names = all.map(p => {
-      const done = pathDone(p, list.id), start = owner && p.start ? ' <span class="al-paths-start">Start here</span>' : '';
-      return `<li${done ? ' class="al-done"' : ''}><a href="${esc(`${kind.page}?a=${encodeURIComponent(p.id)}`)}"${done ? ` title="${fullyLabel(list.id)}"` : ''}>${esc(p[kind.who])}</a>${start}</li>`;
+      const done = pathDone(p, list.id);
+      return `<li${done ? ' class="al-done"' : ''}><a href="${esc(`${kind.page}?a=${encodeURIComponent(p.id)}`)}"${done ? ` title="${fullyLabel(list.id)}"` : ''}>${esc(p[kind.who])}</a></li>`;
     }).join('');
     return `<aside class="al-shelf al-paths" aria-label="${esc(kind.heading)}"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-paths" data-shelf="${PATHS_FOLD}">` +
       `<span class="al-shelf-name">${esc(kind.heading)}</span><span class="al-shelf-count">${number(all.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
