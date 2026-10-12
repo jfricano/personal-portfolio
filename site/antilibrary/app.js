@@ -186,7 +186,7 @@
     const label = list.doneLabel.toLowerCase();
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [i.r && `<a href="${esc(i.r)}" target="_blank" rel="noopener noreferrer">Rate Your Music ↗</a>`,
-      list.listen && `<a href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
+      list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
       owner && digestLinks[list.id]?.[itemKey(i)] && `<a class="al-digest" href="../digests/#${esc(digestLinks[list.id][itemKey(i)])}">Read digest</a>`].filter(Boolean);
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
     const mark = owner ? `<span class="al-owner-actions"><button type="button" class="al-mark${pendingFor(i) !== undefined ? ' al-unsent' : ''}" data-key="${esc(itemKey(i))}" aria-pressed="${done}"${i.d ? ' disabled title="Marked in the source list"' : ''}>${done ? `✓ ${esc(label)}` : `Mark ${esc(label)}`}</button>` +
@@ -446,6 +446,27 @@
     }
   });
   els.discard.addEventListener('click', () => { pending = {}; store.set(PENDING_KEY, null); render(); });
+
+  // On a computer, Listen on Spotify tries the Spotify app first. If the page keeps focus (no app took over) the web
+  // player opens instead, soon enough to count as the same click so pop-up blockers allow it. Phones and tablets keep
+  // the plain web link, which their Spotify app already claims when it is installed.
+  // Firefox shows an error page for an app link nothing handles, so it keeps the web link too.
+  const desktop = !/Android|iPhone|iPad|iPod|Firefox/i.test(navigator.userAgent) && !(navigator.maxTouchPoints > 0);
+  els.results.addEventListener('click', event => {
+    const link = event.target.closest('.al-listen');
+    if (!link || !desktop || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    let left = false;
+    const away = () => { left = true; };
+    addEventListener('blur', away, { once: true });
+    document.addEventListener('visibilitychange', away, { once: true });
+    setTimeout(() => {
+      removeEventListener('blur', away);
+      document.removeEventListener('visibilitychange', away);
+      if (!left) window.open(link.href, '_blank', 'noopener');
+    }, 800);
+    location.href = link.dataset.app;
+  });
 
   // A cover that fails to load leaves the lettered placeholder showing.
   els.results.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, true);
