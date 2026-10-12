@@ -1,6 +1,6 @@
 /* The private digests shelf, built on the anti-library's components (antilibrary.css). */
 .dg-intro{padding-bottom:40px}
-.dg-intro .case-deck{max-width:760px}
+.dg-intro-body{grid-template-columns:minmax(0,760px)}
 
 .dg-lock{border-top:1px solid var(--ink);padding:44px 0 20px;max-width:640px}
 .dg-lock h2{font-size:clamp(32px,3.6vw,46px);margin-bottom:14px}
@@ -15,6 +15,7 @@
 .dg-help{font-size:13px;color:var(--muted);margin-top:8px}
 
 .dg-controls{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.dg-browser .al-tabs{border-top:1px solid var(--ink)}
 .dg-count{font-size:14px;color:var(--muted);padding:18px 0 6px}
 .dg-item{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"head body tags"}
 .dg-item h3 a{text-decoration:none}

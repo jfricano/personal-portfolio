@@ -12,11 +12,12 @@
   const verbs = list => VERBS[list] || VERBS.books;
   const MARKS = { read: () => ['Digested', 'Mark digested'], deeper: list => [`${verbs(list)[1]} in full`, `${verbs(list)[0]} it in full`] };
   const VERDICTS = { yes: list => `Worth ${verbs(list)[1].toLowerCase()} in full`, sample: () => 'Sample it', enough: () => 'The digest is enough' };
-  const FILTERS = { unread: 'Not digested yet', read: 'Digested', deeper: 'Read or watch in full', draft: 'Drafts' };
+  const SHOW = { '': () => 'Everything', unread: () => 'Not digested yet', read: () => 'Digested', deeper: list => MARKS.deeper(list)[0], draft: () => 'Drafts' };
+  const TAB_KEY = 'digests-tab';
   const $ = id => document.getElementById(id);
   const els = {
     lock: $('dg-lock'), lockForm: $('dg-lock-form'), key: $('dg-key'), unlock: $('dg-unlock'), lockError: $('dg-lock-error'),
-    browser: $('dg-browser'), q: $('dg-q'), list: $('dg-list'), flags: $('dg-flags'), count: $('dg-count'), results: $('dg-results'),
+    browser: $('dg-browser'), tabs: $('dg-tabs'), q: $('dg-q'), show: $('dg-show'), count: $('dg-count'), results: $('dg-results'),
     queue: $('dg-queue'), queueList: $('dg-queue-list'), ownerText: $('dg-owner-text'), send: $('dg-send'), discard: $('dg-discard'),
     forget: $('dg-forget'), reader: $('dg-reader'), intro: document.querySelector('.dg-intro'),
   };
@@ -31,7 +32,7 @@
 
   let token = store.get(TOKEN_KEY, '');
   let digests = [], marks = {}, queue = [], pending = store.get(PENDING_KEY, {});
-  const state = { q: '', list: '', flags: new Set() };
+  const state = { q: '', list: store.get(TAB_KEY, 'books'), show: '' };
 
   class Locked extends Error {}
   async function get(path) {
@@ -106,40 +107,60 @@
     const tests = {
       unread: d => !markOf(d, 'read'), read: d => markOf(d, 'read'), deeper: d => markOf(d, 'deeper'), draft: d => d.status === 'draft',
     };
-    return digests.filter(d => (!state.list || d.list === state.list) && [...state.flags].every(f => tests[f](d)) && terms.every(t => d._h.includes(t)));
+    return digests.filter(d => d.list === state.list && (!state.show || tests[state.show](d)) && terms.every(t => d._h.includes(t)));
   }
   function cardHtml(d) {
     const by = [d.creator, d.year].filter(Boolean).map(esc).join(' · ');
-    const meta = [LISTS[d.list], d.track, d.minutes && `${d.minutes} min read`].filter(Boolean).map(esc).join(' / ');
+    const meta = [d.track, d.minutes && `${d.minutes} min read`].filter(Boolean).map(esc).join(' / ');
     return `<article class="al-item dg-item${markOf(d, 'read') ? ' dg-read' : ''}" id="dg-${esc(d.id.replace('/', '-'))}">` +
       `<div class="al-item-head"><h3><a href="#${esc(d.id)}">${esc(d.title)}</a></h3>${by ? `<p class="al-by">${by}</p>` : ''}<div class="dg-marks">${markButtons(d)}</div></div>` +
       `<div class="al-item-body">${d.hook ? `<p class="al-note">${esc(d.hook)}</p>` : ''}${meta ? `<p class="al-where">${meta}</p>` : ''}</div>` +
       `<ul class="al-tags">${tagsFor(d)}</ul></article>`;
   }
   function renderList() {
-    const shown = filtered();
-    const read = digests.filter(d => markOf(d, 'read')).length;
-    els.count.textContent = digests.length
-      ? `${shown.length === digests.length ? `All ${digests.length}` : `Showing ${shown.length} of ${digests.length}`} ${digests.length === 1 ? 'digest' : 'digests'}, ${read} digested.`
-      : 'No digests yet. The first ones are on their way.';
+    const shown = filtered(), inList = digests.filter(d => d.list === state.list);
+    const read = inList.filter(d => markOf(d, 'read')).length;
+    els.count.textContent = inList.length
+      ? `${shown.length === inList.length ? `All ${inList.length}` : `Showing ${shown.length} of ${inList.length}`} ${inList.length === 1 ? 'digest' : 'digests'}, ${read} digested.`
+      : 'No digests here yet. The first ones are on their way.';
     els.results.innerHTML = shown.length ? `<div class="al-list">${shown.map(cardHtml).join('')}</div>`
-      : digests.length ? '<p class="al-empty">Nothing matches. Try fewer words, or clear the filters.</p>' : '';
-    const waiting = queue.filter(q => !digests.some(d => d.list === q.list && d.key === `${q.title}|${q.creator || ''}`));
+      : inList.length ? '<p class="al-empty">Nothing matches. Try fewer words, or show everything.</p>' : '';
+    const waiting = queue.filter(q => q.list === state.list && !digests.some(d => d.list === q.list && d.key === `${q.title}|${q.creator || ''}`));
     els.queue.hidden = !waiting.length;
     els.queueList.innerHTML = waiting.map(q => `<li><span class="dg-queue-title">${esc(q.title)}</span>${q.creator ? ` <span class="dg-queue-by">${esc(q.creator)}</span>` : ''}${q.why ? `<span class="dg-queue-why">${esc(q.why)}</span>` : ''}</li>`).join('');
     renderOwnerBar();
   }
+  // One tab per list that has digests or titles waiting, like the anti-library's tab row.
+  const tabLists = () => Object.keys(LISTS).filter(id => digests.some(d => d.list === id) || queue.some(q => q.list === id));
   function renderControls() {
-    const used = Object.keys(LISTS).filter(id => digests.some(d => d.list === id));
-    els.list.innerHTML = '<option value="">All lists</option>' + used.map(id => `<option value="${id}"${id === state.list ? ' selected' : ''}>${LISTS[id]}</option>`).join('');
-    els.flags.innerHTML = '<legend class="label">Only show</legend>' + Object.entries(FILTERS).map(([key, label]) =>
-      `<label class="al-chip"><input type="checkbox" value="${key}"${state.flags.has(key) ? ' checked' : ''}><span>${esc(label)}</span></label>`).join('');
+    const ids = tabLists();
+    if (ids.length && !ids.includes(state.list)) state.list = ids[0];
+    els.tabs.innerHTML = ids.map(id => `<button type="button" role="tab" id="dg-tab-${id}" data-id="${id}" aria-controls="dg-results" aria-selected="${id === state.list}" tabindex="${id === state.list ? 0 : -1}">${LISTS[id]} <span>${digests.filter(d => d.list === id).length}</span></button>`).join('');
+    els.show.innerHTML = Object.entries(SHOW).map(([key, label]) => `<option value="${key}"${key === state.show ? ' selected' : ''}>${esc(label(state.list))}</option>`).join('');
     els.q.value = state.q;
+    showArt();
+  }
+  function selectList(id) {
+    state.list = id;
+    store.set(TAB_KEY, id);
+    renderControls();
+    renderList();
+  }
+  // The anti-library's illustration for the list sits beside the headline.
+  function showArt() {
+    const figure = $('dg-art'), image = $('dg-art-img');
+    if (image.dataset.list === state.list) return;
+    figure.classList.remove('is-shown');
+    image.onload = () => { if (image.dataset.list === state.list) { figure.hidden = false; figure.classList.add('is-shown'); } };
+    image.onerror = () => { figure.hidden = true; };
+    image.dataset.list = state.list;
+    image.src = `../antilibrary/art/${encodeURIComponent(state.list)}.jpg`;
   }
 
   // One digest.
   const stripFrontMatter = text => text.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '');
   async function openDigest(d) {
+    if (d.list !== state.list) { state.list = d.list; store.set(TAB_KEY, d.list); renderControls(); }
     els.reader.innerHTML = `<p class="dg-back"><a href="#">← All digests</a></p><p class="dg-count">Opening ${esc(d.title)}…</p>`;
     showView('reader');
     let body;
@@ -279,8 +300,16 @@
   });
   let timer;
   els.q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { state.q = els.q.value.trim(); renderList(); }, 120); });
-  els.list.addEventListener('change', () => { state.list = els.list.value; renderList(); });
-  els.flags.addEventListener('change', event => { const box = event.target; box.checked ? state.flags.add(box.value) : state.flags.delete(box.value); renderList(); });
+  els.show.addEventListener('change', () => { state.show = els.show.value; renderList(); });
+  els.tabs.addEventListener('click', event => { const tab = event.target.closest('[role=tab]'); if (tab) selectList(tab.dataset.id); });
+  els.tabs.addEventListener('keydown', event => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    const tabs = [...els.tabs.querySelectorAll('[role=tab]')], at = tabs.indexOf(document.activeElement);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (at + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+    event.preventDefault();
+    selectList(tabs[next].dataset.id);
+    $(`dg-tab-${tabs[next].dataset.id}`).focus();
+  });
   window.addEventListener('hashchange', () => { if (token && els.lock.hidden) route(); });
 
   load();
