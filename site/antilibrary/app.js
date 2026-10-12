@@ -9,7 +9,13 @@
   const REPO = 'jfricano/anti-lib';
   // Digests live in a private repository; in owner mode, a browser holding the digests page's
   // read-only key also links each title that has a finished digest and shows its digest marks.
-  const DIGESTS_REPO = 'jfricano/reading-list', DIGESTS_TOKEN_KEY = 'digests-token';
+  const DIGESTS_REPO = 'jfricano/reading-list', DIGESTS_TOKEN_KEY = 'digests-token', DIGEST_MARKS_KEY = 'digests-pending-marks';
+  // Two private marks live with the digests: Digested and Fully read (watched, heard). The public page only ever
+  // shows a title crossed off. A book comes off when it is digested or fully read; a film, show or album only when
+  // it is fully watched or heard, since a digest doesn't stand in for it.
+  const FULLY = { books: 'Fully read', films: 'Fully watched', tv: 'Fully watched', albums: 'Fully heard' };
+  const fullyLabel = id => FULLY[id] || FULLY.books;
+  const digestCounts = id => id === 'books';
   const DATA = document.getElementById('main').dataset.source;
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks', TAGS_KEY = 'antilibrary-pending-tags', OPENED_KEY = 'antilibrary-opened';
   const $ = id => document.getElementById(id);
@@ -17,12 +23,12 @@
     tabs: $('al-tabs'), q: $('al-q'), shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), show: $('al-show'), showField: $('al-show-field'),
     thread: $('al-thread'), threadField: $('al-thread-field'), sort: $('al-sort'), count: $('al-count'), applied: $('al-applied'), results: $('al-results'), random: $('al-random'),
     hide: $('al-hide'), hideLabel: $('al-hide-label'), fold: $('al-fold'),
-    owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), send: $('al-send'), discard: $('al-discard'),
+    owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), send: $('al-send'), sendMarks: $('al-send-marks'), discard: $('al-discard'),
     exportButton: $('al-export'),
   };
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
-  let progress = {}, removed = {}, pending = {}, pendingTags = {}, owner = false, picked = false, digestLinks = {};
+  let progress = {}, removed = {}, pending = {}, pendingTags = {}, owner = false, picked = false, digestLinks = {}, digestMarks = {};
   // Artists with a listening path (artist.html), by folded name: the path row itself and the artist's other albums link there.
   let artistPaths = null;
   const pathFor = i => artistPaths && list.id === 'albums' && artistPaths.get(fold(i.f?.includes('path') ? i.t : i.c || ''));
@@ -63,6 +69,16 @@
     if (cache[id] && !Object.keys(tagged).length) delete pendingTags[id];
     store.set(TAGS_KEY, Object.keys(pendingTags).length ? pendingTags : null);
   }
+  // Digest marks: published ones from marks.json, overridden by any still waiting in this browser. The waiting ones
+  // share the digests page's store, so a mark made on either page is sent from either.
+  const digestPending = () => store.get(DIGEST_MARKS_KEY, {}) || {};
+  const markUnsent = (i, mark) => Boolean(owner && mark in (digestPending()[list.id]?.[itemKey(i)] || {}));
+  const markOf = (i, mark, id = list.id) => {
+    const waiting = digestPending()[id]?.[itemKey(i)];
+    return Boolean(waiting && mark in waiting ? waiting[mark] : digestMarks[id]?.[itemKey(i)]?.[mark]);
+  };
+  // A title crossed off before the digest marks existed counts as fully read unless it is marked digested.
+  const isFully = i => (digestLinks[list.id]?.[itemKey(i)] ? markOf(i, 'deeper') || (isDone(i) && !(digestCounts(list.id) && markOf(i, 'read'))) : isDone(i));
   const isDone = i => {
     const mark = pendingFor(i);
     return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
@@ -137,7 +153,7 @@
     if (!sorts.some(([key]) => key === state.sort)) state.sort = 'shelf';
     els.sort.innerHTML = sorts.map(([key, s]) => `<option value="${key}"${key === state.sort ? ' selected' : ''}>${key === 'creator' ? `${esc(list.creatorLabel)} A–Z` : s.label}</option>`).join('');
     els.hide.checked = state.hide;
-    els.hideLabel.textContent = `Hide ${list.doneLabel.toLowerCase()}`;
+    els.hideLabel.textContent = 'Hide crossed off';
     els.q.value = state.q;
   }
 
@@ -177,7 +193,7 @@
     if (state.shelf) chips.push(['shelf', shelfName(state.shelf)]);
     if (state.only) chips.push(['only', list.flags[state.only]]);
     if (state.thread) chips.push(['thread', `Thread: ${threadOf(state.thread).name}`]);
-    if (owner && state.hide) chips.push(['hide', `Hiding ${list.doneLabel.toLowerCase()}`]);
+    if (owner && state.hide) chips.push(['hide', 'Hiding crossed off']);
     els.applied.hidden = !chips.length;
     els.applied.innerHTML = chips.map(([key, text]) =>
       `<li><button type="button" class="al-chip" data-clear="${key}" aria-label="Remove filter: ${esc(text)}">${esc(text)}<span aria-hidden="true">×</span></button></li>`).join('') +
@@ -215,22 +231,23 @@
       : filters.has(f)
       ? `<li><button type="button" class="al-tag al-tag-${esc(f)}" data-only="${esc(f)}" title="Show only ${esc(list.flags[f].toLowerCase())}">${esc(list.flags[f])}</button></li>`
       : `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
-    if (done) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel)}</li>`);
     const digest = owner ? digestLinks[list.id]?.[itemKey(i)] : null;
-    if (digest?.read) tags.push('<li class="al-tag al-tag-digested">Digested</li>');
-    if (digest?.deeper) tags.push(`<li class="al-tag al-tag-deeper">${{ films: 'Fully watched', tv: 'Fully watched', albums: 'Fully heard' }[list.id] || 'Fully read'}</li>`);
+    // Books show Digested as a checkbox; elsewhere a digest doesn't cross a title off, so it stays a note.
+    if (digest && !digestCounts(list.id) && markOf(i, 'read')) tags.push('<li class="al-tag al-tag-digested">Digested</li>');
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [isPath && i.l && `<a href="${esc(i.l)}" target="_blank" rel="noopener noreferrer">Discography ↗</a>`,
       path && !isPath && `<a href="artist.html?a=${esc(encodeURIComponent(path))}">Artist path →</a>`,
       list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
-      digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}" target="_blank" rel="noopener">${digest.read ? 'Reread digest' : 'Read digest'} ↗</a>`].filter(Boolean);
+      digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}" target="_blank" rel="noopener">${markOf(i, 'read') ? 'Reread digest' : 'Read digest'} ↗</a>`].filter(Boolean);
     const step = state.thread && i.th?.[state.thread]?.[1];
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
     const key = esc(itemKey(i)), tagged = pendingTags[list.id]?.[itemKey(i)] || {};
     const toggle = (flag, text, on, unsent, attrs = '') => `<label class="al-toggle${unsent ? ' al-unsent' : ''}"${attrs}>` +
       `<input type="checkbox" data-key="${key}" data-flag="${flag}"${on ? ' checked' : ''}${attrs ? ' disabled' : ''}><span>${esc(text)}</span></label>`;
-    const mark = owner ? `<span class="al-owner-actions">${toggle('', list.doneLabel, done, pendingFor(i) !== undefined, i.d ? ' title="Marked in the source list"' : '')}` +
+    const marks = (digest && digestCounts(list.id) ? toggle('digest:read', 'Digested', markOf(i, 'read'), markUnsent(i, 'read')) : '') +
+      toggle(digest ? 'digest:deeper' : '', fullyLabel(list.id), isFully(i), digest ? markUnsent(i, 'deeper') : pendingFor(i) !== undefined, i.d ? ' title="Marked in the source list"' : '');
+    const mark = owner ? `<span class="al-owner-actions">${marks}` +
       (list.toggles || []).map(flag => toggle(esc(flag), list.flags[flag], i.f?.includes(flag), flag in tagged)).join('') +
       `<button type="button" class="al-remove" data-key="${key}">Remove</button></span>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
@@ -248,7 +265,7 @@
     els.count.textContent = (visible.length === kept.length
       ? `All ${number(kept.length)} ${noun}`
       : `Showing ${number(visible.length)} of ${number(kept.length)} ${noun}`) +
-      (finished ? `, ${number(finished)} ${list.doneLabel.toLowerCase()}.` : '.');
+      (finished ? `, ${number(finished)} crossed off.` : '.');
   }
 
   function render() {
@@ -380,18 +397,36 @@
   }
 
   // Owner mode.
-  const pendingCount = () => Object.values(pending).reduce((n, marks) => n + Object.keys(marks).length, 0) +
-    Object.values(pendingTags).reduce((n, tagged) => n + Object.values(tagged).reduce((m, set) => m + Object.keys(set).length, 0), 0);
+  const nested = data => Object.values(data).reduce((n, entries) => n + Object.values(entries).reduce((m, set) => m + Object.keys(set).length, 0), 0);
+  const pendingCount = () => Object.values(pending).reduce((n, marks) => n + Object.keys(marks).length, 0) + nested(pendingTags);
   function renderOwnerBar() {
     els.ownerBar.hidden = !owner;
     if (!owner) return;
-    const count = pendingCount();
-    els.ownerText.textContent = count
-      ? `${number(count)} ${count === 1 ? 'change is' : 'changes are'} saved in this browser and not yet on the site.`
+    const count = pendingCount(), marks = nested(digestPending());
+    els.ownerText.textContent = count || marks
+      ? `${number(count + marks)} ${count + marks === 1 ? 'change is' : 'changes are'} saved in this browser and not yet sent.`
       : 'Tick titles as you finish them, retag them or remove ones you no longer want, then send the changes to the site.';
+    if (count && marks) els.ownerText.textContent += ' Send both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.';
     if (count) els.ownerText.textContent += ' Discard brings back anything you removed.';
-    els.send.hidden = els.discard.hidden = !count;
+    els.send.hidden = !count;
+    els.sendMarks.hidden = !marks;
+    els.discard.hidden = !count && !marks;
     if (count) els.send.href = issueUrl();
+    if (marks) els.sendMarks.href = marksIssueUrl();
+  }
+  // The same issue the digests page writes, for its own repository's workflow.
+  function marksIssueUrl() {
+    const waiting = digestPending(), lines = [];
+    for (const [id, entries] of Object.entries(waiting)) for (const [key, fields] of Object.entries(entries)) {
+      const [title, creator] = key.split('|');
+      for (const [mark, value] of Object.entries(fields)) {
+        const on = mark === 'read' ? 'Digested' : fullyLabel(id);
+        lines.push(`- ${value ? on : `Not ${on.toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`);
+      }
+    }
+    const count = nested(waiting);
+    const body = `${lines.join('\n')}\n\nThe anti-library page wrote this issue. Submit it to update the marks.\n\n\`\`\`json\n${JSON.stringify(waiting)}\n\`\`\`\n`;
+    return `https://github.com/${DIGESTS_REPO}/issues/new?${new URLSearchParams({ title: `Digests: update ${count} ${count === 1 ? 'mark' : 'marks'}`, body })}`;
   }
   function issueUrl() {
     const lines = [];
@@ -399,7 +434,7 @@
       const meta = lists.find(l => l.id === listId);
       for (const [key, value] of Object.entries(marks)) {
         const [title, creator] = key.split('|');
-        lines.push(`- ${value === REMOVE ? 'Remove from the list' : value ? meta.doneLabel : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
+        lines.push(`- ${value === REMOVE ? 'Remove from the list' : value ? 'Crossed off' : 'Back on the list'}: ${title}${creator ? ` (${creator})` : ''}`);
       }
     }
     for (const [listId, tagged] of Object.entries(pendingTags)) {
@@ -430,14 +465,34 @@
       const [index, marks] = await Promise.all([get('index.json'), get('marks.json')]);
       if (!index.ok) return;
       const marked = marks.ok ? await marks.json() : {};
-      digestLinks = {};
+      digestLinks = {}; digestMarks = marked;
       for (const d of await index.json()) {
         if (d.status !== 'ready' || !/^[a-z0-9-]+$/.test(d.slug || '')) continue;
-        const m = marked[d.list]?.[d.key] || {};
-        (digestLinks[d.list] ??= {})[d.key] = { id: `${d.list}/${d.slug}`, read: Boolean(m.read), deeper: Boolean(m.deeper) };
+        (digestLinks[d.list] ??= {})[d.key] = { id: `${d.list}/${d.slug}` };
       }
-      if (list) render();
+      syncCrossedOff();
+      if (list) { render(); renderOwnerBar(); }
     } catch {}
+  }
+  // A digest mark that crosses a title off (made here or on the digests page) queues the public crossing-off too.
+  function syncCrossedOff() {
+    const waiting = digestPending();
+    for (const id of new Set([...Object.keys(digestMarks), ...Object.keys(waiting)])) {
+      for (const key of new Set([...Object.keys(digestMarks[id] || {}), ...Object.keys(waiting[id] || {})])) {
+        const i = { t: key.split('|')[0], c: key.split('|').slice(1).join('|') };
+        if (pending[id]?.[key] !== undefined || progress[id]?.[key]) continue;
+        if (markOf(i, 'deeper', id) || (digestCounts(id) && markOf(i, 'read', id))) (pending[id] ??= {})[key] = new Date().toISOString().slice(0, 10);
+      }
+    }
+    prunePending();
+  }
+  function setDigestMark(i, mark, on) {
+    const waiting = digestPending(), key = itemKey(i);
+    ((waiting[list.id] ??= {})[key] ??= {})[mark] = on ? new Date().toISOString().slice(0, 10) : null;
+    if (Boolean(digestMarks[list.id]?.[key]?.[mark]) === on) delete waiting[list.id][key][mark];
+    if (!Object.keys(waiting[list.id][key]).length) delete waiting[list.id][key];
+    if (!Object.keys(waiting[list.id]).length) delete waiting[list.id];
+    store.set(DIGEST_MARKS_KEY, Object.keys(waiting).length ? waiting : null);
   }
   // Drop browser-held marks the published data already matches (a removal is published once removed.json lists it).
   function prunePending() {
@@ -470,12 +525,19 @@
     updateCount();
     renderOwnerBar();
   });
-  // Each owner checkbox changes one title in place: Read (or Watched, Heard) is a progress mark, the rest are tags.
+  // Each owner checkbox changes one title in place. Fully read (watched, heard) crosses a title off; on titles with a
+  // digest it and Digested are digest marks, and the crossing-off follows them. The rest are tags.
   els.results.addEventListener('change', event => {
     const box = event.target.closest('.al-owner-actions input');
     if (!box || !owner) return;
     const key = box.dataset.key, flag = box.dataset.flag, item = items.find(i => itemKey(i) === key);
-    if (flag) {
+    if (flag.startsWith('digest:')) {
+      setDigestMark(item, flag.slice(7), box.checked);
+      const off = item.d || markOf(item, 'deeper') || (digestCounts(list.id) && markOf(item, 'read'));
+      if (Boolean(progress[list.id]?.[key]) === Boolean(off)) delete pending[list.id]?.[key];
+      else (pending[list.id] ??= {})[key] = off ? new Date().toISOString().slice(0, 10) : null;
+      prunePending();
+    } else if (flag) {
       ((pendingTags[list.id] ??= {})[key] ??= {})[flag] = box.checked;
       applyTags(list.id);
       renderMenus();
@@ -511,7 +573,7 @@
             ...(meta.groupLabel && { [meta.groupLabel]: i.g || '' }),
             [meta.shelfLabel]: i.s || '', Subsection: i.u || '', Title: i.t, [meta.creatorLabel]: i.c || '', Year: i.y || '',
             ...Object.fromEntries(Object.entries(meta.flags).map(([key, label]) => [label, i.f?.includes(key) ? 'yes' : ''])),
-            Status: isDone(i) ? meta.doneLabel : 'Anti-library', [`${meta.doneLabel} on`]: date || '', Note: i.n || '', Link: i.l || '',
+            Status: isDone(i) ? 'Crossed off' : 'Anti-library', 'Crossed off on': date || '', Note: i.n || '', Link: i.l || '',
           };
         });
         list = saved;
@@ -530,6 +592,7 @@
   els.discard.addEventListener('click', () => {
     pending = {}; pendingTags = {};
     store.set(PENDING_KEY, null);
+    store.set(DIGEST_MARKS_KEY, null);
     Object.keys(cache).forEach(applyTags);
     render();
   });
