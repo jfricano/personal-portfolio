@@ -424,7 +424,14 @@
   // GitHub turns away issue links much past 8,000 characters, so a big batch is split into parts that each fit, each
   // with its own json block; the workflow applies every part on its own. A unit is [line, path into the json, value].
   const MAX_URL = 7000;
-  function issueLinks(repo, prefix, noun, units, footer) {
+  // A part counts as sent once its button is clicked, so it leaves the buttons while the site catches up. The site's
+  // data takes a few minutes to show it; if it still hasn't after SENT_WAIT (the issue was never submitted), it's back.
+  const SENT_KEY = 'antilibrary-sent', SENT_WAIT = 20 * 60 * 1000;
+  const sentAt = () => Object.fromEntries(Object.entries(store.get(SENT_KEY, {})).filter(([, at]) => Date.now() - at < SENT_WAIT));
+  const partIds = new WeakMap();
+  function issueLinks(repo, prefix, noun, all, footer) {
+    const sent = sentAt(), unitId = ([, keys, value]) => JSON.stringify([repo, ...keys, value]);
+    const units = all.filter(u => !sent[unitId(u)]);
     const build = (chunk, part) => {
       const data = {};
       for (const [, keys, value] of chunk) keys.slice(0, -1).reduce((o, k) => (o[k] ??= {}), data)[keys.at(-1)] = value;
@@ -438,19 +445,22 @@
       chunk.push(unit);
     }
     if (chunk.length) parts.push(chunk);
-    return parts.map((c, i) => build(c, parts.length > 1 ? ` (part ${i + 1} of ${parts.length})` : ''));
+    const links = parts.map((c, i) => ({ url: build(c, parts.length > 1 ? ` (part ${i + 1} of ${parts.length})` : ''), ids: c.map(unitId) }));
+    links.waiting = all.length - units.length;
+    return links;
   }
   // Shows one send button per part, cloning the first for the rest.
-  function setLinks(anchor, urls, label) {
+  function setLinks(anchor, links, label) {
     document.querySelectorAll(`[data-part-of="${anchor.id}"]`).forEach(a => a.remove());
-    anchor.hidden = !urls.length;
-    if (!urls.length) return;
+    anchor.hidden = !links.length;
+    if (!links.length) return;
     let last = anchor;
-    urls.forEach((url, i) => {
+    links.forEach(({ url, ids }, i) => {
       const a = i ? anchor.cloneNode() : anchor;
       if (i) { a.removeAttribute('id'); a.dataset.partOf = anchor.id; last.after(a); last = a; }
       a.href = url;
-      a.textContent = urls.length > 1 ? `${label}, part ${i + 1} of ${urls.length} ↗` : `${label} ↗`;
+      partIds.set(a, ids);
+      a.textContent = links.length > 1 ? `${label}, part ${i + 1} of ${links.length} ↗` : `${label} ↗`;
     });
   }
   const nested = data => Object.values(data).reduce((n, entries) => n + Object.values(entries).reduce((m, set) => m + Object.keys(set).length, 0), 0);
@@ -458,17 +468,20 @@
   function renderOwnerBar() {
     els.ownerBar.hidden = !owner;
     if (!owner) return;
-    const count = pendingCount(), marks = nested(digestPending());
+    const sends = pendingCount() ? issueUrls() : [], markSends = nested(digestPending()) ? marksIssueUrls() : [];
+    const units = links => links.reduce((n, l) => n + l.ids.length, 0);
+    const count = units(sends), marks = units(markSends), waiting = (sends.waiting || 0) + (markSends.waiting || 0);
     els.ownerText.textContent = count || marks
       ? `${number(count + marks)} ${count + marks === 1 ? 'change is' : 'changes are'} saved in this browser and not yet sent.`
-      : 'Tick titles as you finish them, retag them or remove ones you no longer want, then send the changes to the site.';
+      : waiting ? '' : 'Tick titles as you finish them, retag them or remove ones you no longer want, then send the changes to the site.';
+    if (waiting) els.ownerText.textContent += ` ${number(waiting)} sent ${waiting === 1 ? 'change is' : 'changes are'} waiting for the site to update, which takes a few minutes.`;
     if (count && marks) els.ownerText.textContent += ' Send both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.';
     if (count) els.ownerText.textContent += ' Discard brings back anything you removed.';
-    const sends = count ? issueUrls() : [], markSends = marks ? marksIssueUrls() : [];
     if (sends.length > 1 || markSends.length > 1) els.ownerText.textContent += ' That’s too much for one GitHub issue, so it’s split into parts: send each one.';
+    els.ownerText.textContent = els.ownerText.textContent.trim();
     setLinks(els.send, sends, 'Send changes to the site');
     setLinks(els.sendMarks, markSends, 'Send digest marks');
-    els.discard.hidden = !count && !marks;
+    els.discard.hidden = !pendingCount() && !nested(digestPending());
   }
   // The same issue the digests page writes, for its own repository's workflow.
   function marksIssueUrls() {
@@ -639,8 +652,16 @@
       els.exportButton.textContent = 'Export spreadsheet';
     }
   });
+  // A send button opens its issue in a new tab; this tab then counts that part as sent.
+  els.ownerBar.addEventListener('click', e => {
+    const ids = partIds.get(e.target.closest('a'));
+    if (!ids) return;
+    store.set(SENT_KEY, { ...sentAt(), ...Object.fromEntries(ids.map(id => [id, Date.now()])) });
+    setTimeout(renderOwnerBar, 500);
+  });
   els.discard.addEventListener('click', () => {
     pending = {}; pendingTags = {};
+    store.set(SENT_KEY, null);
     store.set(PENDING_KEY, null);
     store.set(DIGEST_MARKS_KEY, null);
     Object.keys(cache).forEach(applyTags);
