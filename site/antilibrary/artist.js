@@ -1,6 +1,8 @@
 // An artist path: a suggested listening order through one artist's records, starting at a door, with the records
 // left out still shown in the timeline. The paths live in the jfricano/anti-lib repository (lists/artist-paths.json,
 // built into data/paths.json), like the lists themselves. With no artist named, the page lists every path.
+// In owner mode each record gets a Heard box. Ticks wait in the same browser store as the list's marks (albums list,
+// "title|artist"), so they go out with the list's Send changes issue and land in progress.json.
 (() => {
   const DATA = document.getElementById('main').dataset.source;
   const SPOTIFY = 'https://open.spotify.com/search/', DISCOGS = 'https://www.discogs.com/search/?type=all&q=';
@@ -14,9 +16,31 @@
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const web = url => (/^https:\/\//.test(url || '') ? url : '');
   const id = new URLSearchParams(location.search).get('a') || '';
-  let progress = {};
+  const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
+  const store = {
+    get(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } },
+    set(key, value) { try { value === null ? localStorage.removeItem(key) : localStorage.setItem(key, JSON.stringify(value)); } catch {} },
+  };
+  const owner = store.get(OWNER_KEY, false) === true;
+  let progress = {}, current = null;
 
-  const heard = r => Boolean(r.d || progress[`${r.t}|${r.c}`]);
+  const key = r => `${r.t}|${r.c}`;
+  const waiting = r => (store.get(PENDING_KEY, {}) || {}).albums?.[key(r)];
+  const heard = r => {
+    if (r.d) return true;
+    const mark = owner ? waiting(r) : undefined;
+    return Boolean(mark !== undefined && mark !== 'remove' ? mark : progress[key(r)]);
+  };
+  const unsent = r => owner && waiting(r) !== undefined;
+  const heardBox = r => owner ? `<label class="al-toggle${unsent(r) ? ' al-unsent' : ''}"${r.d ? ' title="Marked in the source list"' : ''}>` +
+    `<input type="checkbox" data-key="${esc(key(r))}"${heard(r) ? ' checked' : ''}${r.d ? ' disabled' : ''}><span>Heard</span></label>` : '';
+  // Ticks and unticks wait in this browser; one that matches what's already published is dropped.
+  function setHeard(k, on) {
+    const pending = store.get(PENDING_KEY, {}) || {}, albums = (pending.albums ??= {});
+    if (Boolean(progress[k]) === on) delete albums[k]; else albums[k] = on ? new Date().toISOString().slice(0, 10) : null;
+    if (!Object.keys(albums).length) delete pending.albums;
+    store.set(PENDING_KEY, Object.keys(pending).length ? pending : null);
+  }
   const steps = p => p.records.filter(r => r.p).sort((a, b) => a.p - b.p);
   const query = r => encodeURIComponent([r.t, r.c].join(' '));
   const pageLink = r => web(r.l) || DISCOGS + query(r);
@@ -29,7 +53,7 @@
       `<a class="al-cover" href="${esc(pageLink(r))}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(r.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><p class="ap-num index" aria-hidden="true">${r.p}</p><div class="al-ident"><h3><a href="${esc(pageLink(r))}" target="_blank" rel="noopener noreferrer"${web(r.l) ? '' : ' title="Search for this record"'}>${esc(r.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>` +
       `<p class="al-by">${credit(p, r)}</p></div>` +
-      `<p class="al-more"><a class="al-listen" href="${esc(SPOTIFY + query(r))}" data-app="spotify:search:${esc(query(r))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a></p></div>` +
+      `<p class="al-more"><a class="al-listen" href="${esc(SPOTIFY + query(r))}" data-app="spotify:search:${esc(query(r))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a></p>${owner ? `<span class="al-owner-actions">${heardBox(r)}</span>` : ''}</div>` +
       `<div class="al-item-body">${r.n ? `<p class="al-note">${esc(r.n)}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</li>`;
   }
@@ -40,18 +64,25 @@
       return `<li class="ap-row${r.p ? '' : ' ap-skipped'}${heard(r) ? ' ap-heard' : ''}"><span class="ap-year">${esc(r.y)}</span>` +
         `<div class="ap-what"><p class="ap-title"><a href="${esc(pageLink(r))}" target="_blank" rel="noopener noreferrer">${esc(r.t)}</a>` +
         `${r.b || r.w ? ` <span class="ap-credit">${[r.b ? r.c : '', r.w].filter(Boolean).map(esc).join(' · ')}</span>` : ''}${heard(r) ? ' <span class="ap-credit">· heard</span>' : ''}</p>` +
-        `${!r.p && r.n ? `<p class="ap-why">${esc(r.n)}</p>` : ''}</div>${mark}</li>`;
+        `${!r.p && r.n ? `<p class="ap-why">${esc(r.n)}</p>` : ''}${owner && !r.p ? `<p class="al-owner-actions">${heardBox(r)}</p>` : ''}</div>${mark}</li>`;
     }).join('');
   }
 
   function showPath(p) {
+    current = p;
     const order = steps(p), skipped = p.records.length - order.length, years = p.records.map(r => r.y);
+    const done = order.filter(heard).length;
     document.title = `${p.artist}: a listening path — Jason Fricano`;
     setHead('<a href="./?list=albums">Anti-library albums</a> / <a href="artist.html">Artist paths</a>', esc(p.artist), p.about ? esc(p.about) : '',
       `<div><dt>The door</dt><dd><a href="#step-1">${esc(order[0].t)}</a> (${esc(order[0].y)})</dd></div>` +
       `<div><dt>The path</dt><dd>${order.length} ${order.length === 1 ? 'record' : 'records'}, in this order</dd></div>` +
-      `<div><dt>Left out</dt><dd>${skipped ? `${skipped} more from ${Math.min(...years)} to ${Math.max(...years)}, in the timeline` : 'Nothing worth noting'}</dd></div>`);
-    root.innerHTML = `<section class="ap-section" aria-labelledby="ap-order"><h2 id="ap-order"><span class="index">01</span>Listening order</h2><ol class="al-list ap-steps" data-cover="square">${order.map(r => stepHtml(p, r)).join('')}</ol></section>` +
+      `<div><dt>Left out</dt><dd>${skipped ? `${skipped} more from ${Math.min(...years)} to ${Math.max(...years)}, in the timeline` : 'Nothing worth noting'}</dd></div>` +
+      `<div><dt>Heard</dt><dd>${done === order.length ? `Fully heard: all ${order.length} on the path` : `${done} of ${order.length} on the path`}</dd></div>`);
+    const count = Object.keys((store.get(PENDING_KEY, {}) || {}).albums || {}).length;
+    const bar = owner ? `<div class="al-owner-bar"><p aria-live="polite">${count
+      ? `${count} ${count === 1 ? 'album is' : 'albums are'} ticked in this browser and not yet sent. Send them from the <a href="./?list=albums">albums list</a>.`
+      : 'Tick each album as you hear it. The artist counts as fully heard once every album on the path is ticked.'}</p></div>` : '';
+    root.innerHTML = bar + `<section class="ap-section" aria-labelledby="ap-order"><h2 id="ap-order"><span class="index">01</span>Listening order</h2><ol class="al-list ap-steps" data-cover="square">${order.map(r => stepHtml(p, r)).join('')}</ol></section>` +
       `<section class="ap-section" aria-labelledby="ap-time"><h2 id="ap-time"><span class="index">02</span>The whole run</h2>` +
       `<p class="ap-lede">Every record worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.</p>` +
       `<ol class="ap-timeline">${timelineHtml(p)}</ol></section>`;
@@ -93,6 +124,15 @@
       if (!left) window.open(link.href, '_blank', 'noopener');
     }, 800);
     location.href = link.dataset.app;
+  });
+  // Re-rendering keeps the page where it is; focus returns to the same box.
+  root.addEventListener('change', event => {
+    const box = event.target.closest('.al-owner-actions input');
+    if (!box || !owner || !current) return;
+    const at = [...root.querySelectorAll('.al-owner-actions input')].indexOf(box);
+    setHeard(box.dataset.key, box.checked);
+    showPath(current);
+    root.querySelectorAll('.al-owner-actions input')[at]?.focus();
   });
   root.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, true);
 
