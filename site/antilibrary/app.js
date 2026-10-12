@@ -355,11 +355,11 @@
   });
 
   // Each list's illustration lives at art/<list id>.jpg and sits beside the headline; a list without one shows no
-  // picture. On phones the picture moves down between the two intro paragraphs, where it reads better.
+  // picture. On phones the picture moves down to close the top section, after the note and before the tabs.
   const narrow = matchMedia('(max-width: 700px)');
   function placeArt() {
     const figure = $('al-art');
-    if (narrow.matches) $('al-intro-body').querySelector('.al-intro-note').before(figure);
+    if (narrow.matches) $('al-intro-body').append(figure);
     else $('al-intro-head').after(figure);
   }
   narrow.addEventListener('change', placeArt);
