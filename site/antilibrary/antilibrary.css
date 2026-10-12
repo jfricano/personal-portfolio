@@ -9,6 +9,7 @@
 .al-intro h1 em{color:var(--rust)}
 .al-intro-body{grid-area:body;display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:start;margin-top:34px}
 .al-intro-body .case-deck{font-size:19px;line-height:1.55;max-width:none}
+.al-intro-deck .case-deck+.case-deck{margin-top:18px}
 .al-intro-note{color:var(--muted);font-size:16px;border-left:1px solid var(--rust);padding-left:22px}
 .al-intro cite{font-style:italic}
 .al-term{font-style:normal;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rust);text-decoration-thickness:2px;text-underline-offset:5px}
