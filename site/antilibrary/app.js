@@ -354,16 +354,8 @@
     updateFold();
   });
 
-  // Each list's illustration lives at art/<list id>.jpg and sits beside the headline; a list without one shows no
-  // picture. On phones the picture moves down between the two intro paragraphs, where it reads better.
-  const narrow = matchMedia('(max-width: 700px)');
-  function placeArt() {
-    const figure = $('al-art');
-    if (narrow.matches) $('al-intro-body').querySelector('.al-intro-note').before(figure);
-    else $('al-intro-head').after(figure);
-  }
-  narrow.addEventListener('change', placeArt);
-  placeArt();
+  // Each list's illustration lives at art/<list id>.jpg and sits beside the headline, or under it on phones; a list
+  // without one shows no picture.
   function showArt() {
     const figure = $('al-art'), image = $('al-art-img');
     figure.classList.remove('is-shown');
