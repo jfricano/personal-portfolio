@@ -171,25 +171,40 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:700px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:1fr 1fr;grid-auto-flow:dense}#al-thread-field{grid-column:1/-1}}
 @media(max-width:380px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:1fr}}
 
-/* Artist paths (artist.html): a door, the listening order, then every record by year with the skipped ones muted. */
+/* Artist paths (artist.html): a door, the listening order, then every record by year on one rail, with the
+   skipped ones muted. Same paper, serif and rust as the list; nothing moves. */
 .ap-head{padding:55px 0 50px}
 .ap-head .label a{text-decoration:none}.ap-head .label a:hover{text-decoration:underline}
 .ap-head h1{font-size:clamp(50px,6.8vw,96px);margin:22px 0 26px}
 .ap-head h1 em{color:var(--rust)}
 .ap-head .case-deck{font-size:19px;line-height:1.55}
 .ap-head .case-deck a{color:var(--rust)}
-.ap-section{border-top:1px solid var(--ink);padding-bottom:30px}
+.ap-head .case-facts{grid-template-columns:repeat(4,minmax(0,1fr));border-top-color:var(--ink)}
+.ap-head .case-facts dd{font-family:var(--serif);font-size:18px;letter-spacing:-.02em}
+.ap-section{border-top:1px solid var(--ink);padding-bottom:40px}
 .ap-section h2{display:flex;align-items:baseline;gap:16px;font-size:clamp(30px,3.4vw,44px);margin:26px 0 6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .ap-section h2 .index{font-size:20px;letter-spacing:0}
+/* Listening order: bigger covers, the step number as a large rust numeral, and the door on a lavender band. */
 .ap-steps{list-style:none;margin:0;padding:0}
-.ap-num{font-size:30px;line-height:1;margin-bottom:6px}
+.ap-steps .ap-step{grid-template-columns:104px minmax(0,1fr) minmax(0,1.3fr) 110px;gap:6px 32px;padding:26px 0;align-items:start}
+.ap-steps .al-cover{width:104px;box-shadow:0 4px 14px #302b281f}
+.ap-steps .al-item h3{font-size:25px}
+.ap-num{font-size:44px;line-height:.9;margin-bottom:12px}
 .ap-step{scroll-margin:calc(var(--masthead-h) + 30px)}
+.ap-step#step-1{background:var(--lavender);box-shadow:-28px 0 0 var(--lavender),28px 0 0 var(--lavender);border-bottom-color:transparent}
+.ap-step#step-1 .al-note{color:var(--ink)}
 .ap-tag-door{color:var(--rust);border-color:var(--rust);font-weight:600}
-.ap-lede{color:var(--muted);font-size:15px;margin:14px 0 8px;max-width:640px}
-.ap-timeline{list-style:none;margin:0;padding:0}
-.ap-row{display:grid;grid-template-columns:64px minmax(0,1fr) 90px;gap:4px 28px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line)}
-.ap-year{font-family:var(--serif);font-style:italic;color:var(--rust);font-size:18px}
-.ap-title{font-family:var(--serif);font-size:20px;letter-spacing:-.02em;line-height:1.25}
+.ap-lede{color:var(--muted);font-size:15px;margin:14px 0 22px;max-width:640px}
+/* The whole run: one vertical rail, a filled rust dot for each record on the path, a hollow one for the rest. */
+.ap-timeline{list-style:none;margin:0;padding:4px 0 0;position:relative}
+.ap-timeline:before{content:'';position:absolute;left:96px;top:0;bottom:0;width:1px;background:var(--line)}
+.ap-row{display:grid;grid-template-columns:64px minmax(0,1fr) 90px;gap:4px 28px;align-items:baseline;padding:11px 0}
+.ap-what{position:relative;padding-left:30px;min-width:0}
+.ap-what:before{content:'';position:absolute;left:0;top:.45em;width:9px;height:9px;border-radius:50%;background:var(--rust);box-shadow:0 0 0 3px var(--paper)}
+.ap-skipped .ap-what:before{background:var(--paper);border:1px solid var(--line);width:7px;height:7px}
+.ap-heard .ap-what:before{background:var(--ink);border:0;width:9px;height:9px}
+.ap-year{font-family:var(--serif);font-style:italic;color:var(--rust);font-size:18px;text-align:right}
+.ap-title{font-family:var(--serif);font-size:21px;letter-spacing:-.02em;line-height:1.25}
 .ap-title a{text-decoration:none}.ap-title a:hover{text-decoration:underline}
 .ap-credit{font-family:var(--sans);font-size:12px;letter-spacing:0;color:var(--muted)}
 .ap-why{font-size:14px;color:var(--muted);margin-top:3px;max-width:720px}
@@ -197,18 +212,24 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 a.ap-mark:hover{border-color:var(--rust);color:var(--rust)}
 .ap-skipped .ap-year,.ap-skipped .ap-title{color:var(--muted)}
 .ap-skipped .ap-mark{border-color:var(--line);color:var(--muted)}
-.ap-index{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink);columns:2 360px;column-gap:48px}
-.ap-index li{break-inside:avoid;border-bottom:1px solid var(--line)}
-.ap-index a{display:block;padding:14px 0;text-decoration:none}
-.ap-index-name{display:block;font-family:var(--serif);font-size:24px;letter-spacing:-.03em}
-.ap-index-door{display:block;font-size:13px;color:var(--muted)}
+.ap-heard .ap-title a{color:var(--muted)}
+/* The index: every artist numbered down two columns, like the work rows on the home page. */
+.ap-index{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink);columns:2 360px;column-gap:64px;counter-reset:ap}
+.ap-index li{break-inside:avoid;border-bottom:1px solid var(--line);counter-increment:ap}
+.ap-index a{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:baseline;column-gap:12px;padding:18px 0;text-decoration:none}
+.ap-index a:before{content:counter(ap,decimal-leading-zero);grid-row:1/3;font-family:var(--serif);font-style:italic;font-size:18px;color:var(--rust)}
+.ap-index-name{display:block;font-family:var(--serif);font-size:27px;letter-spacing:-.03em;line-height:1.15}
+.ap-index-door{display:block;font-size:13px;color:var(--muted);margin-top:4px}
 .ap-index a:hover .ap-index-name{color:var(--rust)}
 /* On the list, an artist's path is a link rather than a filter. */
 a.al-tag-path{text-decoration:none}
 a.al-tag-path:hover{border-color:var(--rust);color:var(--rust)}
+@media(max-width:1000px){.ap-steps .ap-step{grid-template-columns:88px minmax(0,1fr) minmax(0,1.2fr)}.ap-steps .al-cover{width:88px}}
 @media(max-width:700px){.ap-head{padding:35px 0 36px}.ap-head h1{font-size:clamp(46px,12vw,59px)}.ap-head .case-deck{font-size:17px}
-.ap-row{grid-template-columns:48px minmax(0,1fr);gap:4px 14px}.ap-mark{grid-column:2;justify-self:start}.ap-title{font-size:18px}}
-.ap-head .case-facts{grid-template-columns:repeat(4,minmax(0,1fr))}
+.ap-steps .ap-step{grid-template-columns:72px minmax(0,1fr);gap:6px 18px;padding:20px 0}.ap-steps .al-cover{width:72px}.ap-steps .al-item h3{font-size:22px}.ap-num{font-size:34px;margin-bottom:8px}
+.ap-step#step-1{box-shadow:-20px 0 0 var(--lavender),20px 0 0 var(--lavender)}
+.ap-timeline:before{left:66px}.ap-row{grid-template-columns:48px minmax(0,1fr);gap:4px 14px}.ap-what{padding-left:24px}.ap-mark{grid-column:2;justify-self:start;margin-left:24px}.ap-title{font-size:18px}
+.ap-index{column-gap:32px}.ap-index a{grid-template-columns:36px minmax(0,1fr);padding:14px 0}.ap-index-name{font-size:23px}}
 .ap .al-owner-bar{margin:0 0 26px}
 .ap .al-owner-bar a{color:var(--ink)}
 .ap-what .al-owner-actions{margin-top:6px}
