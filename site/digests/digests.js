@@ -180,15 +180,14 @@
     renderControls();
     renderList();
   }
-  // The anti-library's illustration for the list sits beside the headline.
+  // One shared illustration represents briefs across every medium.
   function showArt() {
     const figure = $('dg-art'), image = $('dg-art-img');
-    if (image.dataset.list === state.list) return;
+    if (image.getAttribute('src')) return;
     figure.classList.remove('is-shown');
-    image.onload = () => { if (image.dataset.list === state.list) { figure.hidden = false; figure.classList.add('is-shown'); } };
+    image.onload = () => { figure.hidden = false; figure.classList.add('is-shown'); };
     image.onerror = () => { figure.hidden = true; };
-    image.dataset.list = state.list;
-    image.src = `../antilibrary/art/${encodeURIComponent(state.list)}.jpg`;
+    image.src = 'art/digests.jpg';
   }
 
   // One digest.
@@ -346,5 +345,6 @@
   });
   window.addEventListener('hashchange', () => { if (token && els.lock.hidden) route(); });
 
+  showArt();
   load();
 })();
