@@ -224,7 +224,7 @@
     const extra = [isPath && i.l && `<a href="${esc(i.l)}" target="_blank" rel="noopener noreferrer">Discography ↗</a>`,
       path && !isPath && `<a href="artist.html?a=${esc(encodeURIComponent(path))}">Artist path →</a>`,
       list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
-      digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}">${digest.read ? 'Reread digest' : 'Read digest'}</a>`].filter(Boolean);
+      digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}" target="_blank" rel="noopener">${digest.read ? 'Reread digest' : 'Read digest'} ↗</a>`].filter(Boolean);
     const step = state.thread && i.th?.[state.thread]?.[1];
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
     const key = esc(itemKey(i)), tagged = pendingTags[list.id]?.[itemKey(i)] || {};
