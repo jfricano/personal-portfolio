@@ -182,6 +182,8 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .ap-head .label a{text-decoration:none}.ap-head .label a:hover{text-decoration:underline}
 .ap-head h1{font-size:clamp(50px,6.8vw,96px);margin:22px 0 26px}
 .ap-head h1 em{color:var(--rust)}
+.ap-name{text-decoration:none}.ap-name:hover,.ap-name:focus-visible{color:var(--rust)}
+.ap-name .al-ext{font-size:.25em;vertical-align:super;opacity:1}
 .ap-head .case-deck{font-size:19px;line-height:1.55}
 .ap-head .case-deck a{color:var(--rust)}
 .ap-head .case-facts{grid-template-columns:repeat(4,minmax(0,1fr));border-top-color:var(--ink)}

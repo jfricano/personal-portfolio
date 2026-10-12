@@ -30,9 +30,11 @@
   let lists = [], list = null, items = [], visible = [];
   let progress = {}, removed = {}, pending = {}, pendingTags = {}, owner = false, picked = false, digestLinks = {}, digestMarks = {};
   // Artists with a listening path (artist.html), by folded name: the path row itself and the artist's other albums link there.
-  let artistPaths = null;
+  // Authors with a reading path (author.html) have no row of their own; every book by them links there instead.
+  let artistPaths = null, authorPaths = null;
   const pathOf = i => (artistPaths && list.id === 'albums' && artistPaths.get(fold(i.f?.includes('path') ? i.t : i.c || ''))) || null;
   const pathFor = i => pathOf(i)?.id;
+  const authorPathFor = i => (authorPaths && list.id === 'books' && authorPaths.get(fold(i.c || ''))?.id) || '';
   // An artist path row is fully heard once every album on its path is heard (published or waiting in this browser);
   // it can't be ticked on its own.
   const pathHeard = p => p.records.filter(r => r.p).every(r => {
@@ -238,7 +240,10 @@
     const href = outside, away = ' target="_blank" rel="noopener noreferrer"', pathHref = path ? `artist.html?a=${encodeURIComponent(path)}` : '';
     const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
     // On an artist's own row the Artist path link sits under the name, where it's easy to find, not with the tags.
-    const pathLink = isPath ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(pathHref)}">${esc(list.flags.path || 'Artist path')} →</a></p>` : '';
+    // A book by an author with a reading path gets an Author path link in the same place.
+    const author = authorPathFor(i);
+    const pathLink = isPath ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(pathHref)}">${esc(list.flags.path || 'Artist path')} →</a></p>`
+      : author ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="author.html?a=${esc(encodeURIComponent(author))}">Author path →</a></p>` : '';
     const tags = (i.f || []).filter(f => visibleFlags.has(f) && !(f === 'path' && isPath)).map(f => filters.has(f)
       ? `<li><button type="button" class="al-tag al-tag-${esc(f)}" data-only="${esc(f)}" title="Show only ${esc(list.flags[f].toLowerCase())}">${esc(list.flags[f])}</button></li>`
       : `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
@@ -405,6 +410,11 @@
     artistPaths = new Map();
     for (const p of paths) for (const name of [p.artist, ...(p.names || [])]) artistPaths.set(fold(name), p);
   }
+  async function loadAuthorPaths() {
+    const paths = await fetch(`${DATA}author-paths.json`).then(r => (r.ok ? r.json() : [])).catch(() => []);
+    authorPaths = new Map();
+    for (const p of paths) for (const name of [p.author, ...(p.names || [])]) authorPaths.set(fold(name), p);
+  }
 
   async function selectList(id, fromUrl) {
     list = lists.find(l => l.id === id) || lists[Math.floor(Math.random() * lists.length)];
@@ -416,13 +426,14 @@
     els.count.textContent = 'Loading the shelves…';
     items = await loadItems(list.id);
     if (list.id === 'albums' && !artistPaths) await loadPaths();
+    if (list.id === 'books' && !authorPaths) await loadAuthorPaths();
     renderControls();
     render();
     writeUrl();
     restoreScroll();
   }
 
-  // Coming back from an artist page (or any page) lands where the visitor left the list, once the shelves are drawn.
+  // Coming back from an artist or author page (or any page) lands where the visitor left the list, once the shelves are drawn.
   const SCROLL_KEY = 'antilibrary-scroll';
   addEventListener('pagehide', () => { try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ href: location.href, y: scrollY })); } catch {} });
   function restoreScroll() {
