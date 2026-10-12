@@ -110,7 +110,7 @@
     document.getElementById(`ap-${key}`).hidden = !open;
   }
 
-  // The author's name goes to their Goodreads page, in a new tab like every outside link.
+  // The name goes to the artist's AllMusic page or the author's Goodreads page, in a new tab like every outside link.
   const nameHtml = p => (web(p.g) ? `<a class="ap-name" href="${esc(p.g)}" target="_blank" rel="noopener noreferrer">${esc(nameOf(p))}<span class="al-ext" aria-hidden="true"> ↗</span></a>` : esc(nameOf(p)));
 
   function showPath(p) {
