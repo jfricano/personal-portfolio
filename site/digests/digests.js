@@ -7,9 +7,12 @@
   const REPO = document.getElementById('main').dataset.repo;
   const TOKEN_KEY = 'digests-token', PENDING_KEY = 'digests-pending-marks';
   const LISTS = { books: 'Books', films: 'Films', tv: 'TV', albums: 'Albums' };
-  const MARKS = { read: ['Digested', 'Mark digested'], deeper: ['Reading in full', 'Read it in full'] };
-  const VERDICTS = { yes: 'Worth reading in full', sample: 'Sample it', enough: 'The digest is enough' };
-  const FILTERS = { unread: 'Not digested yet', read: 'Digested', deeper: 'Reading in full', draft: 'Drafts' };
+  // "In full" means reading a book, watching a film or show, listening to an album.
+  const VERBS = { books: ['Read', 'Reading'], films: ['Watch', 'Watching'], tv: ['Watch', 'Watching'], albums: ['Listen to', 'Listening to'] };
+  const verbs = list => VERBS[list] || VERBS.books;
+  const MARKS = { read: () => ['Digested', 'Mark digested'], deeper: list => [`${verbs(list)[1]} in full`, `${verbs(list)[0]} it in full`] };
+  const VERDICTS = { yes: list => `Worth ${verbs(list)[1].toLowerCase()} in full`, sample: () => 'Sample it', enough: () => 'The digest is enough' };
+  const FILTERS = { unread: 'Not digested yet', read: 'Digested', deeper: 'Read or watch in full', draft: 'Drafts' };
   const $ = id => document.getElementById(id);
   const els = {
     lock: $('dg-lock'), lockForm: $('dg-lock-form'), key: $('dg-key'), unlock: $('dg-unlock'), lockError: $('dg-lock-error'),
@@ -71,7 +74,7 @@
     const lines = [];
     for (const [list, entries] of Object.entries(pending)) for (const [key, fields] of Object.entries(entries)) {
       const [title, creator] = key.split('|');
-      for (const [mark, value] of Object.entries(fields)) lines.push(`- ${value ? MARKS[mark][0] : `Not ${MARKS[mark][0].toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`);
+      for (const [mark, value] of Object.entries(fields)) { const on = MARKS[mark](list)[0]; lines.push(`- ${value ? on : `Not ${on.toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`); }
     }
     const count = pendingCount();
     const body = `${lines.join('\n')}\n\nThe digests page wrote this issue. Submit it to update the marks.\n\n\`\`\`json\n${JSON.stringify(pending)}\n\`\`\`\n`;
@@ -86,15 +89,15 @@
     if (count) els.send.href = issueUrl();
   }
 
-  const markButtons = d => Object.entries(MARKS).map(([mark, [on, off]]) => {
-    const value = markOf(d, mark);
+  const markButtons = d => Object.entries(MARKS).map(([mark, words]) => {
+    const [on, off] = words(d.list), value = markOf(d, mark);
     return `<button type="button" class="al-mark${isUnsent(d, mark) ? ' al-unsent' : ''}" data-mark="${mark}" data-id="${esc(d.id)}" aria-pressed="${Boolean(value)}">${value ? `✓ ${esc(on)}` : esc(off)}</button>`;
   }).join('');
   const tagsFor = d => [
     d.status === 'draft' && '<li class="al-tag dg-tag-draft">Draft</li>',
     d.fringe && '<li class="al-tag dg-tag-fringe">Respectful fringe</li>',
     markOf(d, 'read') && '<li class="al-tag al-tag-done">Digested</li>',
-    markOf(d, 'deeper') && '<li class="al-tag al-tag-start">Reading in full</li>',
+    markOf(d, 'deeper') && `<li class="al-tag al-tag-start">${esc(MARKS.deeper(d.list)[0])}</li>`,
   ].filter(Boolean).join('');
 
   // The list.
@@ -146,7 +149,7 @@
       [LISTS[d.list], d.track].filter(Boolean).join(' · '),
       d.axis && `Style: ${d.axis}`,
       d.neighbor && `Shelf neighbor: ${d.neighbor}`,
-      d.verdict && VERDICTS[d.verdict],
+      d.verdict && VERDICTS[d.verdict]?.(d.list),
       d.minutes && `${d.minutes} min read`,
       (d.updated || d.written) && `Updated ${longDate(d.updated || d.written)}`,
     ].filter(Boolean);
@@ -154,7 +157,7 @@
       `<header class="dg-reader-head"><p class="label">${esc(LISTS[d.list] || 'Digest')}${d.status === 'draft' ? ' · draft' : ''}</p><h2 class="dg-reader-title">${esc(d.title)}</h2>` +
       `${d.creator || d.year ? `<p class="dg-reader-by">${[d.creator, d.year].filter(Boolean).map(esc).join(' · ')}</p>` : ''}` +
       `${d.hook ? `<p class="dg-reader-hook">${esc(d.hook)}</p>` : ''}<ul class="dg-facts">${facts.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` +
-      `<div class="dg-marks">${markButtons(d)}</div>${tagsFor(d) ? `<ul class="al-tags dg-reader-tags">${tagsFor(d)}</ul>` : ''}` +
+      `<div class="dg-marks">${markButtons(d)}</div><ul class="al-tags dg-reader-tags"${tagsFor(d) ? '' : ' hidden'}>${tagsFor(d)}</ul>` +
       `<div class="dg-export"><button type="button" class="al-button al-quiet" data-export="print">Print or save as PDF</button><button type="button" class="al-button al-quiet" data-export="docx">Download Word file</button></div></header>` +
       `<div class="dg-prose">${window.renderDigest(body)}</div>` +
       `<p class="dg-back dg-back-end"><a href="#">← All digests</a> · <a href="../antilibrary/?list=${encodeURIComponent(d.list)}&amp;q=${encodeURIComponent(d.title)}">Find it in the anti-library</a></p>`;
@@ -267,9 +270,10 @@
     const pressed = Boolean(markOf(d, mark));
     button.setAttribute('aria-pressed', pressed);
     button.classList.toggle('al-unsent', isUnsent(d, mark));
-    button.textContent = pressed ? `✓ ${MARKS[mark][0]}` : MARKS[mark][1];
+    const [on, off] = MARKS[mark](d.list);
+    button.textContent = pressed ? `✓ ${on}` : off;
     const tags = button.closest('.al-item, .dg-reader-head')?.querySelector('.al-tags');
-    if (tags) tags.innerHTML = tagsFor(d);
+    if (tags) { tags.innerHTML = tagsFor(d); tags.hidden = !tags.innerHTML; }
     if (!els.browser.hidden) { els.count.textContent = els.count.textContent.replace(/[\d,]+ digested\.$/, `${digests.filter(x => markOf(x, 'read')).length} digested.`); renderOwnerBar(); }
     else renderOwnerBar();
   });

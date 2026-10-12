@@ -45,6 +45,7 @@
 .dg-reader-hook{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.4;color:var(--muted);margin-top:18px}
 .dg-facts{list-style:none;margin:18px 0 16px;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
 .dg-reader-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start;margin-top:14px}
+.dg-reader-tags[hidden]{display:none}
 .dg-export{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 
 .dg-prose{font-size:18px;line-height:1.7}
