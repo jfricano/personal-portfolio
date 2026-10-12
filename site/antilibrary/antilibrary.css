@@ -28,13 +28,14 @@
 .al-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0;
   -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%)}
 .al-art.is-shown img{opacity:1}
-.al-controls{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.4fr) repeat(2,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:0;z-index:4;background:var(--paper);border-bottom:1px solid var(--line)}
+.al-controls{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1.4fr) repeat(2,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:var(--sticky-top,0px);z-index:4;background:var(--paper);border-bottom:1px solid var(--line)}
 .al-controls label.label{display:block;color:var(--muted);margin-bottom:6px}
 .al-controls input[type=search],.al-controls select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fbf8f2;border:1px solid var(--line);border-radius:0;padding:10px 12px;min-height:44px}
 .al-controls select{appearance:none;padding-right:34px;text-overflow:ellipsis;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
 .al-controls input[type=search]{border-color:var(--ink)}
 .al-field[hidden]{display:none}
 
+/* The filter bar pins under the site header; --sticky-top is the pinned header's height (0 when it doesn't pin). */
 /* Filters in use sit beside the count as chips that take themselves off; nothing shows when nothing is narrowed. */
 .al-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-width:0}
 .al-applied{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}

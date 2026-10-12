@@ -436,7 +436,8 @@
       render(); writeUrl();
       // Back to the top of the results, just under the filter bar when it is pinned, so the new chip is in view.
       const controls = $('al-controls'), status = els.count.closest('.al-status');
-      const pinned = getComputedStyle(controls).position === 'sticky' ? controls.offsetHeight : 0;
+      const style = getComputedStyle(controls);
+      const pinned = style.position === 'sticky' ? controls.offsetHeight + (parseFloat(style.top) || 0) : 0;
       scrollTo({ top: status.getBoundingClientRect().top + scrollY - pinned, behavior: 'instant' });
       els.applied.querySelector(`[data-clear=only]`)?.focus({ preventScroll: true });
     }
