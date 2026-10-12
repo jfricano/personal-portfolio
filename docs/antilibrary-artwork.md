@@ -1,6 +1,6 @@
 # Anti-library header art
 
-Each list on `/antilibrary/` shows its illustration small, beside the headline, with the two intro paragraphs underneath. On phones it moves down to the end of the top section, after the note and before the tabs. It changes with the selected tab and crossfades in when its file exists in `site/antilibrary/art/`; a list without a file shows no picture.
+Each list on `/antilibrary/` shows its illustration small, beside the headline, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. It changes with the selected tab and crossfades in when its file exists in `site/antilibrary/art/`; a list without a file shows no picture.
 
 | List   | File         |
 |--------|--------------|
