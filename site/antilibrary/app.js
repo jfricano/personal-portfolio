@@ -2,9 +2,9 @@
 // JSON; the page reads lists.json, one <id>.json per list and progress.json from there (the data-source
 // attribute on <main>), so list changes show up without redeploying this site.
 // Owner mode (turned on by visiting ?owner=on, never linked from the page) adds a mark button
-// to each title and a spreadsheet export. Marks wait in this browser until the owner sends
-// them as one prefilled GitHub issue; a repository workflow applies issues opened by the owner
-// to its progress.json, so GitHub's own sign-in is the permission check and the page holds no secrets.
+// to each title and a spreadsheet export. Marks wait in this browser until the owner saves them as a
+// GitHub issue (opened through the API with the owner's key, or as a prefilled link without one); a
+// repository workflow applies issues opened by the owner to its progress.json.
 (() => {
   const REPO = 'jfricano/anti-lib';
   // Digests live in a private repository; in owner mode, a browser holding the digests page's
@@ -23,7 +23,7 @@
     tabs: $('al-tabs'), q: $('al-q'), shelf: $('al-shelf'), shelfLabel: $('al-shelf-label'), show: $('al-show'), showField: $('al-show-field'),
     thread: $('al-thread'), threadField: $('al-thread-field'), sort: $('al-sort'), count: $('al-count'), applied: $('al-applied'), results: $('al-results'), random: $('al-random'),
     hide: $('al-hide'), hideLabel: $('al-hide-label'), fold: $('al-fold'),
-    owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), send: $('al-send'), sendMarks: $('al-send-marks'), discard: $('al-discard'),
+    owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), save: $('al-save'), send: $('al-send'), sendMarks: $('al-send-marks'), discard: $('al-discard'),
     exportButton: $('al-export'),
   };
   const cache = {};
@@ -373,9 +373,20 @@
     image.src = `art/${encodeURIComponent(list.id)}.jpg`;
   }
 
+  // In owner mode with a key, the published data is read through the GitHub API, which is current the moment a save
+  // lands; the raw files everyone else reads can lag a few minutes behind.
+  async function getData(name) {
+    if (owner && token()) {
+      const response = await github(`${REPO}/contents/data/${name}`, { headers: { Accept: 'application/vnd.github.raw+json' } }).catch(() => null);
+      if (response?.ok) return response.json();
+    }
+    const response = await fetch(`${DATA}${name}`, { cache: 'no-store' });
+    if (!response.ok) throw Error(`${name} could not be loaded`);
+    return response.json();
+  }
   async function loadItems(id) {
     if (!cache[id]) {
-      const data = await fetch(`${DATA}${encodeURIComponent(id)}.json`).then(r => r.json());
+      const data = await getData(`${encodeURIComponent(id)}.json`);
       data.forEach((i, n) => {
         // The data comes from another repository, so only web links are kept.
         for (const key of ['l', 'i']) if (i[key] && !/^https:\/\//.test(i[key])) delete i[key];
@@ -421,57 +432,144 @@
   }
 
   // Owner mode.
-  // GitHub turns away issue links much past 8,000 characters, so a big batch is split into parts that each fit, each
-  // with its own json block; the workflow applies every part on its own. A unit is [line, path into the json, value].
-  const MAX_URL = 7000;
-  function issueLinks(repo, prefix, noun, units, footer) {
+  // Changes wait in this browser until they are saved. With the digests key extended to write issues (Issues: Read
+  // and write on anti-lib and reading-list), Save opens the issues itself through the GitHub API, watches the
+  // workflows close them and reloads the data. Without it, the page falls back to prefilled issue links, split into
+  // parts since GitHub turns away links much past 8,000 characters. A unit is [line, path into the json, value].
+  const MAX_URL = 7000, MAX_BODY = 60000;
+  // A unit counts as sent once its issue is opened, so it isn't sent twice while the site catches up. If the site
+  // still hasn't applied it after SENT_WAIT (a link's issue was never submitted), it's back.
+  const SENT_KEY = 'antilibrary-sent', SAVING_KEY = 'antilibrary-saving', SENT_WAIT = 20 * 60 * 1000;
+  const sentAt = () => Object.fromEntries(Object.entries(store.get(SENT_KEY, {}) || {}).filter(([, at]) => Date.now() - at < SENT_WAIT));
+  const markSent = (ids, on = true) => {
+    const sent = sentAt();
+    for (const id of ids) if (on) sent[id] = Date.now(); else delete sent[id];
+    store.set(SENT_KEY, Object.keys(sent).length ? sent : null);
+  };
+  const partIds = new WeakMap();
+  const SITE_FOOTER = 'The anti-library page wrote this issue. Submit it to update the site.';
+  const MARKS_FOOTER = 'The anti-library page wrote this issue. Submit it to update the marks.';
+  const newIssueUrl = (repo, part) => `https://github.com/${repo}/issues/new?${new URLSearchParams({ title: part.title, body: part.body })}`;
+  function issueParts(repo, prefix, noun, all, footer, tooBig) {
+    const sent = sentAt(), unitId = ([, keys, value]) => JSON.stringify([repo, ...keys, value]);
+    const units = all.filter(u => !sent[unitId(u)]);
     const build = (chunk, part) => {
       const data = {};
       for (const [, keys, value] of chunk) keys.slice(0, -1).reduce((o, k) => (o[k] ??= {}), data)[keys.at(-1)] = value;
       const body = `${chunk.map(u => u[0]).join('\n')}\n\n${footer}\n\n\`\`\`json\n${JSON.stringify(data)}\n\`\`\`\n`;
-      return `https://github.com/${repo}/issues/new?${new URLSearchParams({ title: `${prefix}: update ${chunk.length} ${chunk.length === 1 ? noun : `${noun}s`}${part}`, body })}`;
+      return { repo, title: `${prefix}: update ${chunk.length} ${chunk.length === 1 ? noun : `${noun}s`}${part}`, body, ids: chunk.map(unitId) };
     };
     const parts = [];
     let chunk = [];
     for (const unit of units) {
-      if (chunk.length && build([...chunk, unit], ' (part 10 of 10)').length > MAX_URL) { parts.push(chunk); chunk = []; }
+      if (chunk.length && tooBig(build([...chunk, unit], ' (part 10 of 10)'))) { parts.push(chunk); chunk = []; }
       chunk.push(unit);
     }
     if (chunk.length) parts.push(chunk);
-    return parts.map((c, i) => build(c, parts.length > 1 ? ` (part ${i + 1} of ${parts.length})` : ''));
+    const built = parts.map((c, i) => build(c, parts.length > 1 ? ` (part ${i + 1} of ${parts.length})` : ''));
+    built.waiting = all.length - units.length;
+    return built;
   }
-  // Shows one send button per part, cloning the first for the rest.
-  function setLinks(anchor, urls, label) {
+  // Without a key, a batch goes as one prefilled link. To fit, the issue's json names each title by an 8-character
+  // code (a hash of "title|creator") grouped under its list and value, which the workflows match back against the
+  // list data: {"v":2,"m":{list:{value:codes}},"t":{list:{flag:{"1"|"0":codes}}}}. That holds MAX_LINK_CHANGES
+  // with room to spare; owner mode stops new marks at that count until they're sent.
+  const MAX_LINK_CHANGES = 500, CODE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  function shortKey(key) {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < key.length; i++) { const ch = key.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    let n = 4294967296 * (2097151 & h2) + (h1 >>> 0), code = '';
+    for (let i = 0; i < 8; i++) { code += CODE[n % 64]; n = Math.floor(n / 64); }
+    return code;
+  }
+  function linkPart(repo, prefix, noun, all, footer) {
+    const sent = sentAt(), unitId = ([, keys, value]) => JSON.stringify([repo, ...keys, value]);
+    const units = all.filter(u => !sent[unitId(u)]);
+    if (!units.length) return Object.assign([], { waiting: all.length });
+    const m = {}, t = {}, add = (group, value, key) => { group[value] = (group[value] || '') + shortKey(key); };
+    for (const [, keys, value] of units) {
+      if (keys[0] === 'tags') add(((t[keys[1]] ??= {})[keys[3]] ??= {}), value ? '1' : '0', keys[2]);
+      else if (keys.length === 3) add(((m[keys[0]] ??= {})[keys[2]] ??= {}), String(value), keys[1]);
+      else add((m[keys[0]] ??= {}), String(value), keys[1]);
+    }
+    const tally = {};
+    for (const [line] of units) { const what = line.slice(2, line.indexOf(':')).replace('Remove from the list', 'Removed'); tally[what] = (tally[what] || 0) + 1; }
+    const summary = `${units.length} ${units.length === 1 ? 'change' : 'changes'}: ${Object.entries(tally).map(([what, n]) => `${n} ${what.toLowerCase()}`).join(', ')}.`;
+    const json = `\`\`\`json\n${JSON.stringify({ v: 2, m, ...(Object.keys(t).length ? { t } : {}) })}\n\`\`\`\n`;
+    const title = `${prefix}: update ${units.length} ${units.length === 1 ? noun : `${noun}s`}`;
+    const full = { repo, title, body: `${summary}\n\n${units.map(u => u[0]).join('\n')}\n\n${footer}\n\n${json}`, ids: units.map(unitId) };
+    const part = newIssueUrl(repo, full).length <= MAX_URL ? full : { ...full, body: `${summary}\n\n${footer}\n\n${json}` };
+    // Past the cap, fall back to parts rather than a link GitHub won't open.
+    if (newIssueUrl(repo, part).length > MAX_URL) return issueParts(repo, prefix, noun, all, footer, p => newIssueUrl(repo, p).length > MAX_URL);
+    return Object.assign([part], { waiting: all.length - units.length });
+  }
+  const linkCount = () => {
+    const sent = sentAt();
+    return siteUnits().filter(([, keys, value]) => !sent[JSON.stringify([REPO, ...keys, value])]).length
+      + markUnits().filter(([, keys, value]) => !sent[JSON.stringify([DIGESTS_REPO, ...keys, value])]).length;
+  };
+  // Without a key, owner mode stops at MAX_LINK_CHANGES unsent changes; returns true (and says so) when it's full.
+  function atCap() {
+    if (canSave && token()) return false;
+    if (linkCount() < MAX_LINK_CHANGES) return false;
+    renderOwnerBar();
+    return true;
+  }
+  // Shows one send link per part, cloning the first for the rest.
+  function setLinks(anchor, parts, label) {
     document.querySelectorAll(`[data-part-of="${anchor.id}"]`).forEach(a => a.remove());
-    anchor.hidden = !urls.length;
-    if (!urls.length) return;
+    anchor.hidden = !parts.length;
+    if (!parts.length) return;
     let last = anchor;
-    urls.forEach((url, i) => {
+    parts.forEach((part, i) => {
       const a = i ? anchor.cloneNode() : anchor;
       if (i) { a.removeAttribute('id'); a.dataset.partOf = anchor.id; last.after(a); last = a; }
-      a.href = url;
-      a.textContent = urls.length > 1 ? `${label}, part ${i + 1} of ${urls.length} ↗` : `${label} ↗`;
+      a.href = newIssueUrl(part.repo, part);
+      partIds.set(a, part.ids);
+      a.textContent = parts.length > 1 ? `${label}, part ${i + 1} of ${parts.length} ↗` : `${label} ↗`;
     });
   }
   const nested = data => Object.values(data).reduce((n, entries) => n + Object.values(entries).reduce((m, set) => m + Object.keys(set).length, 0), 0);
   const pendingCount = () => Object.values(pending).reduce((n, marks) => n + Object.keys(marks).length, 0) + nested(pendingTags);
+  const token = () => store.get(DIGESTS_TOKEN_KEY, '');
+  const github = (path, options = {}) => fetch(`https://api.github.com/repos/${path}`, {
+    ...options, cache: 'no-store',
+    headers: { Authorization: `Bearer ${token()}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...options.headers },
+  });
+  let saving = false, saveNote = '', canSave = true;
   function renderOwnerBar() {
     els.ownerBar.hidden = !owner;
     if (!owner) return;
-    const count = pendingCount(), marks = nested(digestPending());
-    els.ownerText.textContent = count || marks
-      ? `${number(count + marks)} ${count + marks === 1 ? 'change is' : 'changes are'} saved in this browser and not yet sent.`
-      : 'Tick titles as you finish them, retag them or remove ones you no longer want, then send the changes to the site.';
-    if (count && marks) els.ownerText.textContent += ' Send both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.';
-    if (count) els.ownerText.textContent += ' Discard brings back anything you removed.';
-    const sends = count ? issueUrls() : [], markSends = marks ? marksIssueUrls() : [];
-    if (sends.length > 1 || markSends.length > 1) els.ownerText.textContent += ' That’s too much for one GitHub issue, so it’s split into parts: send each one.';
-    setLinks(els.send, sends, 'Send changes to the site');
-    setLinks(els.sendMarks, markSends, 'Send digest marks');
-    els.discard.hidden = !count && !marks;
+    const direct = canSave && Boolean(token());
+    const tooBig = direct ? part => part.body.length > MAX_BODY : part => newIssueUrl(part.repo, part).length > MAX_URL;
+    const sends = !pendingCount() ? [] : direct ? issueParts(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER, tooBig) : linkPart(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER);
+    const markSends = !nested(digestPending()) ? [] : direct ? issueParts(DIGESTS_REPO, 'Digests', 'mark', markUnits(), MARKS_FOOTER, tooBig) : linkPart(DIGESTS_REPO, 'Digests', 'mark', markUnits(), MARKS_FOOTER);
+    const units = parts => parts.reduce((n, p) => n + p.ids.length, 0);
+    const count = units(sends), marks = units(markSends), waiting = (sends.waiting || 0) + (markSends.waiting || 0);
+    const words = n => `${number(n)} ${n === 1 ? 'change' : 'changes'}`;
+    const text = [];
+    if (saving) text.push(`Saving ${words(count + marks)}…`);
+    else if (count || marks) text.push(direct ? `${words(count + marks)} not saved yet.` : `${count + marks === 1 ? '1 change is' : `${number(count + marks)} changes are`} saved in this browser and not yet sent.`);
+    if (waiting && !saving) text.push(direct ? `Saved ${words(waiting)}; the site is updating.` : `${words(waiting)} sent and waiting for the site to update, which takes a few minutes.`);
+    if (saveNote) text.push(saveNote);
+    if (!text.length) text.push('Tick titles as you finish them, retag them or remove ones you no longer want, then save.');
+    if (!direct && count && marks) text.push('Send both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.');
+    if ((count || marks) && !saving) text.push('Discard brings back anything you removed.');
+    if (!direct && count + marks >= MAX_LINK_CHANGES) text.push(`Max ${number(MAX_LINK_CHANGES)} changes reached: send these before marking more.`);
+    else if (!direct && count + marks >= MAX_LINK_CHANGES * 0.8) text.push(`${number(count + marks)} of max ${number(MAX_LINK_CHANGES)} changes.`);
+    if (!direct && (sends.length > 1 || markSends.length > 1)) text.push('That’s too much for one GitHub issue, so it’s split into parts: send each one.');
+    els.ownerText.textContent = text.join(' ');
+    els.save.hidden = !direct || (!count && !marks && !saving);
+    els.save.disabled = saving;
+    els.save.textContent = saving ? 'Saving…' : 'Save changes';
+    setLinks(els.send, direct ? [] : sends, 'Send changes to the site');
+    setLinks(els.sendMarks, direct ? [] : markSends, 'Send digest marks');
+    els.discard.hidden = saving || (!pendingCount() && !nested(digestPending()));
   }
   // The same issue the digests page writes, for its own repository's workflow.
-  function marksIssueUrls() {
+  function markUnits() {
     const units = [];
     for (const [id, entries] of Object.entries(digestPending())) for (const [key, fields] of Object.entries(entries)) {
       const [title, creator] = key.split('|');
@@ -480,9 +578,9 @@
         units.push([`- ${value ? on : `Not ${on.toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`, [id, key, mark], value]);
       }
     }
-    return issueLinks(DIGESTS_REPO, 'Digests', 'mark', units, 'The anti-library page wrote this issue. Submit it to update the marks.');
+    return units;
   }
-  function issueUrls() {
+  function siteUnits() {
     const units = [];
     for (const [listId, marks] of Object.entries(pending)) {
       for (const [key, value] of Object.entries(marks)) {
@@ -497,7 +595,70 @@
         for (const [flag, on] of Object.entries(set)) units.push([`- ${on ? meta.flags[flag] : `Not ${meta.flags[flag].toLowerCase()}`}: ${title}${creator ? ` (${creator})` : ''}`, ['tags', listId, key, flag], on]);
       }
     }
-    return issueLinks(REPO, 'Anti-library', 'title', units, 'The anti-library page wrote this issue. Submit it to update the site.');
+    return units;
+  }
+  // Save: one click opens every issue needed (site and digest marks) and then watches them.
+  async function save() {
+    if (saving) return;
+    saving = true; saveNote = '';
+    renderOwnerBar();
+    const tooBig = part => part.body.length > MAX_BODY;
+    const parts = [
+      ...(pendingCount() ? issueParts(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER, tooBig) : []),
+      ...(nested(digestPending()) ? issueParts(DIGESTS_REPO, 'Digests', 'mark', markUnits(), MARKS_FOOTER, tooBig) : []),
+    ];
+    const watched = store.get(SAVING_KEY, []) || [];
+    for (const part of parts) {
+      const response = await github(`${part.repo}/issues`, { method: 'POST', body: JSON.stringify({ title: part.title, body: part.body }) }).catch(() => null);
+      if (!response?.ok) {
+        if (response && [401, 403, 404].includes(response.status)) {
+          canSave = false;
+          saveNote = 'Saving needs the digests key to have Issues set to Read and write on anti-lib and reading-list. Until then, send the changes with the links below.';
+        } else saveNote = 'The save didn’t go through. Check the connection and try again.';
+        break;
+      }
+      const issue = await response.json();
+      watched.push({ repo: part.repo, number: issue.number, ids: part.ids, at: Date.now() });
+      markSent(part.ids);
+      store.set(SAVING_KEY, watched);
+    }
+    saving = false;
+    renderOwnerBar();
+    watchSaves();
+  }
+  // Polls the saved issues: the workflow closes one once it's applied, or comments on it and leaves it open if not.
+  let watchTimer = 0;
+  async function watchSaves() {
+    clearTimeout(watchTimer);
+    const watched = store.get(SAVING_KEY, []) || [];
+    if (!watched.length || !owner || !token()) return;
+    const left = [];
+    let applied = false;
+    for (const s of watched) {
+      const issue = await github(`${s.repo}/issues/${s.number}`).then(r => (r.ok ? r.json() : null)).catch(() => null);
+      if (issue?.state === 'closed') { applied = true; continue; }
+      if (issue && (issue.comments > 0 || Date.now() - s.at > SENT_WAIT)) {
+        markSent(s.ids, false);
+        saveNote = `Some changes couldn’t be applied (issue #${s.number} in ${s.repo.split('/')[1]}). They’re back in the list to save again.`;
+        continue;
+      }
+      left.push(s);
+    }
+    store.set(SAVING_KEY, left.length ? left : null);
+    if (applied) await refreshData();
+    if (!left.length && !saveNote && !pendingCount() && !nested(digestPending())) saveNote = 'All changes saved.';
+    renderOwnerBar();
+    if (left.length) watchTimer = setTimeout(watchSaves, 5000);
+  }
+  // Re-reads the published data (through the API, so it's current) once a save is applied.
+  async function refreshData() {
+    const [done, gone] = await Promise.all(['progress.json', 'removed.json'].map(name => getData(name).catch(() => null)));
+    if (done) progress = done;
+    if (gone) removed = gone;
+    for (const id of Object.keys(cache)) delete cache[id];
+    prunePending();
+    await loadDigests();
+    if (list) { items = await loadItems(list.id); renderControls(); render(); }
   }
   function setOwner(on) {
     owner = on;
@@ -516,6 +677,16 @@
       if (!index.ok) return;
       const marked = marks.ok ? await marks.json() : {};
       digestLinks = {}; digestMarks = marked;
+      // Waiting marks the published ones already match have been saved.
+      const waiting = digestPending();
+      for (const [id, entries] of Object.entries(waiting)) {
+        for (const [key, fields] of Object.entries(entries)) {
+          for (const [mark, value] of Object.entries(fields)) if (Boolean(marked[id]?.[key]?.[mark]) === Boolean(value)) delete fields[mark];
+          if (!Object.keys(fields).length) delete entries[key];
+        }
+        if (!Object.keys(entries).length) delete waiting[id];
+      }
+      store.set(DIGEST_MARKS_KEY, Object.keys(waiting).length ? waiting : null);
       for (const d of await index.json()) {
         if (d.status !== 'ready' || !/^[a-z0-9-]+$/.test(d.slug || '')) continue;
         (digestLinks[d.list] ??= {})[d.key] = { id: `${d.list}/${d.slug}` };
@@ -556,7 +727,7 @@
   }
   els.results.addEventListener('click', event => {
     const button = event.target.closest('.al-remove');
-    if (!button || !owner) return;
+    if (!button || !owner || atCap()) return;
     const key = button.dataset.key, item = items.find(i => itemKey(i) === key);
     const article = button.closest('.al-item');
     (pending[list.id] ??= {})[key] = REMOVE;
@@ -580,6 +751,7 @@
   els.results.addEventListener('change', event => {
     const box = event.target.closest('.al-owner-actions input');
     if (!box || !owner) return;
+    if (atCap()) { box.checked = !box.checked; return; }
     const key = box.dataset.key, flag = box.dataset.flag, item = items.find(i => itemKey(i) === key);
     if (flag.startsWith('digest:')) {
       setDigestMark(item, flag.slice(7), box.checked);
@@ -639,8 +811,17 @@
       els.exportButton.textContent = 'Export spreadsheet';
     }
   });
+  // A send button opens its issue in a new tab; this tab then counts that part as sent.
+  els.ownerBar.addEventListener('click', e => {
+    const ids = partIds.get(e.target.closest('a'));
+    if (!ids) return;
+    markSent(ids);
+    setTimeout(renderOwnerBar, 500);
+  });
+  els.save.addEventListener('click', save);
   els.discard.addEventListener('click', () => {
     pending = {}; pendingTags = {};
+    store.set(SENT_KEY, null);
     store.set(PENDING_KEY, null);
     store.set(DIGEST_MARKS_KEY, null);
     Object.keys(cache).forEach(applyTags);
@@ -740,11 +921,11 @@
   opened = Object.fromEntries(Object.entries(store.get(OPENED_KEY, {}) || {}).filter(([, v]) => Array.isArray(v)).map(([id, v]) => [id, new Set(v)]));
   Promise.all([
     fetch(`${DATA}lists.json`).then(r => r.json()),
-    fetch(`${DATA}progress.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
-    fetch(`${DATA}removed.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
+    getData('progress.json').catch(() => ({})),
+    getData('removed.json').catch(() => ({})),
   ]).then(([data, done, gone]) => {
     lists = data.filter(l => /^https:\/\//.test(l.search));
     lists.forEach(l => { if (l.listen && !/^https:\/\//.test(l.listen)) delete l.listen; });
-    progress = done; removed = gone; prunePending(); loadDigests(); return selectList(state.list, true);
+    progress = done; removed = gone; prunePending(); loadDigests(); watchSaves(); return selectList(state.list, true);
   }).catch(() => { els.count.textContent = 'The shelves could not be loaded. Try refreshing the page.'; });
 })();
