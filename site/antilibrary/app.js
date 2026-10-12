@@ -236,9 +236,9 @@
     const outside = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
     const href = isPath ? `artist.html?a=${encodeURIComponent(path)}` : outside, away = isPath ? '' : ' target="_blank" rel="noopener noreferrer"';
     const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
-    const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => f === 'path' && isPath
-      ? `<li><a class="al-tag al-tag-path" href="${esc(href)}">${esc(list.flags[f])} →</a></li>`
-      : filters.has(f)
+    // On an artist's own row the Artist path link sits under the name, where it's easy to find, not with the tags.
+    const pathLink = isPath ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(href)}">${esc(list.flags.path || 'Artist path')} →</a></p>` : '';
+    const tags = (i.f || []).filter(f => visibleFlags.has(f) && !(f === 'path' && isPath)).map(f => filters.has(f)
       ? `<li><button type="button" class="al-tag al-tag-${esc(f)}" data-only="${esc(f)}" title="Show only ${esc(list.flags[f].toLowerCase())}">${esc(list.flags[f])}</button></li>`
       : `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
     const digest = owner ? digestLinks[list.id]?.[itemKey(i)] : null;
@@ -256,7 +256,7 @@
     const toggle = (flag, text, on, unsent, attrs = '') => `<label class="al-toggle${unsent ? ' al-unsent' : ''}"${attrs}>` +
       `<input type="checkbox" data-key="${key}" data-flag="${flag}"${on ? ' checked' : ''}${attrs ? ' disabled' : ''}><span>${esc(text)}</span></label>`;
     const marks = (digest && digestCounts(list.id) ? toggle('digest:read', 'Digested', markOf(i, 'read'), markUnsent(i, 'read')) : '') +
-      toggle(digest ? 'digest:deeper' : '', fullyLabel(list.id), isFully(i), digest ? markUnsent(i, 'deeper') : pendingFor(i) !== undefined,
+      toggle(digest ? 'digest:deeper' : '', isPath ? `${fullyLabel(list.id)}, from the path` : fullyLabel(list.id), isFully(i), digest ? markUnsent(i, 'deeper') : pendingFor(i) !== undefined,
         isPath ? ' title="Ticks itself when every album on the path is heard"' : i.d ? ' title="Marked in the source list"' : '');
     // Progress (Digested, Fully read) comes first; the few tags owner mode can change (list.toggles, Formative on
     // books) follow behind a rule. Every other tag is edited in the source lists.
@@ -266,7 +266,7 @@
       `<button type="button" class="al-remove" data-key="${key}">Remove</button></div>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}"${away} tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
-      `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}"${away}${i.l || isPath ? '' : ' title="Search for this title"'}>${esc(i.t)}${isPath ? '' : '<span class="al-ext" aria-hidden="true"> ↗</span>'}</a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${genres}${more}${mark}</div>` +
+      `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}"${away}${i.l || isPath ? '' : ' title="Search for this title"'}>${esc(i.t)}${isPath ? '' : '<span class="al-ext" aria-hidden="true"> ↗</span>'}</a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${pathLink}${genres}${more}${mark}</div>` +
       `<div class="al-item-body">${step ? `<p class="al-step">${esc(step)}</p>` : ''}${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
   }
