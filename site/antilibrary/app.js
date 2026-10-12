@@ -247,9 +247,12 @@
       `<input type="checkbox" data-key="${key}" data-flag="${flag}"${on ? ' checked' : ''}${attrs ? ' disabled' : ''}><span>${esc(text)}</span></label>`;
     const marks = (digest && digestCounts(list.id) ? toggle('digest:read', 'Digested', markOf(i, 'read'), markUnsent(i, 'read')) : '') +
       toggle(digest ? 'digest:deeper' : '', fullyLabel(list.id), isFully(i), digest ? markUnsent(i, 'deeper') : pendingFor(i) !== undefined, i.d ? ' title="Marked in the source list"' : '');
-    const mark = owner ? `<span class="al-owner-actions">${marks}` +
-      (list.toggles || []).map(flag => toggle(esc(flag), list.flags[flag], i.f?.includes(flag), flag in tagged)).join('') +
-      `<button type="button" class="al-remove" data-key="${key}">Remove</button></span>` : '';
+    // Progress (Digested, Fully read) comes first; the few tags owner mode can change (list.toggles, Formative on
+    // books) follow behind a rule. Every other tag is edited in the source lists.
+    const tagBoxes = (list.toggles || []).map(flag => toggle(esc(flag), list.flags[flag], i.f?.includes(flag), flag in tagged)).join('');
+    const mark = owner ? `<div class="al-owner-actions"><span class="al-owner-group" role="group" aria-label="Progress">${marks}</span>` +
+      (tagBoxes ? `<span class="al-owner-group al-owner-tags" role="group" aria-label="Tags">${tagBoxes}</span>` : '') +
+      `<button type="button" class="al-remove" data-key="${key}">Remove</button></div>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}"${away} tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}"${away}${i.l || isPath ? '' : ' title="Search for this title"'}>${esc(i.t)}${isPath ? '' : '<span class="al-ext" aria-hidden="true"> ↗</span>'}</a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${genres}${more}${mark}</div>` +
