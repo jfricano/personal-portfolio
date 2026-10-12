@@ -1,7 +1,8 @@
 # Anti-library illustration set
 
-Four original AI-generated gouache illustrations, made with the built-in image-generation tool. The initial set used `artwork/attention-still-life.png` as the style reference; the TV addition used `films.png` from this set. The compositions are symbolic rather than depictions of Jason’s actual possessions.
+Five original AI-generated gouache illustrations, made with the built-in image-generation tool. The initial set used `artwork/attention-still-life.png` as the style reference; the TV addition used `films.png` from this set. The compositions are symbolic rather than depictions of Jason’s actual possessions.
 
+- `general.png`: combined books, record, television and film reel for the general landing view. See [prompt and provenance](general-prompt.md); delivery is `site/antilibrary/art/general.jpg`.
 - `books.png`: unread books and a ribbon bookmark.
 - `films.png`: reel, canister, film strip and lavender light.
 - `albums.png`: record, sleeves and a rhythmic ribbon.
