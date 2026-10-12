@@ -194,13 +194,13 @@
     els.results.innerHTML = html;
   }
 
-  // Each list's illustration lives at art/<list id>.jpg and sits beside the tabs; a list without one shows no
-  // picture. On phones the picture moves up between the two intro paragraphs, where it reads better.
+  // Each list's illustration lives at art/<list id>.jpg and sits beside the headline; a list without one shows no
+  // picture. On phones the picture moves down between the two intro paragraphs, where it reads better.
   const narrow = matchMedia('(max-width: 700px)');
   function placeArt() {
     const figure = $('al-art');
     if (narrow.matches) $('al-intro-body').querySelector('.al-intro-note').before(figure);
-    else $('al-tabs').after(figure);
+    else $('al-intro-head').after(figure);
   }
   narrow.addEventListener('change', placeArt);
   placeArt();
