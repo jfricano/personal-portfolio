@@ -168,3 +168,41 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:1000px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:700px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:1fr 1fr;grid-auto-flow:dense}#al-thread-field{grid-column:1/-1}}
 @media(max-width:380px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:1fr}}
+
+/* Artist paths (artist.html): a door, the listening order, then every record by year with the skipped ones muted. */
+.ap-head{padding:55px 0 50px}
+.ap-head .label a{text-decoration:none}.ap-head .label a:hover{text-decoration:underline}
+.ap-head h1{font-size:clamp(50px,6.8vw,96px);margin:22px 0 26px}
+.ap-head h1 em{color:var(--rust)}
+.ap-head .case-deck{font-size:19px;line-height:1.55}
+.ap-head .case-deck a{color:var(--rust)}
+.ap-section{border-top:1px solid var(--ink);padding-bottom:30px}
+.ap-section h2{display:flex;align-items:baseline;gap:16px;font-size:clamp(30px,3.4vw,44px);margin:26px 0 6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.ap-section h2 .index{font-size:20px;letter-spacing:0}
+.ap-steps{list-style:none;margin:0;padding:0}
+.ap-num{font-size:30px;line-height:1;margin-bottom:6px}
+.ap-step{scroll-margin:calc(var(--masthead-h) + 30px)}
+.ap-tag-door{color:var(--rust);border-color:var(--rust);font-weight:600}
+.ap-lede{color:var(--muted);font-size:15px;margin:14px 0 8px;max-width:640px}
+.ap-timeline{list-style:none;margin:0;padding:0}
+.ap-row{display:grid;grid-template-columns:64px minmax(0,1fr) 90px;gap:4px 28px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line)}
+.ap-year{font-family:var(--serif);font-style:italic;color:var(--rust);font-size:18px}
+.ap-title{font-family:var(--serif);font-size:20px;letter-spacing:-.02em;line-height:1.25}
+.ap-title a{text-decoration:none}.ap-title a:hover{text-decoration:underline}
+.ap-credit{font-family:var(--sans);font-size:12px;letter-spacing:0;color:var(--muted)}
+.ap-why{font-size:14px;color:var(--muted);margin-top:3px;max-width:720px}
+.ap-mark{justify-self:end;font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--ink);white-space:nowrap;text-decoration:none}
+a.ap-mark:hover{border-color:var(--rust);color:var(--rust)}
+.ap-skipped .ap-year,.ap-skipped .ap-title{color:var(--muted)}
+.ap-skipped .ap-mark{border-color:var(--line);color:var(--muted)}
+.ap-index{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink);columns:2 360px;column-gap:48px}
+.ap-index li{break-inside:avoid;border-bottom:1px solid var(--line)}
+.ap-index a{display:block;padding:14px 0;text-decoration:none}
+.ap-index-name{display:block;font-family:var(--serif);font-size:24px;letter-spacing:-.03em}
+.ap-index-door{display:block;font-size:13px;color:var(--muted)}
+.ap-index a:hover .ap-index-name{color:var(--rust)}
+/* On the list, an artist's path is a link rather than a filter. */
+a.al-tag-path{text-decoration:none}
+a.al-tag-path:hover{border-color:var(--rust);color:var(--rust)}
+@media(max-width:700px){.ap-head{padding:35px 0 36px}.ap-head h1{font-size:clamp(46px,12vw,59px)}.ap-head .case-deck{font-size:17px}
+.ap-row{grid-template-columns:48px minmax(0,1fr);gap:4px 14px}.ap-mark{grid-column:2;justify-self:start}.ap-title{font-size:18px}}

@@ -23,6 +23,9 @@
   const cache = {};
   let lists = [], list = null, items = [], visible = [];
   let progress = {}, removed = {}, pending = {}, pendingTags = {}, owner = false, picked = false, digestLinks = {};
+  // Artists with a listening path (artist.html), by folded name: the path row itself and the artist's other albums link there.
+  let artistPaths = null;
+  const pathFor = i => artistPaths && list.id === 'albums' && artistPaths.get(fold(i.f?.includes('path') ? i.t : i.c || ''));
   // Shelves start folded, so a list opens as its table of contents. Shelves opened while browsing are remembered in
   // this browser per list; while a search, shelf or filter is on, every shelf with matches opens instead, and folds
   // made then last only until the filters change.
@@ -202,19 +205,25 @@
     if ((state.sort !== 'shelf' || state.thread) && i.s) where.push(splitShelf(i.s)[1]);
     if (i.u) where.push(i.u);
     const done = isDone(i);
+    const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
+    const path = pathFor(i), isPath = Boolean(path && i.f?.includes('path'));
+    const outside = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
+    const href = isPath ? `artist.html?a=${encodeURIComponent(path)}` : outside, away = isPath ? '' : ' target="_blank" rel="noopener noreferrer"';
     const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
-    const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => filters.has(f)
+    const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => f === 'path' && isPath
+      ? `<li><a class="al-tag al-tag-path" href="${esc(href)}">${esc(list.flags[f])} →</a></li>`
+      : filters.has(f)
       ? `<li><button type="button" class="al-tag al-tag-${esc(f)}" data-only="${esc(f)}" title="Show only ${esc(list.flags[f].toLowerCase())}">${esc(list.flags[f])}</button></li>`
       : `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
     if (done) tags.push(`<li class="al-tag al-tag-done">${esc(list.doneLabel)}</li>`);
     const digest = owner ? digestLinks[list.id]?.[itemKey(i)] : null;
     if (digest?.read) tags.push('<li class="al-tag al-tag-digested">Digested</li>');
     if (digest?.deeper) tags.push(`<li class="al-tag al-tag-deeper">${{ films: 'Watching', tv: 'Watching', albums: 'Listening to' }[list.id] || 'Reading'} in full</li>`);
-    const suffix = i.f && i.f.includes('path') ? '' : list.searchSuffix;
-    const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, suffix].filter(Boolean).join(' '))}`;
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
-    const extra = [list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
+    const extra = [isPath && i.l && `<a href="${esc(i.l)}" target="_blank" rel="noopener noreferrer">Discography ↗</a>`,
+      path && !isPath && `<a href="artist.html?a=${esc(encodeURIComponent(path))}">Artist path →</a>`,
+      list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
       digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}">${digest.read ? 'Reread digest' : 'Read digest'}</a>`].filter(Boolean);
     const step = state.thread && i.th?.[state.thread]?.[1];
     const more = extra.length ? `<p class="al-more">${extra.join('')}</p>` : '';
@@ -225,8 +234,8 @@
       (list.toggles || []).map(flag => toggle(esc(flag), list.flags[flag], i.f?.includes(flag), flag in tagged)).join('') +
       `<button type="button" class="al-remove" data-key="${key}">Remove</button></span>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
-      `<a class="al-cover" href="${esc(href)}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
-      `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}" target="_blank" rel="noopener noreferrer"${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${genres}${more}${mark}</div>` +
+      `<a class="al-cover" href="${esc(href)}"${away} tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
+      `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}"${away}${i.l || isPath ? '' : ' title="Search for this title"'}>${esc(i.t)}${isPath ? '' : '<span class="al-ext" aria-hidden="true"> ↗</span>'}</a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${genres}${more}${mark}</div>` +
       `<div class="al-item-body">${step ? `<p class="al-step">${esc(step)}</p>` : ''}${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
   }
@@ -349,6 +358,12 @@
     return cache[id];
   }
 
+  async function loadPaths() {
+    const paths = await fetch(`${DATA}paths.json`).then(r => (r.ok ? r.json() : [])).catch(() => []);
+    artistPaths = new Map();
+    for (const p of paths) for (const name of [p.artist, ...(p.names || [])]) artistPaths.set(fold(name), p.id);
+  }
+
   async function selectList(id, fromUrl) {
     list = lists.find(l => l.id === id) || lists[Math.floor(Math.random() * lists.length)];
     if (!fromUrl || lists.some(l => l.id === id)) picked = true;
@@ -358,6 +373,7 @@
     els.results.dataset.cover = list.cover || 'tall';
     els.count.textContent = 'Loading the shelves…';
     items = await loadItems(list.id);
+    if (list.id === 'albums' && !artistPaths) await loadPaths();
     renderControls();
     render();
     writeUrl();
