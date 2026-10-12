@@ -34,6 +34,16 @@ The static output excludes local workflow documents, artwork provenance notes an
 
 See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for scope and evidence. GitHub Pages hosting is configured by the workflow below. Pending feature changes follow the recorded acceptance and merge process. Other static hosts must be configured to use `404.html` for missing pages.
 
+## Anti-library
+
+`site/antilibrary/` is an unlisted, searchable page of the books, films and albums Jason hasn’t gotten to yet, served at `/antilibrary/`. This repository holds only the page: markup, styles, search, sort and filter, owner mode and the header art slot. The lists, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib).
+
+The page fetches `lists.json`, one `<id>.json` per list and `progress.json` from `https://raw.githubusercontent.com/jfricano/anti-lib/main/data/` (the `data-source` attribute on `<main>`), so list changes and finished titles show up without redeploying this site. Search, filters and sort are kept in the URL, so a filtered view can be shared as a link. Links from the data are only used if they are `https:`.
+
+**Owner mode** is not linked anywhere: open `/antilibrary/?owner=on` once and the browser remembers it (Leave owner mode turns it off). It adds a mark button to each title and an **Export spreadsheet** button that downloads every list, with status and finish dates, as one XLSX (SheetJS, vendored in `site/antilibrary/vendor/` and loaded only on export). Marks wait in that browser until **Send changes to the site** opens a prefilled issue in jfricano/anti-lib, whose workflow applies issues Jason opens. The page holds no credentials.
+
+Header art: `site/antilibrary/art/<list>.jpg`, specs in `docs/antilibrary-artwork.md`.
+
 ## License
 
 This personal website is open source under the [MIT License](LICENSE).

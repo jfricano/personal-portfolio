@@ -37,3 +37,11 @@ Owner requested swapping iYosi and StatBatt: StatBatt becomes selected-work entr
 ## StatBatt case study — October 2, 2026
 
 Owner requested a full StatBatt case study using the existing visual language. Include a grounded narrative, principal technologies, illustrative landing screenshot, design/implementation decisions and explicit local-candidate status. Link from featured entry C in the same tab; external landing links open separately. Proprietary code remains unlinked. Prepare a new review PR because #10 is merged; owner retains acceptance/merge.
+
+## Anti-library — October 11, 2026
+
+Jason asked for a responsive page for his anti-library (books, films, later albums) with search, sort and filter, reachable on his site but not linked from it, and open to sharing. Implemented at `/antilibrary/` like `/moreprojects/`: no homepage or navigation link, noindex and out of the sitemap. Data is generated from the project lists by `scripts/antilibrary-import.mjs`, so new lists drop in as data. Prepared as a review PR; merge and deployment stay with Jason.
+
+Follow-ups the same day: titles link to Open Library or Wikipedia pages with covers from keyless public sources; albums (Popular and Frontiers) joined books and films; finished titles stay listed but struck through, marked by Jason in owner mode and saved through a GitHub issue that only the repository owner can apply.
+
+Split the same day at Jason's request: the anti-library becomes its own project in jfricano/anti-lib, which holds the lists, importer, lookups and progress workflow. This site keeps only the page view, which reads the data from that repository's main branch at load time. Merge jfricano/anti-lib first, then this PR.

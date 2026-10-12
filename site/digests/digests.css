@@ -1,0 +1,74 @@
+/* The private digests shelf, built on the anti-library's components (antilibrary.css). */
+.dg-intro{padding-bottom:40px}
+.dg-intro .case-deck{max-width:760px}
+
+.dg-lock{border-top:1px solid var(--ink);padding:44px 0 20px;max-width:640px}
+.dg-lock h2{font-size:clamp(32px,3.6vw,46px);margin-bottom:14px}
+.dg-lock>p{color:var(--muted);font-size:16px}
+.dg-lock-form{margin-top:26px}
+.dg-lock-form .label{display:block;color:var(--muted);margin-bottom:6px}
+.dg-lock-row{display:flex;gap:10px}
+.dg-lock-row input{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--ink);background:#fbf8f2;border:1px solid var(--ink);border-radius:0;padding:10px 12px;min-height:44px}
+.dg-lock-row input:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
+.dg-lock-row .al-button{min-height:44px}
+.dg-error{color:var(--rust);font-size:14px;margin-top:10px;min-height:1.5em}
+.dg-help{font-size:13px;color:var(--muted);margin-top:8px}
+
+.dg-controls{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.dg-count{font-size:14px;color:var(--muted);padding:18px 0 6px}
+.dg-item{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"head body tags"}
+.dg-item h3 a{text-decoration:none}
+.dg-item h3 a:hover{text-decoration:underline;color:var(--rust)}
+.dg-marks{display:flex;flex-wrap:wrap;gap:8px}
+.dg-read h3 a{color:var(--muted)}
+.dg-tag-draft{border-style:dashed;color:var(--muted)}
+.dg-tag-fringe{background:var(--lavender);border-color:var(--lavender)}
+.dg-tag-fringe:before{content:'🌀 '}
+
+.dg-queue{margin-top:56px;border-top:1px solid var(--ink);padding-top:22px}
+.dg-queue h2{font-size:clamp(28px,3vw,38px);margin-bottom:12px}
+.dg-queue ol{margin:0;padding-left:1.4em;display:grid;gap:10px;max-width:760px}
+.dg-queue li::marker{color:var(--rust);font-family:var(--serif)}
+.dg-queue-title{font-family:var(--serif);font-size:19px}
+.dg-queue-by{font-size:14px;color:var(--muted)}
+.dg-queue-why{display:block;font-size:13px;color:var(--muted)}
+
+.dg-reader{max-width:760px;margin:0 auto;padding:34px 0 90px}
+.dg-reader:focus{outline:none}
+.dg-back{font-size:14px}
+.dg-back a{color:var(--muted)}
+.dg-back-end{margin-top:56px;padding-top:18px;border-top:1px solid var(--line)}
+.dg-reader-head{padding:30px 0 30px;border-bottom:1px solid var(--ink);margin-bottom:12px}
+.dg-reader-head .label{color:var(--rust)}
+.dg-reader-title{font-size:clamp(44px,6vw,78px);margin:14px 0 10px}
+.dg-reader-by{font-size:17px}
+.dg-reader-hook{font-family:var(--serif);font-style:italic;font-size:21px;line-height:1.4;color:var(--muted);margin-top:18px}
+.dg-facts{list-style:none;margin:18px 0 16px;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.dg-reader-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start;margin-top:14px}
+
+.dg-prose{font-size:18px;line-height:1.7}
+.dg-prose h3{font-family:var(--serif);font-weight:400;font-size:clamp(30px,3.4vw,40px);letter-spacing:-.055em;line-height:1.05;margin:52px 0 16px;padding-top:16px;border-top:1px solid var(--line)}
+.dg-prose h4{font-family:var(--serif);font-weight:400;font-size:24px;letter-spacing:-.02em;margin:34px 0 10px}
+.dg-prose h5,.dg-prose h6{font-size:15px;font-weight:600;letter-spacing:.02em;margin:26px 0 8px}
+.dg-prose p,.dg-prose ul,.dg-prose ol,.dg-prose blockquote{margin:0 0 16px}
+.dg-prose ul,.dg-prose ol{padding-left:1.3em}
+.dg-prose li{margin-bottom:8px}
+.dg-prose li>ul,.dg-prose li>ol{margin:8px 0 0}
+.dg-prose li::marker{color:var(--rust)}
+.dg-prose strong{font-weight:600}
+.dg-prose blockquote{font-family:var(--serif);font-size:20px;line-height:1.55;border-left:2px solid var(--rust);padding:2px 0 2px 22px;margin-left:0;color:var(--ink)}
+.dg-prose blockquote p:last-child{margin-bottom:0}
+.dg-prose hr{border:0;border-top:1px solid var(--line);margin:36px 0}
+.dg-prose code{font-size:.88em;background:#ebe3d5;padding:1px 5px}
+.dg-prose a{color:var(--rust)}
+.dg-video{margin:4px 0 22px}
+.dg-video-frame{position:relative;aspect-ratio:16/9;background:#e6dccb}
+.dg-video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+@media(max-width:1000px){.dg-item{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);grid-template-areas:"head body" ". tags"}}
+@media(max-width:700px){
+.dg-controls{grid-template-columns:1fr}
+.dg-lock-row{flex-direction:column}
+.dg-item{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "body" "tags"}
+.dg-reader{padding-top:22px}.dg-prose{font-size:17px}.dg-prose blockquote{font-size:18px;padding-left:16px}
+}
