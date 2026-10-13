@@ -13,7 +13,7 @@ The page shows one combined still life, `site/antilibrary/art/general.jpg`, besi
 - **Format:** JPEG, sRGB. The page's paper color is `#f5f0e7`, and the image is multiplied onto it, so a cream background blends in.
 - **No text in the image**, since the list name is already in the tab above it.
 
-Originals and generation prompts are in `artwork/antilibrary/`. To replace an image, put the new file in `site/antilibrary/art/` and open a PR; nothing else needs to change.
+Originals and generation prompts are in `artwork/antilibrary/`. To replace an image, put the new file in `site/antilibrary/art/`, run `python3 scripts/art-sizes.py` (needs Pillow) to remake its smaller copies, and open a PR. The page loads those copies (`<name>-480.jpg` by the tabs, `general-960.jpg` and `general-1536.jpg` beside the headline, `lavender-thread-600.jpg` by a thread), which are a tenth to half the size of the originals; `npm run check` fails until they match the new original.
 
 ## Where each image is used
 

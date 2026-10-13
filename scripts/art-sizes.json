@@ -1,0 +1,39 @@
+{
+  "antilibrary/art/books.jpg": {
+    "sha256": "1f24347ca6f4d9613961b7e346841eb421447240c577025e0995cb947e92142f",
+    "widths": [
+      480
+    ]
+  },
+  "antilibrary/art/films.jpg": {
+    "sha256": "4731d006c19ac8d60c32366420e1f23ca4b58379b1cde1560d4de3d7b9a158eb",
+    "widths": [
+      480
+    ]
+  },
+  "antilibrary/art/tv.jpg": {
+    "sha256": "8bb4865b9c4bbcd54f5197759c3f7a4f320e5b0b2161d4f2d4dedbaf42a21959",
+    "widths": [
+      480
+    ]
+  },
+  "antilibrary/art/albums.jpg": {
+    "sha256": "12eb3f7520943356eb07da2e0a7d107e86895308be9fe0c81a2d4bbbfb7bdcc1",
+    "widths": [
+      480
+    ]
+  },
+  "antilibrary/art/general.jpg": {
+    "sha256": "2c5f8c6bc390975f3e4aed7b8ba75ade58e3cea83bbb41c5043e3fee2b36111c",
+    "widths": [
+      960,
+      1536
+    ]
+  },
+  "assets/lavender-thread.jpg": {
+    "sha256": "a2263b727b7355085305304b3889f6ad1d58ed9c3ba986dbfeba8e172ac1ea40",
+    "widths": [
+      600
+    ]
+  }
+}

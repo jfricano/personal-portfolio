@@ -1,4 +1,5 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { build, root } from './build.mjs';
 await build();
@@ -35,5 +36,13 @@ for (const file of pages) {
     if (!/\balt=/.test(tag)) throw Error(`${name}: image missing alternative text`);
     checks++;
   }
+}
+// The smaller copies of the page art must come from the current originals (python3 scripts/art-sizes.py remakes them).
+const sizes = JSON.parse(await readFile(path.join(root, 'scripts', 'art-sizes.json'), 'utf8'));
+for (const [name, { sha256, widths }] of Object.entries(sizes)) {
+  const source = path.join(root, 'site', name);
+  if (createHash('sha256').update(await readFile(source)).digest('hex') !== sha256) throw Error(`site/${name} changed: run python3 scripts/art-sizes.py to remake its smaller copies`);
+  for (const width of widths) await stat(source.replace(/\.jpg$/, `-${width}.jpg`));
+  checks++;
 }
 console.log(`Passed ${checks} local references, anchors, and image alternatives across ${pages.length} pages; H1, main, language, viewport, and unique IDs checked.`);

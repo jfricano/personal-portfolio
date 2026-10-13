@@ -346,6 +346,45 @@
       (finished ? `, ${number(finished)} crossed off.` : '.');
   }
 
+  // Drawing. A list runs to 1,500 titles, and drawing every one on each keystroke or click (folded shelves included)
+  // froze the page for seconds on a phone. So a folded shelf's titles are drawn only when it opens, and an open view
+  // draws its first screenful at once and the rest in small batches between frames, so typing and clicking never
+  // wait on titles far down the page. Each list of rows is kept by its container's id until it's drawn.
+  const FIRST = 40, BATCH = 80;
+  const rowsFor = new Map();
+  let queue = [], queueTimer = 0, budget = FIRST;
+  // By creator, each new name starts under a heavier rule; there are too many one-title creators for headings.
+  const rowHtml = (i, n, rows) => (owner && isRemoving(i) ? '' : state.sort === 'creator' && !state.thread && n && rows[n - 1]._c !== i._c
+    ? itemHtml(i).replace('<article class="al-item', '<article class="al-item al-creator-start') : itemHtml(i));
+  function drawRows(container) {
+    const rows = rowsFor.get(container.id);
+    if (!rows || container.dataset.drawn) return;
+    container.dataset.drawn = '1';
+    const now = Math.min(rows.length, budget);
+    budget -= now;
+    container.innerHTML = rows.slice(0, now).map((i, n) => rowHtml(i, n, rows)).join('');
+    if (now < rows.length) { queue.push({ container, rows, at: now }); queueTimer ||= setTimeout(drain, 0); }
+  }
+  function drain(limit = BATCH) {
+    queueTimer = 0;
+    while (queue.length && limit > 0) {
+      const job = queue[0], n = Math.min(limit, job.rows.length - job.at);
+      if (job.container.isConnected) job.container.insertAdjacentHTML('beforeend', job.rows.slice(job.at, job.at + n).map((i, k) => rowHtml(i, job.at + k, job.rows)).join(''));
+      job.at += n; limit -= n;
+      if (job.at >= job.rows.length || !job.container.isConnected) queue.shift();
+    }
+    if (queue.length) queueTimer = setTimeout(drain, 0);
+  }
+  // Draws whatever is still waiting until the title is on the page (Pick one for me lands on it).
+  function drawUntil(i) {
+    while (queue.length && !$(`item-${i._id}`)) drain();
+  }
+  function startDrawing() {
+    clearTimeout(queueTimer);
+    queue = []; queueTimer = 0; budget = FIRST;
+    rowsFor.clear();
+  }
+
   function render() {
     filter();
     updateCount();
@@ -354,6 +393,7 @@
     els.random.disabled = !visible.length;
     foldedNow = new Set();
     renderOwnerBar();
+    startDrawing();
     els.fold.hidden = !visible.length || state.sort !== 'shelf' || state.shelves.length === 1 || Boolean(state.thread);
     if (!visible.length) {
       els.results.innerHTML = `<div class="al-empty"><p>Nothing on these shelves matches. Try fewer words, or start over.</p><button type="button" class="al-button al-quiet" data-clear="all">Clear all filters</button></div>`;
@@ -363,14 +403,15 @@
       const thread = threadOf(state.thread);
       els.results.innerHTML = `<header class="al-thread-head"><div class="al-thread-text"><p class="label">Thread · ${number(thread.count)} stops</p><h2>${esc(thread.name)}</h2>` +
         `${thread.why ? `<p>${esc(thread.why)}</p>` : ''}<p class="al-thread-out"><button type="button" class="al-link" data-clear="thread">Leave this thread</button></p></div>` +
-        `<figure class="al-thread-art"><img src="../assets/lavender-thread.jpg" alt="" width="1536" height="1024" decoding="async" onerror="this.parentNode.hidden=true"></figure></header><div class="al-list al-thread-list">${visible.map(itemHtml).join('')}</div>`;
+        `<figure class="al-thread-art"><img src="../assets/lavender-thread-600.jpg" srcset="../assets/lavender-thread-600.jpg 600w, ../assets/lavender-thread.jpg 1536w" sizes="(max-width: 700px) 200px, 300px" alt="" width="1536" height="1024" decoding="async" onerror="this.parentNode.hidden=true"></figure></header><div class="al-list al-thread-list" id="al-rows"></div>`;
+      rowsFor.set('al-rows', visible);
+      drawRows($('al-rows'));
       return;
     }
     if (state.sort !== 'shelf') {
-      // By creator, each new name starts under a heavier rule; there are too many one-title creators for headings.
-      const rows = visible.map((i, n) => (state.sort === 'creator' && n && visible[n - 1]._c !== i._c
-        ? itemHtml(i).replace('<article class="al-item', '<article class="al-item al-creator-start') : itemHtml(i)));
-      els.results.innerHTML = `<div class="al-list${state.sort === 'creator' ? ' al-by-creator' : ''}">${rows.join('')}</div>`;
+      els.results.innerHTML = `<div class="al-list${state.sort === 'creator' ? ' al-by-creator' : ''}" id="al-rows"></div>`;
+      rowsFor.set('al-rows', visible);
+      drawRows($('al-rows'));
       return;
     }
     const groups = new Map();
@@ -384,11 +425,13 @@
       if (g && g !== part) { html += `<p class="al-part label">${esc(g)}</p>`; part = g; }
       const [num, name] = splitShelf(shelf);
       const n = shelfIndex.get(shelf), open = isOpen(shelf);
+      rowsFor.set(`al-shelf-${n}`, rows);
       html += `<section class="al-shelf"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-shelf-${n}" data-shelf="${esc(shelf)}">` +
         `<span class="index">${esc(num)}</span><span class="al-shelf-name">${esc(name || 'Unshelved')}</span><span class="al-shelf-count">${number(rows.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
-        `<div class="al-list" id="al-shelf-${n}"${open ? '' : ' hidden'}>${rows.map(itemHtml).join('')}</div></section>`;
+        `<div class="al-list" id="al-shelf-${n}"${open ? '' : ' hidden'}></div></section>`;
     }
     els.results.innerHTML = html;
+    for (const container of els.results.querySelectorAll('.al-shelf > .al-list:not([hidden])')) drawRows(container);
     updateFold();
   }
 
@@ -427,7 +470,9 @@
   const shelfIndex = new Map();
   function setFold(toggle, open) {
     toggle.setAttribute('aria-expanded', open);
-    $(toggle.getAttribute('aria-controls')).hidden = !open;
+    const body = $(toggle.getAttribute('aria-controls'));
+    body.hidden = !open;
+    if (open) drawRows(body);
     const shelf = toggle.dataset.shelf;
     if (filtering()) open ? foldedNow.delete(shelf) : foldedNow.add(shelf);
     else { const set = (opened[list.id] ??= new Set()); open ? set.add(shelf) : set.delete(shelf); }
@@ -442,12 +487,14 @@
   els.results.addEventListener('click', event => {
     const toggle = event.target.closest('.al-shelf-toggle');
     if (!toggle) return;
+    budget = FIRST;
     setFold(toggle, toggle.getAttribute('aria-expanded') !== 'true');
     if (!filtering()) saveFolds();
     updateFold();
   });
   els.fold.addEventListener('click', () => {
     const open = els.fold.textContent === 'Expand all';
+    budget = FIRST;
     els.results.querySelectorAll('.al-shelf-toggle').forEach(t => setFold(t, open));
     if (!filtering()) saveFolds();
     updateFold();
@@ -459,9 +506,12 @@
     const figure = $('al-medium'), image = $('al-medium-img');
     figure.classList.remove('is-shown');
     image.onload = () => { if (image.dataset.list === list.id) { figure.hidden = false; figure.classList.add('is-shown'); } };
-    image.onerror = () => { figure.hidden = true; };
+    // The small copy (art/<id>-480.jpg, made by scripts/art-sizes.py) fits the slot; a list with only the full
+    // picture shows that instead.
+    const full = `art/${encodeURIComponent(list.id)}.jpg`;
+    image.onerror = () => { if (image.getAttribute('src') !== full) image.src = full; else figure.hidden = true; };
     image.dataset.list = list.id;
-    image.src = `art/${encodeURIComponent(list.id)}.jpg`;
+    image.src = `art/${encodeURIComponent(list.id)}-480.jpg`;
   }
 
   // In owner mode with a key, the published data is read through the GitHub API, which is current the moment a save
@@ -471,13 +521,18 @@
       const response = await github(`${REPO}/contents/data/${name}`, { headers: { Accept: 'application/vnd.github.raw+json' } }).catch(() => null);
       if (response?.ok) return response.json();
     }
-    const response = await fetch(`${DATA}${name}`, { cache: 'no-store' });
+    // no-cache still asks every time, but an unchanged file comes back as a short "not modified" instead of in full.
+    const response = await fetch(`${DATA}${name}`, { cache: 'no-cache' });
     if (!response.ok) throw Error(`${name} could not be loaded`);
     return response.json();
   }
+  // The list named in the address starts loading alongside lists.json rather than after it.
+  const early = {};
   async function loadItems(id) {
     if (!cache[id]) {
-      const data = await getData(`${encodeURIComponent(id)}.json`);
+      const head = early[id];
+      delete early[id];
+      const data = (await head) || await getData(`${encodeURIComponent(id)}.json`);
       data.forEach((i, n) => {
         // The data comes from another repository, so only web links are kept.
         for (const key of ['l', 'i']) if (i[key] && !/^https:\/\//.test(i[key])) delete i[key];
@@ -508,8 +563,7 @@
     showArt();
     els.results.dataset.cover = list.cover || 'tall';
     els.count.textContent = 'Loading the shelves…';
-    items = await loadItems(list.id);
-    if (PATHS[list.id] && !paths[list.id]) await loadPaths(list.id);
+    [items] = await Promise.all([loadItems(list.id), PATHS[list.id] && !paths[list.id] && loadPaths(list.id)]);
     renderControls();
     render();
     writeUrl(!fromUrl);
@@ -518,11 +572,28 @@
 
   // Coming back from an artist, author or director page (or any page) lands where the visitor left the list, once the shelves are drawn.
   const SCROLL_KEY = 'antilibrary-scroll';
-  addEventListener('pagehide', () => { try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ href: location.href, y: scrollY })); } catch {} });
+  // Titles far above haven't been laid out on the way back, so the page returns to the title that was at the top
+  // (at the same height on screen) rather than to a pixel offset.
+  addEventListener('pagehide', () => {
+    const at = document.elementFromPoint(els.results.getBoundingClientRect().left + 1, innerHeight / 3)?.closest('.al-item');
+    try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ href: location.href, y: scrollY, id: at?.id, top: at?.getBoundingClientRect().top })); } catch {}
+  });
   function restoreScroll() {
     let saved = null;
     try { saved = JSON.parse(sessionStorage.getItem(SCROLL_KEY)); sessionStorage.removeItem(SCROLL_KEY); } catch {}
-    if (saved?.href === location.href && saved.y > 0) scrollTo(0, saved.y);
+    if (!(saved?.href === location.href && saved.y > 0)) return;
+    const id = /^item-\d+$/.test(saved.id || '') ? saved.id : '';
+    while (queue.length && (id ? !$(id) : document.documentElement.scrollHeight < saved.y + innerHeight)) drain();
+    const at = id && $(id);
+    if (!at || at.closest('[hidden]')) { scrollTo({ top: saved.y, behavior: 'instant' }); return; }
+    // Titles around it are measured as they come into view, so it's held in place for the first few frames.
+    let frames = 0;
+    const hold = () => {
+      const off = at.getBoundingClientRect().top - saved.top;
+      if (Math.abs(off) > 1) scrollBy({ top: off, behavior: 'instant' });
+      if (++frames < 8) requestAnimationFrame(hold);
+    };
+    hold();
   }
 
   // Owner mode.
@@ -868,10 +939,12 @@
     prunePending();
     // The title leaves the page now; Discard brings it back until the changes are sent.
     const shelf = article.closest('.al-shelf'), next = article.nextElementSibling || article.previousElementSibling;
+    // Counted from the shelf's titles, since some may not be drawn yet.
+    const rows = rowsFor.get(article.parentNode.id) || [];
     visible = visible.filter(i => i !== item);
     article.remove();
     if (shelf) {
-      const left = shelf.querySelectorAll('.al-item').length;
+      const left = rows.filter(i => !isRemoving(i)).length;
       if (left) shelf.querySelector('.al-shelf-count').textContent = number(left); else shelf.remove();
     }
     (next?.isConnected ? next : els.results).focus?.();
@@ -899,7 +972,9 @@
       (pending[list.id] ??= {})[key] = box.checked ? new Date().toISOString().slice(0, 10) : null;
       prunePending();
     }
+    const start = $(`item-${item._id}`).classList.contains('al-creator-start');
     $(`item-${item._id}`).outerHTML = itemHtml(item);
+    if (start) $(`item-${item._id}`).classList.add('al-creator-start');
     $(`item-${item._id}`).querySelector(`input[data-flag="${flag || ''}"]`).focus();
     updateCount();
     renderOwnerBar();
@@ -1098,9 +1173,12 @@
     if (!pool.length) return;
     const pick = pool[Math.floor(Math.random() * pool.length)];
     document.querySelectorAll('.al-picked').forEach(el => el.classList.remove('al-picked'));
+    // Its shelf opens if folded, and the titles above it are drawn so it lands in place.
+    const shelf = [...rowsFor].find(([, rows]) => rows.includes(pick))?.[0];
+    if ($(shelf)?.hidden) { budget = FIRST; setFold(els.results.querySelector(`[aria-controls="${shelf}"]`), true); if (!filtering()) saveFolds(); updateFold(); }
+    drawUntil(pick);
     const el = $(`item-${pick._id}`);
-    const shelf = el.closest('.al-list');
-    if (shelf?.hidden) { setFold(els.results.querySelector(`[aria-controls="${shelf.id}"]`), true); if (!filtering()) saveFolds(); updateFold(); }
+    if (!el) return;
     el.classList.add('al-picked');
     el.focus({ preventScroll: true });
     el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
@@ -1125,6 +1203,7 @@
   pending = store.get(PENDING_KEY, {});
   pendingTags = store.get(TAGS_KEY, {}) || {};
   opened = Object.fromEntries(Object.entries(store.get(OPENED_KEY, {}) || {}).filter(([, v]) => Array.isArray(v)).map(([id, v]) => [id, new Set(v)]));
+  if (state.list) early[state.list] = getData(`${encodeURIComponent(state.list)}.json`).catch(() => null);
   Promise.all([
     fetch(`${DATA}lists.json`).then(r => r.json()),
     getData('progress.json').catch(() => ({})),

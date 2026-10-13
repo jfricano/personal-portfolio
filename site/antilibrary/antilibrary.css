@@ -111,6 +111,9 @@
 .al-shelf:has(.al-list[hidden]) + .al-shelf h2{margin-top:22px}
 .al-list{display:grid}
 .al-item{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"cover head body tags";gap:6px 28px;padding:18px 0;border-bottom:1px solid var(--line);scroll-margin:160px;align-items:start}
+/* A title off screen skips layout and paint until it scrolls near, so a long list stays quick on phones. The clip
+   margin keeps the cover's soft shadow from being cut at the row's edge. */
+.al-item{content-visibility:auto;contain-intrinsic-size:auto 150px;overflow-clip-margin:16px}
 .al-item-head{grid-area:head;min-width:0}.al-item-body{grid-area:body;min-width:0}.al-tags{grid-area:tags}
 .al-cover{grid-area:cover;position:relative;display:block;width:64px;aspect-ratio:2/3;background:#e6dccb;overflow:hidden;text-decoration:none;box-shadow:0 3px 10px #302b2818}
 [data-cover=square] .al-cover{aspect-ratio:1}
