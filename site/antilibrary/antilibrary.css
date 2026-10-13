@@ -11,8 +11,9 @@
 .al-intro-body .case-deck{font-size:19px;line-height:1.55;max-width:none}
 .al-intro-deck .case-deck+.case-deck{margin-top:18px}
 .al-intro-note{color:var(--muted);font-size:16px;border-left:1px solid var(--rust);padding-left:22px}
+.al-intro-note p+p{margin-top:14px}
 .al-intro cite{font-style:italic}
-.al-term{font-style:normal;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rust);text-decoration-thickness:2px;text-underline-offset:5px}
+.al-term{font-style:italic;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-color:var(--rust);text-decoration-thickness:2px;text-underline-offset:5px}
 
 .al-browser{border-top:1px solid var(--ink)}
 .al-tabs{display:flex;gap:30px;padding:22px 0 0;flex-wrap:wrap}
@@ -66,9 +67,9 @@
 .al-part+.al-shelf h2{margin-top:26px}
 .al-shelf h2 .index{font-size:20px;letter-spacing:0}
 .al-paths h2 .al-shelf-name{font-style:italic}
+/* Paths follow a person, threads follow an idea: a quiet note after the heading, 20px from it on its baseline. */
+.al-shelf-note{margin-left:4px;font-family:var(--sans);font-size:14px;font-weight:400;font-style:normal;line-height:1.4;letter-spacing:normal;text-transform:none;color:var(--muted);min-width:0}
 .al-paths-body{padding:16px 0 8px}
-.al-paths-lede{color:var(--muted);font-size:15px;margin:0 0 16px;max-width:720px}
-.al-paths-lede a{color:var(--rust)}
 .al-paths-names{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px 10px}
 .al-paths-names a{display:inline-block;font-family:var(--serif);font-size:18px;letter-spacing:-.01em;padding:4px 12px;border:1px solid var(--line);text-decoration:none}
 .al-paths-names a:hover,.al-paths-names a:focus-visible{border-color:var(--rust);color:var(--rust)}
@@ -161,6 +162,7 @@
 .al-controls{grid-template-columns:1fr;gap:12px;padding:16px 0 14px;position:static}
 .al-status{flex-wrap:wrap;gap:12px}.al-summary{display:contents}#al-count{flex:1}.al-applied{order:1;flex:1 1 100%}
 .al-shelf h2{font-size:28px;gap:12px;margin-top:36px}
+.al-paths .al-shelf-toggle{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px 12px}.al-paths .al-shelf-note{grid-row:2;grid-column:1/-1;margin:0}
 .al-item{grid-template-columns:56px minmax(0,1fr);grid-template-areas:"cover head" "cover body";gap:6px 16px;padding:16px 0}.al-cover{width:56px}.al-ext{opacity:1}
 .al-item h3{font-size:21px}.al-note{font-size:14px}
 }
