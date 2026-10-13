@@ -1,6 +1,6 @@
 # Lavender thread
 
-Original symbolic gouache illustration generated with the built-in image-generation tool using `../antilibrary/books.png` as the style reference. One wooden spool of dusty lavender thread unwinds into a long continuous strand. Created as a standalone asset; placement on a page is not yet assigned.
+Original symbolic gouache illustration generated with the built-in image-generation tool using `../antilibrary/books.png` as the style reference. One wooden spool of dusty lavender thread unwinds into a long continuous strand. On the anti-library page it sits beside the heading of an open within-list thread, and above that heading on phones.
 
 Original: `thread.png`. Web derivative: `site/assets/lavender-thread.jpg`, 1536 × 1024 (3:2), encoded with macOS sips at JPEG quality 84. The original and this provenance document are excluded from the production build.
 

@@ -139,14 +139,14 @@ The two headline images Jason supplied are byte-for-byte the Codex originals fro
 
 Verification: `npm run check` passed 262 checks across 17 pages; `node --check site/digests/digests.js` and `git diff --check` passed. Playwright screenshots of the built site confirmed both headline images load at desktop and phone widths. Jason merges.
 
-<<<<<<< HEAD
+## Lavender thread illustration — October 12, 2026
+
+Created the requested dusty lavender spool with one long continuous thread, matching the gouache set at 1536×1024 (3:2). Original and exact built-in generation prompt: `artwork/thread/`; optimized delivery: `site/assets/lavender-thread.jpg`. Standalone asset; page placement is not assigned. Visually checked the spool, single continuous strand, palette and margins; verified dimensions. `npm run check` and `git diff --check` passed. Prepared a signed asset PR for Jason; no rendered-page behavior changed.
+
 ## Thread art — October 13, 2026
 
 Jason supplied a spool-of-thread illustration for the within-list thread view. Design compared two placements: beside the open thread's heading, or swapped into the small picture by the tabs. The tab-row slot shrank the thread to an unreadable line, so the picture sits beside the thread heading (about 300 px wide, feathered into the paper like the other art), and above the heading on phones. It hides itself if the file fails to load.
 
 Verification: `npm run check` passed; Playwright screenshots of a films thread at 1440 px and 390 px confirmed placement. Jason merges.
-=======
-## Lavender thread illustration — October 12, 2026
 
-Created the requested dusty lavender spool with one long continuous thread, matching the gouache set at 1536×1024 (3:2). Original and exact built-in generation prompt: `artwork/thread/`; optimized delivery: `site/assets/lavender-thread.jpg`. Standalone asset; page placement is not assigned. Visually checked the spool, single continuous strand, palette and margins; verified dimensions. `npm run check` and `git diff --check` passed. Prepared a signed asset PR for Jason; no rendered-page behavior changed.
->>>>>>> origin/codex/thread-illustration
+The spool image is byte-for-byte the Codex original from #60, so the page now uses that copy (`site/assets/lavender-thread.jpg`, prompt in `artwork/thread/README.md`), and the duplicate that #64 added is gone.
