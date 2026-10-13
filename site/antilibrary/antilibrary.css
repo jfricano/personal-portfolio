@@ -188,7 +188,7 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:700px){
 .antilibrary{padding-bottom:60px}.al-intro{padding:35px 0 36px}.al-intro h1{font-size:clamp(46px,12vw,59px)}
 .al-intro{display:block}.al-intro h1{margin-bottom:0}.al-intro-body{grid-template-columns:1fr;gap:26px;margin-top:28px}.al-intro-body .case-deck{font-size:17px}.al-intro-note{font-size:15px}.al-art{grid-area:auto;width:auto;margin:0 -8px}
-.al-tabrow{gap:0 18px;flex-wrap:wrap}.al-medium{flex:1 1 0;min-width:150px;max-width:230px;width:auto;margin:10px 0 0}.al-tabs{flex:none;max-width:100%;gap:16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 0 0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:23px;white-space:nowrap;flex:none}.al-tabs button span{display:none}
+.al-tabrow{gap:0 18px;flex-wrap:wrap}.al-medium{width:140px;margin:10px 0 0}.al-tabs{flex:none;max-width:100%;gap:16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 0 0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:23px;white-space:nowrap;flex:none}.al-tabs button span{display:none}
 .al-controls{grid-template-columns:1fr 1fr;gap:12px;padding:16px 0 14px;position:static}
 .al-search,.al-field-shelf{grid-column:1/-1}
 .al-filters-toggle{display:flex;align-items:center;justify-content:space-between;grid-column:1/-1;font:inherit;font-size:15px;color:var(--ink);background:none;border:1px solid var(--line);padding:10px 12px;min-height:44px;cursor:pointer}
