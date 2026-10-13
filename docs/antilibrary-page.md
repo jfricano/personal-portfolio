@@ -5,7 +5,7 @@ The list page (`site/antilibrary/`) once had a full filter bar. On 2026-10-13 Ja
 ## What the page has now
 
 - **Search** and **Sort**, nothing else, on every list and on phones too (no Filters button; on phones the two simply stack).
-- Shelves fold and unfold from their headings, with Collapse all / Expand all beside the count. The Author, Artist and Director paths asides and the Threads aside sit above the shelves, and each path and thread has its own page.
+- Shelves fold and unfold from their headings, with Collapse all / Expand all beside the count. The Author, Artist and Director paths asides and the Threads aside sit above the shelves, and each path and thread has its own page. A short muted note after each aside's heading (under it on phones), open or folded, says the difference: paths follow a person, threads follow an idea.
 - **Pick one for me**, the crossed-off strikethrough, owner mode (Fully read/watched/heard, Digested, Formative, Remove, Hide crossed off, Save changes, Export spreadsheet) and the path link under a creator's name ("Author path →") all work as before.
 - Links that narrow the list still work, with no menu behind them: `?shelf=04` or `?part=…`, `?only=core` (the core shelf link in the intro uses it, and its chip says "Core shelf ×"), and old `?thread=` links. "Clear filters" beside the count takes them off.
 

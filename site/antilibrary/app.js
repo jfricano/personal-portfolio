@@ -33,11 +33,11 @@
   // gets an unnumbered Paths aside above its shelves, and every title by a path's artist, author or director links to the
   // path under the name.
   const PATHS = {
-    albums: { file: 'paths.json', page: 'artist.html', who: 'artist', label: 'Artist path', heading: 'Artist paths',
+    albums: { file: 'paths.json', page: 'artist.html', who: 'artist', label: 'Artist path', heading: 'Artist paths', note: 'A way into one artist’s music',
       lede: 'Not a shelf. A listening order for each artist worth going deep on, through albums already on these shelves.' },
-    books: { file: 'author-paths.json', page: 'author.html', who: 'author', label: 'Author path', heading: 'Author paths',
+    books: { file: 'author-paths.json', page: 'author.html', who: 'author', label: 'Author path', heading: 'Author paths', note: 'A way into one writer’s work',
       lede: 'Not a shelf. A reading order for each author worth going deep on, through books already on these shelves.' },
-    films: { file: 'director-paths.json', page: 'director.html', who: 'director', label: 'Director path', heading: 'Director paths',
+    films: { file: 'director-paths.json', page: 'director.html', who: 'director', label: 'Director path', heading: 'Director paths', note: 'A way into one filmmaker’s work',
       lede: 'Not a shelf. A viewing order for each director worth going deep on, through films already on these shelves.' },
   };
   const paths = {};
@@ -361,6 +361,7 @@
 
   // The Paths aside sits above the shelves, outside their numbering, and folds like a shelf. It names everyone with a path;
   // a name is struck through once the path is fully heard, read or watched. It shows only while nothing narrows the list.
+  // A short note beside each aside's heading, open or folded, says the difference: paths follow a person, threads an idea.
   function pathsAside() {
     const kind = PATHS[list.id], all = paths[list.id]?.all || [];
     if (!all.length) return '';
@@ -370,7 +371,7 @@
       return `<li${done ? ' class="al-done"' : ''}><a href="${esc(`${kind.page}?a=${encodeURIComponent(p.id)}`)}"${done ? ` title="${fullyLabel(list.id)}"` : ''}>${esc(p[kind.who])}</a></li>`;
     }).join('');
     return `<aside class="al-shelf al-paths" aria-label="${esc(kind.heading)}"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-paths" data-shelf="${PATHS_FOLD}">` +
-      `<span class="al-shelf-name">${esc(kind.heading)}</span><span class="al-shelf-count">${number(all.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
+      `<span class="al-shelf-name">${esc(kind.heading)}</span><span class="al-shelf-note">${esc(kind.note)}</span><span class="al-shelf-count">${number(all.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
       `<div class="al-paths-body" id="al-paths"${open ? '' : ' hidden'}><p class="al-paths-lede">${esc(kind.lede)}</p>` +
       `<ul class="al-paths-names">${names}</ul></div></aside>`;
   }
@@ -385,7 +386,7 @@
     const open = isOpen(THREADS_FOLD);
     const names = threads.map(t => `<li><a href="${esc(threadPage(t.id))}"${t.why ? ` title="${esc(t.why)}"` : ''}>${esc(t.name)} <span>${number(t.count)}</span></a></li>`).join('');
     return `<aside class="al-shelf al-paths al-threads" aria-label="Threads"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-threads" data-shelf="${THREADS_FOLD}">` +
-      `<span class="al-shelf-name">Threads</span><span class="al-shelf-count">${number(threads.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
+      `<span class="al-shelf-name">Threads</span><span class="al-shelf-note">Follow an idea from work to work</span><span class="al-shelf-count">${number(threads.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
       `<div class="al-paths-body" id="al-threads"${open ? '' : ' hidden'}><p class="al-paths-lede">Not a shelf. Routes through titles already on these shelves, each in its own order with a line on why each stop comes where it does.</p>` +
       `<ul class="al-paths-names">${names}</ul></div></aside>`;
   }
