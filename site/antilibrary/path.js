@@ -107,8 +107,9 @@
     }).join('');
   }
 
-  // Both sections fold like the list's shelves and start folded; they stay as they were when a tick re-renders the page.
-  const opened = new Set();
+  // Both sections fold like the list's shelves. The order, the page's point, starts open and the whole run starts
+  // folded; they stay as they were when a tick re-renders the page.
+  const opened = new Set(['order']);
   const fold = (key, num, name, n, body) => `<section class="ap-section"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${opened.has(key)}" aria-controls="ap-${key}" data-fold="${key}">` +
     `<span class="index">${num}</span><span class="al-shelf-name">${name}</span><span class="al-shelf-count">${n}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
     `<div id="ap-${key}"${opened.has(key) ? '' : ' hidden'}>${body}</div></section>`;

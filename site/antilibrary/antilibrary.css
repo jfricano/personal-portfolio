@@ -239,6 +239,8 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .ap-head .case-facts{grid-template-columns:repeat(4,minmax(0,1fr));border-top-color:var(--ink)}
 .ap-head .case-facts dd{font-family:var(--serif);font-size:18px;letter-spacing:-.02em}
 .ap-section{border-top:1px solid var(--ink);padding-bottom:40px}
+.ap-section+.ap-section{border-top:0}
+.ap-section:has(> [hidden]){padding-bottom:0}
 .ap-section h2{display:flex;align-items:baseline;gap:16px;font-size:clamp(30px,3.4vw,44px);margin:26px 0 6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .ap-section h2 .index{font-size:20px;letter-spacing:0}
 /* Listening order: bigger covers, the step number as a large rust numeral, and the door on a lavender band. */
