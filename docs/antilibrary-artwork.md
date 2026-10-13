@@ -15,6 +15,10 @@ The page shows one combined still life, `site/antilibrary/art/general.jpg`, besi
 
 Originals and generation prompts are in `artwork/antilibrary/`. To replace an image, put the new file in `site/antilibrary/art/` and open a PR; nothing else needs to change.
 
+## Dark theme
+
+In the dark theme every illustration swaps to a dark cut-out on a transparent background, drawn straight onto the charcoal page; `site/theme-art.js` matches the light file names above, so nothing else needs to change when a light picture is replaced. The originals, the delivered WebP files and their sizes are listed in [artwork/dark/README.md](../artwork/dark/README.md).
+
 ## Where each image is used
 
 | Image | Where it shows | Original and prompt |
