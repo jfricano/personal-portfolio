@@ -12,6 +12,20 @@
 // off there.
 (() => {
   const main = document.getElementById('main'), DATA = main.dataset.source;
+  // Covers come from the cover store when it's set up, falling back to their source link (as in app.js).
+  const COVERS = (main.dataset.covers || '').replace(/\/+$/, '');
+  if (COVERS) fetch(`${COVERS}/healthz`, { cache: 'no-store' }).catch(() => {});
+  // The same code as shortKey in app.js and anti-lib scripts/short-key.mjs; the store names each cover by it.
+  const CODE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+  function shortKey(key) {
+    let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+    for (let i = 0; i < key.length; i++) { const ch = key.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+    let n = 4294967296 * (2097151 & h2) + (h1 >>> 0), code = '';
+    for (let i = 0; i < 8; i++) { code += CODE[n % 64]; n = Math.floor(n / 64); }
+    return code;
+  }
   const KINDS = {
     albums: {
       file: 'paths.json', who: 'artist', noun: ['record', 'records'], done: 'heard', cover: 'square',
@@ -115,7 +129,9 @@
   const count = n => `${n} ${kind.noun[n === 1 ? 0 : 1]}`;
 
   function stepHtml(p, r) {
-    const cover = web(r.i) ? `<img src="${esc(r.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
+    const cover = !web(r.i) ? '' : COVERS
+      ? `<img src="${esc(`${COVERS}/c/${shortKey(r.i)}.webp`)}" data-fallback="${esc(r.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+      : `<img src="${esc(r.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`;
     // A step that's heard, read or watched is struck through, as on the list. The door is the lavender band; steps
     // carry no tags (jason, 2026-10-13: "The door" and "Heard" were tags here until then).
     const door = r.p === 1 && !threadView, struck = done(r);
@@ -293,7 +309,11 @@
   // Back from the list (or another tab) can bring this page back from the browser's cache; draw the marks as stored.
   addEventListener('pageshow', event => { if (event.persisted && current) redraw(); });
   addEventListener('storage', event => { if (event.key === PENDING_KEY && current) redraw(); });
-  root.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, true);
+  root.addEventListener('error', event => {
+    const img = event.target;
+    if (img.tagName !== 'IMG') return;
+    if (img.dataset.fallback) { img.src = img.dataset.fallback; delete img.dataset.fallback; } else img.remove();
+  }, true);
 
   Promise.all([
     threadView ? loadThreads() : fetch(`${DATA}${kind.file}`).then(r => r.json()),

@@ -17,6 +17,14 @@
   const fullyLabel = id => FULLY[id] || FULLY.books;
   const digestCounts = id => id === 'books';
   const DATA = document.getElementById('main').dataset.source;
+  // The cover store (anti-lib server/) keeps a small copy of every cover, named by shortKey of its source link. Empty
+  // means it isn't set up, and covers load from their source. A store copy that fails (not copied yet, or the store
+  // is still waking up) falls back to the source; pinging it now wakes it while the page draws.
+  const COVERS = (document.getElementById('main').dataset.covers || '').replace(/\/+$/, '');
+  if (COVERS) fetch(`${COVERS}/healthz`, { cache: 'no-store' }).catch(() => {});
+  const coverImg = url => COVERS
+    ? `<img src="${esc(`${COVERS}/c/${shortKey(url)}.webp`)}" data-fallback="${esc(url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`
+    : `<img src="${esc(url)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`;
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks', TAGS_KEY = 'antilibrary-pending-tags', OPENED_KEY = 'antilibrary-opened';
   const $ = id => document.getElementById(id);
   const els = {
@@ -236,7 +244,7 @@
     const digest = owner ? digestLinks[list.id]?.[itemKey(i)] : null;
     // Books show Digested as a checkbox; elsewhere a digest doesn't cross a title off, so it stays a note to the owner.
     const digested = digest && !digestCounts(list.id) && markOf(i, 'read') ? '<span class="al-owner-note">Digested</span>' : '';
-    const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
+    const cover = i.i ? coverImg(i.i) : '';
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
       digest?.id && `<a class="al-digest" href="../digests/#${esc(digest.id)}" target="_blank" rel="noopener">${markOf(i, 'read') ? 'Reread digest' : 'Read digest'} ↗</a>`].filter(Boolean);
@@ -1006,7 +1014,11 @@
   });
 
   // A cover that fails to load leaves the lettered placeholder showing.
-  els.results.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, true);
+  els.results.addEventListener('error', event => {
+    const img = event.target;
+    if (img.tagName !== 'IMG') return;
+    if (img.dataset.fallback) { img.src = img.dataset.fallback; delete img.dataset.fallback; } else img.remove();
+  }, true);
 
   let timer;
   els.q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { state.q = els.q.value.trim(); render(); writeUrl(); }, 120); });
