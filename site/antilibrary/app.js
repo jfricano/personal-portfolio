@@ -404,18 +404,19 @@
     }).join('');
     return `<aside class="al-shelf al-paths" aria-label="${esc(kind.heading)}"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-paths" data-shelf="${PATHS_FOLD}">` +
       `<span class="al-shelf-name">${esc(kind.heading)}</span><span class="al-shelf-count">${number(all.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
-      `<div class="al-paths-body" id="al-paths"${open ? '' : ' hidden'}><p class="al-paths-lede">${esc(kind.lede)} <a href="${kind.page}">See every path →</a></p>` +
+      `<div class="al-paths-body" id="al-paths"${open ? '' : ' hidden'}><p class="al-paths-lede">${esc(kind.lede)}</p>` +
       `<ul class="al-paths-names">${names}</ul></div></aside>`;
   }
   const PATHS_FOLD = '(paths)';
 
-  // Threads sit with the paths above the shelves: named routes through titles already on the list. Picking one shows
-  // its stops in order, the same as picking it from the Paths menu.
+  // Threads sit with the paths above the shelves: named routes through titles already on the list. Each opens its own
+  // page (thread.html), as a path does. An old ?thread= link still narrows the list to the thread.
+  const threadPage = id => `thread.html?list=${encodeURIComponent(list.id)}&t=${encodeURIComponent(id)}`;
   function threadsAside() {
     const threads = list.threads || [];
     if (!threads.length) return '';
     const open = isOpen(THREADS_FOLD);
-    const names = threads.map(t => `<li><button type="button" data-thread="${esc(t.id)}"${t.why ? ` title="${esc(t.why)}"` : ''}>${esc(t.name)} <span>${number(t.count)}</span></button></li>`).join('');
+    const names = threads.map(t => `<li><a href="${esc(threadPage(t.id))}"${t.why ? ` title="${esc(t.why)}"` : ''}>${esc(t.name)} <span>${number(t.count)}</span></a></li>`).join('');
     return `<aside class="al-shelf al-paths al-threads" aria-label="Threads"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-threads" data-shelf="${THREADS_FOLD}">` +
       `<span class="al-shelf-name">Threads</span><span class="al-shelf-count">${number(threads.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
       `<div class="al-paths-body" id="al-threads"${open ? '' : ' hidden'}><p class="al-paths-lede">Not a shelf. Routes through titles already on these shelves, each in its own order with a line on why each stop comes where it does.</p>` +
@@ -1027,13 +1028,15 @@
     render(); writeUrl(all.dataset.menuAll === 'shelves');
     panel.querySelector('input:not(:disabled)')?.focus();
   });
-  // An artist, author or director path opens its own page; a thread narrows this one.
+  // A thread or an artist, author or director path opens its own page. No path clears a thread an old link narrowed
+  // the list to.
   els.thread.addEventListener('change', () => {
-    if (els.thread.value.startsWith('path:')) {
-      location.href = `${PATHS[list.id].page}?a=${encodeURIComponent(els.thread.value.slice(5))}`;
+    const value = els.thread.value;
+    if (value) {
+      location.href = value.startsWith('path:') ? `${PATHS[list.id].page}?a=${encodeURIComponent(value.slice(5))}` : threadPage(value);
       return;
     }
-    state.thread = els.thread.value; render(); writeUrl(true);
+    state.thread = ''; render(); writeUrl(true);
   });
   // The Shelves and Tags menus close when another opens, on a click outside them, and on Escape.
   const menus = [els.shelfMenu, els.showMenu];
@@ -1068,12 +1071,8 @@
   els.hide.addEventListener('change', () => { state.hide = els.hide.checked; render(); writeUrl(); });
   // Chips beside the count and the empty-shelf message take filters off; a tag on a title puts its filter on.
   document.querySelector('.al-browser').addEventListener('click', event => {
-    const clear = event.target.closest('[data-clear]'), tag = event.target.closest('[data-only]'), thread = event.target.closest('[data-thread]');
-    if (thread) {
-      state.thread = thread.dataset.thread;
-      render(); writeUrl(true);
-      els.results.querySelector('.al-thread-head h2')?.scrollIntoView({ block: 'center' });
-    } else if (clear) {
+    const clear = event.target.closest('[data-clear]'), tag = event.target.closest('[data-only]');
+    if (clear) {
       const key = clear.dataset.clear;
       if (key === 'all') Object.assign(state, blank(), { sort: state.sort });
       else if (key === 'thread') state.thread = '';

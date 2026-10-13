@@ -2,7 +2,10 @@
 // director's films (director.html), starting at a door, with the works left out still shown in the timeline. The paths
 // live in the jfricano/anti-lib repository (lists/artist-paths.json, lists/author-paths.json and
 // lists/director-paths.json, built into data/paths.json, data/author-paths.json and data/director-paths.json), like
-// the lists themselves. The page says which with data-kind on <main>. With no one named, the page lists every path.
+// the lists themselves. The page says which with data-kind on <main>. With no one named, it goes to the list, whose
+// Paths aside already names every path.
+// A thread (thread.html?list=<list>&t=<id>, data-view="thread") is the same kind of page for one of a list's threads:
+// its stops in order with each one's line, from data/threads.json.
 // Artist paths: in owner mode each record gets a Heard box. Ticks wait in the same browser store as the list's marks
 // (albums list, "title|artist"), so they go out with the list's Save changes issue and land in progress.json.
 // Author and director paths have no boxes: a book or film is marked on its list, and a step counts once it's crossed
@@ -11,31 +14,36 @@
   const main = document.getElementById('main'), DATA = main.dataset.source;
   const KINDS = {
     albums: {
-      file: 'paths.json', page: 'artist.html', who: 'artist', noun: ['record', 'records'], done: 'heard', cover: 'square',
-      title: 'Artist <em>paths.</em>', crumb: 'Artist paths', what: 'a listening path', order: 'Listening order', boxes: true,
+      file: 'paths.json', who: 'artist', noun: ['record', 'records'], done: 'heard', cover: 'square',
+      crumb: 'Artist paths', what: 'a listening path', order: 'Listening order', boxes: true,
       search: 'https://www.discogs.com/search/?type=all&q=', listen: 'https://open.spotify.com/search/',
-      intro: "For the artists worth going deep on: a door to start with, then the records that make the study feel complete, in the order I'd play them.",
       lede: 'Every record worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.',
-      none: "There isn't a listening path for that artist. <a href=\"artist.html\">See the artists that have one.</a>",
+      none: "There isn't a listening path for that artist.",
     },
     books: {
-      file: 'author-paths.json', page: 'author.html', who: 'author', noun: ['book', 'books'], done: 'read', cover: 'tall',
-      title: 'Author <em>paths.</em>', crumb: 'Author paths', what: 'a reading path', order: 'Reading order', person: 'author',
+      file: 'author-paths.json', who: 'author', noun: ['book', 'books'], done: 'read', cover: 'tall',
+      crumb: 'Author paths', what: 'a reading path', order: 'Reading order', person: 'author',
       search: 'https://www.goodreads.com/search?q=',
-      intro: "For the writers worth going deep on: a door to start with, then the books that make the study feel complete, in the order I'd read them.",
       lede: 'Every book worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.',
-      none: "There isn't a reading path for that author. <a href=\"author.html\">See the authors that have one.</a>",
+      none: "There isn't a reading path for that author.",
     },
     films: {
-      file: 'director-paths.json', page: 'director.html', who: 'director', noun: ['film', 'films'], done: 'watched', cover: 'tall',
-      title: 'Director <em>paths.</em>', crumb: 'Director paths', what: 'a viewing path', order: 'Viewing order', person: 'director',
+      file: 'director-paths.json', who: 'director', noun: ['film', 'films'], done: 'watched', cover: 'tall',
+      crumb: 'Director paths', what: 'a viewing path', order: 'Viewing order', person: 'director',
       search: 'https://www.imdb.com/find/?s=tt&q=',
-      intro: "For the directors worth going deep on: a door to start with, then the films that make the study feel complete, in the order I'd watch them.",
       lede: 'Every film worth knowing about, by year. The ones off the path are here so you can see what was left out, and why.',
-      none: "There isn't a viewing path for that director. <a href=\"director.html\">See the directors that have one.</a>",
+      none: "There isn't a viewing path for that director.",
     },
   };
-  const LIST = KINDS[main.dataset.kind] ? main.dataset.kind : 'albums', kind = KINDS[LIST];
+  const params = new URLSearchParams(location.search), threadView = main.dataset.view === 'thread';
+  const asked = threadView ? params.get('list') : main.dataset.kind;
+  const LIST = KINDS[asked] ? asked : 'albums', kind = KINDS[LIST];
+  // Paths and threads are reached from their list, which names them all; with nothing named, the list is where to go.
+  const id = params.get(threadView ? 't' : 'a') || '';
+  if (!id || !KINDS[asked]) {
+    location.replace(KINDS[asked] ? `./?list=${LIST}` : './');
+    return;
+  }
   const listLink = `<a href="./?list=${LIST}">Anti-library ${LIST}</a>`;
   const root = document.getElementById('ap');
   const head = { crumb: document.getElementById('ap-crumb'), title: document.getElementById('ap-title'), deck: document.getElementById('ap-deck'), facts: document.getElementById('ap-facts'),
@@ -71,18 +79,17 @@
   head.photo?.querySelector('img').addEventListener('error', () => { head.photo.hidden = true; head.photo.parentElement.classList.remove('ap-has-photo'); });
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const web = url => (/^https:\/\//.test(url || '') ? url : '');
-  const id = new URLSearchParams(location.search).get('a') || '';
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks';
   const store = {
     get(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } },
     set(key, value) { try { value === null ? localStorage.removeItem(key) : localStorage.setItem(key, JSON.stringify(value)); } catch {} },
   };
   const owner = store.get(OWNER_KEY, false) === true;
-  const boxes = owner && Boolean(kind.boxes);
+  const boxes = owner && Boolean(kind.boxes) && !threadView;
   let progress = {}, current = null;
 
   // A work read inside a book on the list (v) shares that book's mark.
-  const key = r => `${r.v || r.t}|${r.c}`;
+  const key = r => `${r.v || r.t}|${r.c || ''}`;
   const waiting = r => (store.get(PENDING_KEY, {}) || {})[LIST]?.[key(r)];
   const done = r => {
     if (r.d) return true;
@@ -110,14 +117,15 @@
   function stepHtml(p, r) {
     const cover = web(r.i) ? `<img src="${esc(r.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
     // Albums show Heard as a tag; a book or film that's crossed off is struck through, as on the list.
-    const tags = [r.p === 1 && '<li class="al-tag ap-tag-door">The door</li>', kind.boxes && done(r) && '<li class="al-tag al-tag-done">Heard</li>'].filter(Boolean);
+    const door = r.p === 1 && !threadView, struck = (threadView || !kind.boxes) && done(r);
+    const tags = [door && '<li class="al-tag ap-tag-door">The door</li>', !struck && kind.boxes && done(r) && '<li class="al-tag al-tag-done">Heard</li>'].filter(Boolean);
     const listen = kind.listen ? `<p class="al-more"><a class="al-listen" href="${esc(kind.listen + query(p, r))}" data-app="spotify:search:${esc(query(p, r))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a></p>` : '';
-    return `<li class="al-item ap-step${!kind.boxes && done(r) ? ' al-done' : ''}" id="step-${r.p}">` +
+    return `<li class="al-item ap-step${door ? ' ap-door' : ''}${struck ? ' al-done' : ''}" id="step-${r.p}">` +
       `<a class="al-cover" href="${esc(pageLink(p, r))}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(r.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><p class="ap-num index" aria-hidden="true">${r.p}</p><div class="al-ident"><h3><a href="${esc(pageLink(p, r))}" target="_blank" rel="noopener noreferrer"${web(r.l) ? '' : ` title="Search for this ${kind.noun[0]}"`}>${esc(r.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>` +
       `<p class="al-by">${credit(r)}</p></div>` +
       `${listen}${boxes ? `<span class="al-owner-actions">${heardBox(r)}</span>` : ''}</div>` +
-      `<div class="al-item-body">${r.n ? `<p class="al-note">${esc(r.n)}</p>` : ''}</div>` +
+      `<div class="al-item-body">${r.n ? `<p class="al-note">${esc(r.n)}</p>` : ''}${r.s ? `<p class="al-where">${esc(r.s.replace(/^\d+\.\s*/, ''))}</p>` : ''}</div>` +
       `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</li>`;
   }
 
@@ -159,7 +167,7 @@
       ? (all ? `Fully heard: all ${order.length} on the path` : `${finished} of ${order.length} on the path`)
       : (all ? `Fully ${kind.done}: all ${order.length} on the path` : `${finished} of ${order.length} on the path crossed off`);
     setPhoto(p);
-    setHead(`${listLink} / <a href="${kind.page}">${kind.crumb}</a>`, nameHtml(p), p.about ? esc(p.about) : '',
+    setHead(`${listLink} / ${kind.crumb}`, nameHtml(p), p.about ? esc(p.about) : '',
       `<div><dt>The door</dt><dd><a href="#step-1">${esc(order[0].t)}</a> (${esc(order[0].y)})</dd></div>` +
       `<div><dt>The path</dt><dd>${count(order.length)}, in this order</dd></div>` +
       `<div><dt>Left out</dt><dd>${skipped ? `${skipped} more from ${Math.min(...years)} to ${Math.max(...years)}, in the timeline` : 'Nothing worth noting'}</dd></div>` +
@@ -178,22 +186,52 @@
     root.dataset.cover = kind.cover;
   }
 
-  function showIndex(paths) {
-    document.title = `${kind.crumb} — Jason Fricano`;
-    setHead(`${listLink} / ${kind.crumb}`, kind.title, kind.intro);
-    root.innerHTML = `<ol class="ap-index">${paths.map(p => {
-        const order = steps(p);
-        return `<li><a href="${kind.page}?a=${encodeURIComponent(p.id)}"><span class="ap-index-name">${esc(nameOf(p))}</span>` +
-          `<span class="ap-index-door">Start with ${esc(order[0].t)} · ${order.length} on the path</span></a></li>`;
-      }).join('')}</ol>`;
-  }
-
   function show(paths) {
-    if (!id) return showIndex(paths);
     const p = paths.find(x => x.id === id);
     if (p) return showPath(p);
-    setHead(`${listLink} / <a href="${kind.page}">${kind.crumb}</a>`, 'No path <em>yet.</em>', kind.none);
+    setHead(`${listLink} / ${kind.crumb}`, 'No path <em>yet.</em>', `${kind.none} <a href="./?list=${LIST}">See the ${kind.who}s that have one on the ${LIST} list.</a>`);
   }
+
+  // A thread: its spool beside the name, the why, then its stops in order, each with its line and the shelf it lives
+  // on. A stop is crossed off as it is on the list; marks are made there.
+  const THREAD_ART = '../assets/lavender-thread.jpg';
+  function setArt() {
+    const frame = head.photo;
+    if (!frame) return;
+    frame.hidden = false;
+    frame.classList.add('ap-art');
+    frame.parentElement.classList.add('ap-has-photo');
+    const img = frame.querySelector('img');
+    img.src = THREAD_ART; img.alt = ''; img.width = 1536; img.height = 1024;
+    frame.querySelector('figcaption').hidden = true;
+  }
+  function showThread(t) {
+    current = t;
+    const order = t.stops.map((r, n) => ({ ...r, p: n + 1, b: 1, n: r.step })), finished = order.filter(done).length;
+    const shelves = new Set(order.map(r => r.s).filter(Boolean)).size;
+    document.title = `${t.name}: a thread — Jason Fricano`;
+    setArt();
+    setHead(`${listLink} / Threads`, esc(t.name), t.why ? esc(t.why) : '',
+      `<div><dt>Starts with</dt><dd><a href="#step-1">${esc(order[0].t)}</a>${order[0].y != null ? ` (${esc(order[0].y)})` : ''}</dd></div>` +
+      `<div><dt>The thread</dt><dd>${count(order.length)}, in this order</dd></div>` +
+      `<div><dt>Shelves</dt><dd>${shelves > 1 ? `Stops on ${shelves} shelves` : 'All on one shelf'}</dd></div>` +
+      `<div><dt>${kind.done.charAt(0).toUpperCase() + kind.done.slice(1)}</dt><dd>${finished === order.length ? `All ${order.length} crossed off` : `${finished} of ${order.length} crossed off`}</dd></div>`);
+    const bar = owner ? `<div class="al-owner-bar"><p>Mark ${kind.noun[1]} as ${kind.done} on the <a href="./?list=${LIST}">${LIST} list</a>; a stop is crossed off here once it is there.</p></div>` : '';
+    root.innerHTML = bar + fold('order', '01', kind.order, order.length, `<ol class="al-list ap-steps" data-cover="${kind.cover}">${order.map(r => stepHtml(t, r)).join('')}</ol>`);
+    root.dataset.cover = kind.cover;
+  }
+  function showThreads(threads) {
+    const t = threads.find(x => x.id === id);
+    if (t?.stops.length) return showThread(t);
+    setHead(`${listLink} / Threads`, 'No thread <em>yet.</em>', `There isn't a thread by that name. <a href="./?list=${LIST}">See the threads on the ${LIST} list.</a>`);
+  }
+  // Threads come from data/threads.json. Until that file is built, they are pieced together from the list itself:
+  // each stop carries th: { <thread id>: [position, line] }, and lists.json names the threads.
+  const loadThreads = () => fetch(`${DATA}threads.json`).then(r => (r.ok ? r.json() : Promise.reject()))
+    .then(all => all[LIST] || [])
+    .catch(() => Promise.all([fetch(`${DATA}lists.json`).then(r => r.json()), fetch(`${DATA}${LIST}.json`).then(r => r.json())])
+      .then(([lists, rows]) => (lists.find(l => l.id === LIST)?.threads || []).map(t => ({ ...t,
+        stops: rows.filter(i => i.th?.[t.id]).sort((a, b) => a.th[t.id][0] - b.th[t.id][0]).map(i => ({ ...i, step: i.th[t.id][1] })) }))));
 
   // As on the list, Listen on Spotify tries the desktop app first and falls back to the web player.
   const desktop = !/Android|iPhone|iPad|iPod|Firefox/i.test(navigator.userAgent) && !(navigator.maxTouchPoints > 0);
@@ -213,6 +251,11 @@
   // Back returns to the list as it was left (filters, open shelves, scroll) when the visitor came from it;
   // otherwise it opens the list.
   const back = document.getElementById('ap-back');
+  // A thread page serves every list, so it names its own list and credits that list's sources.
+  if (threadView) {
+    back.href = `./?list=${LIST}`; back.textContent = `← Back to ${LIST}`;
+    document.querySelector(`.al-credit[data-list="${LIST}"]`)?.removeAttribute('hidden');
+  }
   let from = null;
   try { from = new URL(document.referrer); } catch {}
   if (from && from.origin === location.origin && /\/antilibrary\/(index\.html)?$/.test(from.pathname)) {
@@ -239,6 +282,7 @@
     location.href = link.dataset.app;
   });
   // Re-rendering keeps the page where it is; focus returns to the same box.
+  const redraw = () => (threadView ? showThread(current) : showPath(current));
   root.addEventListener('change', event => {
     const box = event.target.closest('.al-owner-actions input');
     if (!box || !boxes || !current) return;
@@ -248,13 +292,13 @@
     root.querySelectorAll('.al-owner-actions input')[at]?.focus();
   });
   // Back from the list (or another tab) can bring this page back from the browser's cache; draw the marks as stored.
-  addEventListener('pageshow', event => { if (event.persisted && current) showPath(current); });
-  addEventListener('storage', event => { if (event.key === PENDING_KEY && current) showPath(current); });
+  addEventListener('pageshow', event => { if (event.persisted && current) redraw(); });
+  addEventListener('storage', event => { if (event.key === PENDING_KEY && current) redraw(); });
   root.addEventListener('error', event => { if (event.target.tagName === 'IMG') event.target.remove(); }, true);
 
   Promise.all([
-    fetch(`${DATA}${kind.file}`).then(r => r.json()),
+    threadView ? loadThreads() : fetch(`${DATA}${kind.file}`).then(r => r.json()),
     fetch(`${DATA}progress.json`, { cache: 'no-store' }).then(r => (r.ok ? r.json() : {})).catch(() => ({})),
-  ]).then(([paths, marks]) => { progress = marks[LIST] || {}; show(paths); })
-    .catch(() => { head.deck.textContent = `The ${kind.crumb.toLowerCase()} could not be loaded. Try refreshing the page.`; });
+  ]).then(([found, marks]) => { progress = marks[LIST] || {}; (threadView ? showThreads : show)(found); })
+    .catch(() => { head.deck.textContent = `The ${threadView ? 'thread' : kind.crumb.toLowerCase()} could not be loaded. Try refreshing the page.`; });
 })();
