@@ -195,4 +195,6 @@ Verification: `npm run check` passed; Playwright at 320–1920 px with live data
 
 ## Covers from the cover store — October 13, 2026
 
+Status: parked pending implementation (Jason, October 13). Kept out of the combined PR; `data-covers` stays empty until the anti-lib store exists.
+
 Jason's first roadmap item: keep a copy of every cover on a small Railway service shaped like Personal Treasury's (anti-lib `server/`). The list and path pages now ask the store for a 256px thumbnail named by `shortKey` of the cover link (the same code owner mode already uses), falling back to the original link on any error, and ping `/healthz` on load so a sleeping store wakes while the page draws. `data-covers` on `<main>` is empty, so nothing changes until the store exists. Verified locally against a running store seeded with every other cover: stored covers loaded from the store and the rest fell back to their source; `npm run check` passed.
