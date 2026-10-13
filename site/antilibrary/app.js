@@ -360,8 +360,9 @@
     }
     if (state.thread) {
       const thread = threadOf(state.thread);
-      els.results.innerHTML = `<header class="al-thread-head"><p class="label">Thread · ${number(thread.count)} stops</p><h2>${esc(thread.name)}</h2>` +
-        `${thread.why ? `<p>${esc(thread.why)}</p>` : ''}<p class="al-thread-out"><button type="button" class="al-link" data-clear="thread">Leave this thread</button></p></header><div class="al-list al-thread-list">${visible.map(itemHtml).join('')}</div>`;
+      els.results.innerHTML = `<header class="al-thread-head"><div class="al-thread-text"><p class="label">Thread · ${number(thread.count)} stops</p><h2>${esc(thread.name)}</h2>` +
+        `${thread.why ? `<p>${esc(thread.why)}</p>` : ''}<p class="al-thread-out"><button type="button" class="al-link" data-clear="thread">Leave this thread</button></p></div>` +
+        `<figure class="al-thread-art"><img src="art/thread.jpg" alt="" width="1536" height="1024" decoding="async" onerror="this.parentNode.hidden=true"></figure></header><div class="al-list al-thread-list">${visible.map(itemHtml).join('')}</div>`;
       return;
     }
     if (state.sort !== 'shelf') {

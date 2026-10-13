@@ -204,7 +204,11 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:380px){.al-controls{grid-template-columns:1fr}}
 /* Threads: a fifth control when the list has threads, and a header over the path. */
 .al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:minmax(0,1.5fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr)}
-.al-thread-head{margin:34px 0 6px;padding-bottom:18px;border-bottom:1px solid var(--ink);max-width:68ch}
+.al-thread-head{margin:34px 0 6px;padding-bottom:18px;border-bottom:1px solid var(--ink);display:grid;grid-template-columns:minmax(0,68ch) minmax(0,300px);justify-content:space-between;align-items:center;gap:0 40px}
+.al-thread-art{margin:0;aspect-ratio:3/2;overflow:hidden}.al-thread-art[hidden]{display:none}
+.al-thread-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;
+  -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 62%,transparent 100%)}
+@media(max-width:700px){.al-thread-head{grid-template-columns:1fr}.al-thread-art{order:-1;width:200px;margin-bottom:6px}}
 .al-thread-head .label{color:var(--rust)}
 .al-thread-head h2{font-family:var(--serif);font-weight:400;font-size:clamp(28px,4vw,40px);line-height:1.1;margin:8px 0 10px;text-wrap:balance}
 .al-thread-head p:not(.label){font-size:16px;line-height:1.55;color:var(--ink)}

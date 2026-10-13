@@ -7,6 +7,7 @@ Five original AI-generated gouache illustrations, made with the built-in image-g
 - `films.png`: reel, canister, film strip and lavender light.
 - `albums.png`: record, sleeves and a rhythmic ribbon.
 - `tv.png`: ochre television, lavender screen, sage remote and rust ribbon. Delivery: `site/antilibrary/art/tv.jpg`, 1536 × 1024 (3:2), for the `tv` list ID.
+- `thread.png`: a wooden spool of lavender thread with its loose end trailing across the paper. It sits beside the heading when a within-list thread is open. Supplied by Jason on 2026-10-13 (made with ChatGPT); its generation prompt is not yet recorded. Delivery: `site/antilibrary/art/thread.jpg`, 1536 × 1024 (3:2), encoded with Pillow at JPEG quality 84.
 
 The corresponding `site/antilibrary/art/*.jpg` files are delivery derivatives encoded with macOS sips at JPEG quality 84. The list IDs select the files for the small picture at the end of the tab row; Albums uses `albums.jpg`. The `/digests` page reuses the same per-list files by its tabs, so their names stay fixed. Its headline illustration is documented in [../digests/README.md](../digests/README.md). The compositions use a shared 3:2 ratio and are contained, not cropped, in the page’s artwork slot. Artwork is decorative (`alt=""`); the selected tab supplies the medium’s accessible name. The original PNGs and this provenance document are excluded from the production build.
 

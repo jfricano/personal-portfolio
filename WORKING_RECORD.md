@@ -138,3 +138,9 @@ Jason asked for one combined still life beside the anti-library headline on ever
 The two headline images Jason supplied are byte-for-byte the Codex originals from #55 (`artwork/antilibrary/general.png`) and #56 (`artwork/digests/digests.png`). To keep one copy of each, the pages use those files (`site/antilibrary/art/general.jpg`, `site/digests/art/digests.jpg`), and #56 was merged into this branch with this branch's digests script kept, so its prompt, provenance and record entry land unchanged. Where every image shows is tabulated in `docs/antilibrary-artwork.md`.
 
 Verification: `npm run check` passed 262 checks across 17 pages; `node --check site/digests/digests.js` and `git diff --check` passed. Playwright screenshots of the built site confirmed both headline images load at desktop and phone widths. Jason merges.
+
+## Thread art — October 13, 2026
+
+Jason supplied a spool-of-thread illustration for the within-list thread view. Design compared two placements: beside the open thread's heading, or swapped into the small picture by the tabs. The tab-row slot shrank the thread to an unreadable line, so the picture sits beside the thread heading (about 300 px wide, feathered into the paper like the other art), and above the heading on phones. It hides itself if the file fails to load.
+
+Verification: `npm run check` passed; Playwright screenshots of a films thread at 1440 px and 390 px confirmed placement. Jason merges.
