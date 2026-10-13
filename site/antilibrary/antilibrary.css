@@ -33,39 +33,12 @@
 .al-medium{order:-1;margin:16px 0 0;width:176px;aspect-ratio:3/2;flex:none;overflow:hidden}
 .al-medium[hidden]{display:none}
 .al-medium img{opacity:0}.al-medium.is-shown img{opacity:1}
-.al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:var(--sticky-top,0px);z-index:3;background:var(--paper);border-bottom:1px solid var(--line)}
+.al-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(220px,280px);gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:var(--sticky-top,0px);z-index:3;background:var(--paper);border-bottom:1px solid var(--line)}
 .al-controls .label,.al-flags legend{display:block;color:var(--muted);margin-bottom:6px}
-.al-controls input[type=search],.al-controls select,.al-menu summary{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:0;padding:10px 12px;height:47px;box-sizing:border-box}
-.al-controls select,.al-menu summary{appearance:none;padding-right:34px;text-overflow:ellipsis;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
+.al-controls input[type=search],.al-controls select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:0;padding:10px 12px;height:47px;box-sizing:border-box}
+.al-controls select{appearance:none;padding-right:34px;text-overflow:ellipsis;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
 .al-controls input[type=search]{border-color:var(--ink)}
 .al-field[hidden]{display:none}
-/* Shelves and Tags are checkbox menus: the summary looks like the other menus, and the panel drops over the list
-   without moving anything. On phones the panel sits in the flow instead. */
-.al-filter-fields{display:contents}
-.al-filters-toggle{display:none}
-.al-menu{position:relative}
-.al-menu summary{display:block;list-style:none;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:25px;padding-top:10px;padding-bottom:10px}
-.al-menu summary::-webkit-details-marker{display:none}
-.al-menu[open] summary{border-color:var(--ink)}
-.al-menu-panel{position:absolute;top:calc(100% + 4px);left:0;z-index:5;min-width:100%;width:max-content;max-width:min(460px,calc(100vw - 40px));max-height:min(62vh,560px);overflow:auto;background:var(--surface);border:1px solid var(--ink);box-shadow:0 10px 30px #302b2826;padding:6px 0 10px}
-#al-show-menu .al-menu-panel{min-width:220px}
-.al-menu-head{display:flex;justify-content:flex-end;padding:4px 14px 6px;font-size:13px}
-.al-menu-head .al-link{margin:0}
-.al-menu-head .al-link:disabled{opacity:.45;cursor:default;text-decoration:none}
-.al-menu-item{display:flex;align-items:center;gap:10px;padding:6px 14px;min-height:36px;font-size:15px;cursor:pointer}
-.al-menu-item:hover{background:var(--highlight)}
-.al-menu-item input{width:16px;height:16px;margin:0;flex:none;accent-color:var(--ink)}
-.al-menu-item:has(input:disabled){opacity:.45;cursor:default}
-.al-menu-item:has(input:disabled):hover{background:none}
-.al-menu-n{margin-left:auto;padding-left:14px;font-size:12px;color:var(--muted)}
-.al-menu-group{border-top:1px solid var(--line);padding:4px 0}
-.al-menu-group:first-of-type{border-top:0}
-.al-menu-part{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust)}
-.al-menu-sub{padding-left:40px}
-.al-menu summary:focus-visible,.al-controls select:focus-visible,.al-controls input[type=search]:focus-visible,.al-menu-item input:focus-visible,.al-filters-toggle:focus-visible{outline:3px solid var(--rust);outline-offset:2px}
-/* Shelf gets the extra width, since its names are the longest. */
-.al-controls{grid-template-columns:minmax(0,1.6fr) minmax(0,1.4fr) repeat(2,minmax(0,1fr))}
-
 /* Filters in use sit beside the count as chips that take themselves off; nothing shows when nothing is narrowed. */
 .al-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-width:0}
 .al-applied{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
@@ -73,7 +46,7 @@
 .al-chip span{font-size:16px;line-height:1;color:var(--muted)}
 .al-chip:hover{border-color:var(--rust);color:var(--rust)}
 .al-chip:hover span{color:var(--rust)}
-.al-chip:focus-visible,.al-tag:focus-visible,.al-check input:focus-visible{outline:3px solid var(--rust);outline-offset:2px}
+.al-chip:focus-visible,.al-tag:focus-visible,.al-check input:focus-visible,.al-controls select:focus-visible,.al-controls input[type=search]:focus-visible{outline:3px solid var(--rust);outline-offset:2px}
 .al-check{display:inline-flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;min-height:40px;padding:0 6px}
 .al-check input{width:16px;height:16px;margin:0;accent-color:var(--ink)}
 
@@ -110,7 +83,7 @@
 /* Folded shelves stack closer, so a fully folded list reads as a table of contents. */
 .al-shelf:has(.al-list[hidden]) + .al-shelf h2{margin-top:22px}
 .al-list{display:grid}
-.al-item{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"cover head body tags";gap:6px 28px;padding:18px 0;border-bottom:1px solid var(--line);scroll-margin:160px;align-items:start}
+.al-item{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1.5fr);grid-template-areas:"cover head body";gap:6px 28px;padding:18px 0;border-bottom:1px solid var(--line);scroll-margin:160px;align-items:start}
 /* A title off screen skips layout and paint until it scrolls near, so a long list stays quick on phones. The clip
    margin keeps the cover's soft shadow from being cut at the row's edge. */
 .al-item{content-visibility:auto;contain-intrinsic-size:auto 150px;overflow-clip-margin:16px}
@@ -139,23 +112,13 @@
 .al-more a:hover{color:var(--rust)}
 .al-note{font-size:15px;color:var(--muted);line-height:1.5}
 .al-where{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+/* Titles on the list carry no tags since 2026-10-13 (docs/antilibrary-page.md). The tag styles below stay for the
+   digests page, which shows Draft, Digested and Fully read as tags, and for the path link under a creator's name. */
 .al-tags{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
 .al-tag{font-size:10px;letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border:1px solid var(--line);white-space:nowrap;color:var(--ink);background:none}
 .al-tags li{display:flex}
-/* A tag that is also a filter is a button: picking it shows only titles with the same tag. */
-button.al-tag{font-family:inherit;line-height:inherit;cursor:pointer}
-button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
-.al-tag-star{color:var(--rust);border-color:var(--rust)}
-.al-tag-star:before{content:'★ '}
-.al-tag-core{color:var(--ink);border-color:var(--ink);font-weight:600}
-.al-tag-core:before{content:'↻ '}
-.al-tag-owned{background:var(--lavender);border-color:var(--lavender)}
 .al-tag-start{color:var(--rust);border-color:var(--rust)}
-.al-tag-formative{color:var(--rust);border-color:var(--rust);font-weight:600}
 .al-tag-done{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.al-tag-digested{border-style:dashed;color:var(--muted)}
-.al-tag-deeper{color:var(--rust);border-color:var(--rust)}
-.al-tag-deeper:before{content:'✓ '}
 /* The picked title is simply highlighted; the site does not animate, so neither does this. */
 .al-picked{background:var(--highlight);box-shadow:-14px 0 0 var(--highlight),14px 0 0 var(--highlight)}
 .al-picked .al-item-head:before{content:'Picked for you';display:block;font-family:var(--sans);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-bottom:4px}
@@ -174,6 +137,7 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-owner-group{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 14px}
 .al-owner-tags{padding-left:14px;border-left:1px solid var(--line)}
 .al-owner-tags .al-toggle{color:var(--muted)}
+.al-owner-note{font-size:12px;color:var(--muted);min-height:32px;display:inline-flex;align-items:center}
 /* Owner checkboxes: a dashed underline marks a change not yet sent to the site. */
 .al-toggle{display:inline-flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;min-height:32px;border-bottom:1px solid transparent}
 .al-toggle input{width:15px;height:15px;margin:0;accent-color:var(--ink);cursor:inherit}
@@ -187,26 +151,18 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-empty{padding:50px 0;font-family:var(--serif);font-size:24px;color:var(--muted)}
 .al-empty .al-button{margin-top:18px;font-family:var(--sans)}
 
-@media(max-width:1000px){.al-intro{gap:0 32px}.al-art{width:100%}.al-controls{grid-template-columns:1fr 1fr 1fr}.al-search{grid-column:1/-1}.al-item{grid-template-columns:64px minmax(0,1fr) minmax(0,1.4fr);grid-template-areas:"cover head body" "cover . tags";gap:8px 24px}.al-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start}}
+@media(max-width:1000px){.al-intro{gap:0 32px}.al-art{width:100%}.al-item{grid-template-columns:64px minmax(0,1fr) minmax(0,1.4fr);gap:8px 24px}.al-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start}}
 @media(max-width:700px){
 .antilibrary{padding-bottom:60px}.al-intro{padding:35px 0 36px}.al-intro h1{font-size:clamp(46px,12vw,59px)}
 .al-intro{display:block}.al-intro h1{margin-bottom:0}.al-intro-body{grid-template-columns:1fr;gap:26px;margin-top:28px}.al-intro-body .case-deck{font-size:17px}.al-intro-note{font-size:15px}.al-art{grid-area:auto;width:auto;margin:0 -8px}
 .al-tabrow{gap:0 18px;flex-wrap:wrap}.al-medium{width:140px;margin:10px 0 0}.al-tabs{flex:none;max-width:100%;gap:16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 0 0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:23px;white-space:nowrap;flex:none}.al-tabs button span{display:none}
-.al-controls{grid-template-columns:1fr 1fr;gap:12px;padding:16px 0 14px;position:static}
-.al-search,.al-field-shelf{grid-column:1/-1}
-.al-filters-toggle{display:flex;align-items:center;justify-content:space-between;grid-column:1/-1;font:inherit;font-size:15px;color:var(--ink);background:none;border:1px solid var(--line);padding:10px 12px;min-height:44px;cursor:pointer}
-.al-filters-toggle:after{content:'+';font-size:20px;line-height:1;color:var(--muted)}
-.al-filters-toggle[aria-expanded=true]:after{content:'−'}
-.al-controls:not(.is-open) .al-filter-fields{display:none}
-.al-menu-panel{position:static;width:auto;max-width:none;max-height:none;margin-top:4px;box-shadow:none}
+.al-controls{grid-template-columns:1fr;gap:12px;padding:16px 0 14px;position:static}
 .al-status{flex-wrap:wrap;gap:12px}.al-summary{display:contents}#al-count{flex:1}.al-applied{order:1;flex:1 1 100%}
 .al-shelf h2{font-size:28px;gap:12px;margin-top:36px}
-.al-item{grid-template-columns:56px minmax(0,1fr);grid-template-areas:"cover head" "cover body" "cover tags";gap:6px 16px;padding:16px 0}.al-cover{width:56px}.al-ext{opacity:1}
+.al-item{grid-template-columns:56px minmax(0,1fr);grid-template-areas:"cover head" "cover body";gap:6px 16px;padding:16px 0}.al-cover{width:56px}.al-ext{opacity:1}
 .al-item h3{font-size:21px}.al-note{font-size:14px}
 }
-@media(max-width:380px){.al-controls{grid-template-columns:1fr}}
-/* Threads: a fifth control when the list has threads, and a header over the path. */
-.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:minmax(0,1.5fr) minmax(0,1.3fr) minmax(0,1fr) minmax(0,1.2fr) minmax(0,1fr)}
+/* Threads: a header over the titles when an old ?thread= link narrows the list. */
 .al-thread-head{margin:34px 0 6px;padding-bottom:18px;border-bottom:1px solid var(--ink);display:grid;grid-template-columns:minmax(0,68ch) minmax(0,300px);justify-content:space-between;align-items:center;gap:0 40px}
 .al-thread-art{margin:0;aspect-ratio:3/2;overflow:hidden}.al-thread-art[hidden]{display:none}
 .al-thread-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;
@@ -223,9 +179,6 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 /* Sorted by creator: a heavier rule where the next creator starts. */
 .al-by-creator .al-creator-start{border-top:3px solid var(--ink);margin-top:-1px}
 .al-step{font-size:15px;line-height:1.5;color:var(--ink);margin-bottom:8px;padding-left:12px;border-left:2px solid var(--rust)}
-@media(max-width:1000px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:repeat(4,minmax(0,1fr))}}
-@media(max-width:700px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:1fr 1fr;grid-auto-flow:dense}#al-thread-field{grid-column:1/-1}}
-@media(max-width:380px){.al-controls:has(#al-thread-field:not([hidden])){grid-template-columns:1fr}}
 
 /* Artist paths (artist.html): a door, the listening order, then every record by year on one rail, with the
    skipped ones muted. Same paper, serif and rust as the list; nothing moves. */
@@ -270,14 +223,13 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .ap-section h2 .index{font-size:20px;letter-spacing:0}
 /* Listening order: bigger covers, the step number as a large rust numeral, and the door on a lavender band. */
 .ap-steps{list-style:none;margin:0;padding:0}
-.ap-steps .ap-step{grid-template-columns:104px minmax(0,1fr) minmax(0,1.3fr) 110px;gap:6px 32px;padding:26px 0;align-items:start}
+.ap-steps .ap-step{grid-template-columns:104px minmax(0,1fr) minmax(0,1.3fr);gap:6px 32px;padding:26px 0;align-items:start}
 .ap-steps .al-cover{width:104px;box-shadow:0 4px 14px #302b281f}
 .ap-steps .al-item h3{font-size:25px}
 .ap-num{font-size:44px;line-height:.9;margin-bottom:12px}
 .ap-step{scroll-margin:calc(var(--masthead-h) + 30px)}
 .ap-step.ap-door{background:var(--lavender);box-shadow:-28px 0 0 var(--lavender),28px 0 0 var(--lavender);border-bottom-color:transparent}
 .ap-step.ap-door .al-note{color:var(--ink)}
-.ap-tag-door{color:var(--rust);border-color:var(--rust);font-weight:600}
 .ap-lede{color:var(--muted);font-size:15px;margin:14px 0 22px;max-width:640px}
 /* The whole run: one vertical rail, a filled rust dot for each record on the path, a hollow one for the rest. */
 .ap-timeline{list-style:none;margin:0;padding:4px 0 0;position:relative}
@@ -313,9 +265,7 @@ a.al-tag-path:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:700px){.ap-head .case-facts{grid-template-columns:1fr}}
 @media(max-width:700px){.ap-head.ap-has-photo{display:block}.ap-photo{margin:0 0 26px}.ap-photo img{width:100%;aspect-ratio:var(--ar-phone,var(--ar))}.ap-photo figcaption{text-align:left}}
 @media(max-width:700px){.ap-art{margin:0 0 6px}.ap-art img{width:200px;aspect-ratio:3/2}}
-/* Phones: one menu per row in the desktop order (Shelves, Tags, Paths, Sort), and the count gets its own line
-   above the buttons. */
+/* Phones: the count gets its own line above the buttons. */
 @media(max-width:700px){
-.al-filter-fields .al-field{grid-column:1/-1}
 #al-count{flex:1 1 100%}
 }

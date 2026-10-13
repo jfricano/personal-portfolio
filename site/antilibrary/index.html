@@ -26,13 +26,7 @@
 </div>
 <form class="al-controls" id="al-controls" role="search" onsubmit="return false">
 <div class="al-search"><label for="al-q" class="label">Search</label><input id="al-q" type="search" placeholder="Title, author, idea…" autocomplete="off" spellcheck="false"></div>
-<button type="button" class="al-filters-toggle" id="al-filters-toggle" aria-expanded="false" aria-controls="al-filter-fields">Filters</button>
-<div class="al-filter-fields" id="al-filter-fields">
-<div class="al-field al-field-shelf"><span class="label" id="al-shelf-label">Shelves</span><details class="al-menu" id="al-shelf-menu"><summary aria-describedby="al-shelf-label"></summary><div class="al-menu-panel" id="al-shelf-panel"></div></details></div>
-<div class="al-field" id="al-show-field"><span class="label" id="al-show-label">Tags</span><details class="al-menu" id="al-show-menu"><summary aria-describedby="al-show-label"></summary><div class="al-menu-panel" id="al-show-panel"></div></details></div>
-<div class="al-field" id="al-thread-field" hidden><label for="al-thread" class="label">Paths</label><select id="al-thread"></select></div>
 <div class="al-field al-field-sort"><label for="al-sort" class="label">Sort</label><select id="al-sort"></select></div>
-</div>
 </form>
 <div class="al-owner-bar" id="al-owner-bar" hidden><p id="al-owner-text" aria-live="polite"></p><div class="al-actions"><button type="button" class="al-button" id="al-save" hidden>Save changes</button><a class="al-button" id="al-send" target="_blank" rel="noopener noreferrer" hidden>Save changes ↗</a><a class="al-button" id="al-send-marks" target="_blank" rel="noopener noreferrer" hidden>Save digest marks ↗</a><button type="button" class="al-button al-quiet" id="al-discard" hidden>Discard</button><label class="al-check"><input type="checkbox" id="al-hide"><span id="al-hide-label">Hide finished</span></label><a class="al-button al-quiet" href="../digests/" target="_blank" rel="noopener">Digests ↗</a><button type="button" class="al-button al-quiet" id="al-export">Export spreadsheet</button><button type="button" class="al-button al-quiet" id="al-owner">Leave owner mode</button></div></div>
 <div class="al-status"><div class="al-summary"><p id="al-count" aria-live="polite">Loading the shelves…</p><ul class="al-applied" id="al-applied" aria-label="Filters in use" hidden></ul></div><div class="al-actions"><button type="button" class="al-link al-fold" id="al-fold" hidden>Collapse all</button><button type="button" class="al-button" id="al-random">Pick one for me</button></div></div>
