@@ -12,3 +12,7 @@ Create a masterful tactile fine-art still life, tall 4:5 composition, warm off-w
 ## Anti-library
 
 The matching books, films and albums illustration set, delivery settings and generation prompts are documented in [antilibrary/README.md](antilibrary/README.md).
+
+## Digests
+
+The dedicated folio, note card and pencil illustration is documented in [digests/README.md](digests/README.md).
