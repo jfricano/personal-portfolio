@@ -526,10 +526,11 @@
   }
 
   // Owner mode.
-  // Changes wait in this browser until they are saved. With the digests key extended to write issues (Issues: Read
-  // and write on anti-lib and reading-list), Save opens the issues itself through the GitHub API, watches the
-  // workflows close them and reloads the data. Without it, the page falls back to prefilled issue links, split into
-  // parts since GitHub turns away links much past 8,000 characters. A unit is [line, path into the json, value].
+  // Changes wait in this browser until they are saved, so they survive a reload. Save is one step either way: with
+  // the digests key extended to write issues (Issues: Read and write on anti-lib and reading-list), it opens the
+  // issues itself through the GitHub API, watches the workflows close them and reloads the data. Without that, the
+  // same button opens a prefilled GitHub issue to submit, split into parts since GitHub turns away links much past
+  // 8,000 characters. A unit is [line, path into the json, value].
   const MAX_URL = 7000, MAX_BODY = 60000;
   // A unit counts as sent once its issue is opened, so it isn't sent twice while the site catches up. If the site
   // still hasn't applied it after SENT_WAIT (a link's issue was never submitted), it's back.
@@ -606,7 +607,7 @@
   };
   // Without a key, owner mode stops at MAX_LINK_CHANGES unsent changes; returns true (and says so) when it's full.
   function atCap() {
-    if (canSave && token()) return false;
+    if (directNow()) return false;
     if (linkCount() < MAX_LINK_CHANGES) return false;
     renderOwnerBar();
     return true;
@@ -632,11 +633,19 @@
     ...options, cache: 'no-store',
     headers: { Authorization: `Bearer ${token()}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...options.headers },
   });
-  let saving = false, saveNote = '', canSave = true;
+  // A key GitHub won't let open issues is remembered for a while, so Save goes straight to the issue link. It's
+  // tried again after LINK_WAIT, in case the key has since been given Issues: Read and write.
+  const LINK_ONLY_KEY = 'antilibrary-save-by-link', LINK_WAIT = 12 * 60 * 60 * 1000;
+  const keyTag = () => token().slice(-8);
+  const directNow = () => {
+    const refused = store.get(LINK_ONLY_KEY, null);
+    return Boolean(token()) && !(refused?.key === keyTag() && Date.now() - refused.at < LINK_WAIT);
+  };
+  let saving = false, saveNote = '';
   function renderOwnerBar() {
     els.ownerBar.hidden = !owner;
     if (!owner) return;
-    const direct = canSave && Boolean(token());
+    const direct = directNow();
     const tooBig = direct ? part => part.body.length > MAX_BODY : part => newIssueUrl(part.repo, part).length > MAX_URL;
     const sends = !pendingCount() ? [] : direct ? issueParts(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER, tooBig) : linkPart(REPO, 'Anti-library', 'title', siteUnits(), SITE_FOOTER);
     const markSends = !nested(digestPending()) ? [] : direct ? issueParts(DIGESTS_REPO, 'Digests', 'mark', markUnits(), MARKS_FOOTER, tooBig) : linkPart(DIGESTS_REPO, 'Digests', 'mark', markUnits(), MARKS_FOOTER);
@@ -645,21 +654,21 @@
     const words = n => `${number(n)} ${n === 1 ? 'change' : 'changes'}`;
     const text = [];
     if (saving) text.push(`Saving ${words(count + marks)}…`);
-    else if (count || marks) text.push(direct ? `${words(count + marks)} not saved yet.` : `${count + marks === 1 ? '1 change is' : `${number(count + marks)} changes are`} saved in this browser and not yet sent.`);
-    if (waiting && !saving) text.push(direct ? `Saved ${words(waiting)}; the site is updating.` : `${words(waiting)} sent and waiting for the site to update, which takes a few minutes.`);
+    else if (count || marks) text.push(`${words(count + marks)} not saved yet.`);
+    if (waiting && !saving) text.push(direct ? `Saved ${words(waiting)}; the site is updating.` : `Saved ${words(waiting)}; the site updates a few minutes after GitHub has the issue.`);
     if (saveNote) text.push(saveNote);
     if (!text.length) text.push(`Tick titles as you finish them${list?.toggles?.length ? ', retag them' : ''} or remove ones you no longer want, then save.`);
-    if (!direct && count && marks) text.push('Send both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.');
+    if (!direct && count && marks) text.push('Save both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.');
     if ((count || marks) && !saving) text.push('Discard brings back anything you removed.');
-    if (!direct && count + marks >= MAX_LINK_CHANGES) text.push(`Max ${number(MAX_LINK_CHANGES)} changes reached: send these before marking more.`);
+    if (!direct && count + marks >= MAX_LINK_CHANGES) text.push(`Max ${number(MAX_LINK_CHANGES)} changes reached: save these before marking more.`);
     else if (!direct && count + marks >= MAX_LINK_CHANGES * 0.8) text.push(`${number(count + marks)} of max ${number(MAX_LINK_CHANGES)} changes.`);
-    if (!direct && (sends.length > 1 || markSends.length > 1)) text.push('That’s too much for one GitHub issue, so it’s split into parts: send each one.');
+    if (!direct && (sends.length > 1 || markSends.length > 1)) text.push('That’s too much for one GitHub issue, so it’s split into parts: save each one.');
     els.ownerText.textContent = text.join(' ');
-    els.save.hidden = !token() || (!count && !marks && !saving);
+    els.save.hidden = !direct || (!count && !marks && !saving);
     els.save.disabled = saving;
-    els.save.textContent = saving ? 'Saving…' : direct ? 'Save changes' : 'Try saving again';
-    setLinks(els.send, direct ? [] : sends, 'Send changes to the site');
-    setLinks(els.sendMarks, direct ? [] : markSends, 'Send digest marks');
+    els.save.textContent = saving ? 'Saving…' : 'Save changes';
+    setLinks(els.send, direct ? [] : sends, 'Save changes');
+    setLinks(els.sendMarks, direct ? [] : markSends, count ? 'Save digest marks' : 'Save changes');
     els.discard.hidden = saving || (!pendingCount() && !nested(digestPending()));
   }
   // The same issue the digests page writes, for its own repository's workflow.
@@ -694,12 +703,22 @@
   // Save: one click opens every issue needed (site and digest marks) and then watches them.
   async function save() {
     if (saving) return;
-    saving = true; saveNote = ''; canSave = true;
+    saving = true; saveNote = '';
     renderOwnerBar();
     try { await saveParts(); } catch (error) { saveNote = `The save didn’t go through (${error.message || error}). Try again.`; }
     saving = false;
     renderOwnerBar();
+    if (!directNow()) openFirstLink();
     watchSaves();
+  }
+  // When the key turns out not to open issues, the same click carries on to the prefilled issue. A browser that
+  // blocks the new tab gets it in this one; the changes wait in the store meanwhile.
+  function openFirstLink() {
+    const a = [els.send, els.sendMarks].find(link => !link.hidden && link.href);
+    if (!a) return;
+    const tab = open(a.href, '_blank');
+    markSent(partIds.get(a) || []);
+    if (tab) { tab.opener = null; setTimeout(renderOwnerBar, 500); } else location.assign(a.href);
   }
   async function saveParts() {
     // Changes the published data already has (saved from another tab or an earlier link) are dropped, not resent.
@@ -714,7 +733,7 @@
     for (const part of parts) {
       const response = await github(`${part.repo}/issues`, { method: 'POST', body: JSON.stringify({ title: part.title, body: part.body }) }).catch(() => null);
       if (!response?.ok) {
-        saveNote = await saveFailure(response, part.repo.split('/')[1]);
+        saveNote = await saveFailure(response);
         break;
       }
       const issue = await response.json();
@@ -724,8 +743,8 @@
     }
   }
   // Says why GitHub turned a save away, in its own words. A rate limit (GitHub answers some of those with 403 too)
-  // only needs a wait; a refused key falls back to the links until Save is tried again.
-  async function saveFailure(response, repo) {
+  // only needs a wait; a refused key quietly switches Save to the issue link.
+  async function saveFailure(response) {
     if (!response) return 'The save didn’t go through. Check the connection and try again.';
     const said = await response.json().then(b => b?.message || '').catch(() => '');
     const why = `GitHub said ${response.status}${said ? `: ${said}` : ''}`;
@@ -733,10 +752,8 @@
       || response.headers.get('retry-after') || /rate limit|abuse/i.test(said);
     if (limited) return `GitHub asked the page to slow down (${why}). Wait a minute, then press Save again.`;
     if (![401, 403, 404].includes(response.status)) return `The save didn’t go through (${why}). Try again.`;
-    canSave = false;
-    return response.status === 401
-      ? `GitHub turned the digests key away (${why}); it may have expired. Send the changes with the links below, or press Try saving again with a new key.`
-      : `GitHub wouldn’t let the digests key open an issue on ${repo} (${why}). The key needs Issues set to Read and write there. Until then, send the changes with the links below, or press Try saving again.`;
+    store.set(LINK_ONLY_KEY, { key: keyTag(), at: Date.now() });
+    return '';
   }
   // Polls the saved issues: the workflow closes one once it's applied, or comments on it and leaves it open if not.
   let watchTimer = 0;
