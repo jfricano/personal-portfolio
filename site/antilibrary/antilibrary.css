@@ -299,10 +299,9 @@ a.al-tag-path:hover{border-color:var(--rust);color:var(--rust)}
 .ap-what .al-owner-actions{margin-top:6px}
 @media(max-width:1000px){.ap-head .case-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.ap-head .case-facts{grid-template-columns:1fr}}
-/* Phones: the menus always stack the same way (Shelves, then Tags beside Sort, then Paths), Sort takes the full
-   width when a list has no tags, and the count gets its own line above the buttons. */
+/* Phones: one menu per row in the desktop order (Shelves, Tags, Paths, Sort), and the count gets its own line
+   above the buttons. */
 @media(max-width:700px){
-#al-show-field{order:1}.al-field-sort{order:2}#al-thread-field{order:3}
-.al-controls:has(#al-show-field[hidden]) .al-field-sort{grid-column:1/-1}
+.al-filter-fields .al-field{grid-column:1/-1}
 #al-count{flex:1 1 100%}
 }

@@ -121,6 +121,7 @@
     oldest: { label: l => `${l.dateLabel || 'Year'}, oldest first`, year: true, cmp: (a, b) => year(a) - year(b) || a._t.localeCompare(b._t) },
     newest: { label: l => `${l.dateLabel || 'Year'}, newest first`, year: true, cmp: (a, b) => (b.y ?? -NO_DATE) - (a.y ?? -NO_DATE) || a._t.localeCompare(b._t) },
     written: { label: () => 'Written, oldest first', written: true, cmp: (a, b) => written(a) - written(b) || a._t.localeCompare(b._t) },
+    'written-newest': { label: () => 'Written, newest first', written: true, cmp: (a, b) => (b.w ?? b.y ?? -NO_DATE) - (a.w ?? a.y ?? -NO_DATE) || a._t.localeCompare(b._t) },
   };
   const store = {
     get(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } },
@@ -219,7 +220,7 @@
     }
     for (const i of others) shelves.set(i.s, shelves.get(i.s) + 1);
     const chosen = new Set(state.shelves);
-    let html = `<p class="al-menu-head"><button type="button" class="al-link" data-menu-all="shelves"${chosen.size ? '' : ' disabled'}>Show all shelves</button></p>`;
+    let html = `<p class="al-menu-head"><button type="button" class="al-link" data-menu-all="shelves"${chosen.size ? '' : ' disabled'}>Clear</button></p>`;
     for (const [part, names] of parts) {
       const rows = names.map(name => box('data-shelf', name, shelfName(name), shelves.get(name), chosen.has(name), part ? ' al-menu-sub' : '')).join('');
       const n = names.reduce((sum, name) => sum + shelves.get(name), 0);
@@ -237,7 +238,7 @@
     const flags = filterFlags();
     els.showField.hidden = !flags.length;
     keepFocus(els.show, () => {
-      els.show.innerHTML = `<p class="al-menu-head"><button type="button" class="al-link" data-menu-all="tags"${state.only.length ? '' : ' disabled'}>Clear tags</button></p>` +
+      els.show.innerHTML = `<p class="al-menu-head"><button type="button" class="al-link" data-menu-all="tags"${state.only.length ? '' : ' disabled'}>Clear</button></p>` +
         flags.map(([key, label]) => box('data-flag', key, label, byFlag.filter(i => i.f && i.f.includes(key)).length, state.only.includes(key))).join('');
     });
     els.showMenu.querySelector('summary').textContent = !state.only.length ? 'All tags' : state.only.length === 1 ? list.flags[state.only[0]] : `${state.only.length} tags`;
@@ -247,7 +248,7 @@
     const threads = list.threads || [], byThread = items.filter(i => matches(i, 'thread'));
     const kind = PATHS[list.id], people = (kind && paths[list.id]?.all) || [];
     els.threadField.hidden = !threads.length && !people.length;
-    els.thread.innerHTML = option('', 'None', 0, state.thread) +
+    els.thread.innerHTML = option('', 'No path', 0, state.thread) +
       (threads.length ? `<optgroup label="Threads">${threads.map(t => option(t.id, t.name, byThread.filter(i => i.th && i.th[t.id]).length, state.thread)).join('')}</optgroup>` : '') +
       (people.length ? `<optgroup label="${esc(kind.heading)}">${people.map(p => option(`path:${p.id}`, `${p[kind.who]} →`, null, state.thread)).join('')}</optgroup>` : '');
     updateFiltersToggle();
@@ -647,7 +648,7 @@
     else if (count || marks) text.push(direct ? `${words(count + marks)} not saved yet.` : `${count + marks === 1 ? '1 change is' : `${number(count + marks)} changes are`} saved in this browser and not yet sent.`);
     if (waiting && !saving) text.push(direct ? `Saved ${words(waiting)}; the site is updating.` : `${words(waiting)} sent and waiting for the site to update, which takes a few minutes.`);
     if (saveNote) text.push(saveNote);
-    if (!text.length) text.push('Tick titles as you finish them, retag them or remove ones you no longer want, then save.');
+    if (!text.length) text.push(`Tick titles as you finish them${list?.toggles?.length ? ', retag them' : ''} or remove ones you no longer want, then save.`);
     if (!direct && count && marks) text.push('Send both: the site gets what’s crossed off, and the digests get whether it was digested or fully read.');
     if ((count || marks) && !saving) text.push('Discard brings back anything you removed.');
     if (!direct && count + marks >= MAX_LINK_CHANGES) text.push(`Max ${number(MAX_LINK_CHANGES)} changes reached: send these before marking more.`);
