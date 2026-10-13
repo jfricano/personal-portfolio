@@ -150,3 +150,9 @@ Jason supplied a spool-of-thread illustration for the within-list thread view. D
 Verification: `npm run check` passed; Playwright screenshots of a films thread at 1440 px and 390 px confirmed placement. Jason merges.
 
 The spool image is byte-for-byte the Codex original from #60, so the page now uses that copy (`site/assets/lavender-thread.jpg`, prompt in `artwork/thread/README.md`), and the duplicate that #64 added is gone.
+
+## Phone size for the list picture — October 13, 2026
+
+Jason kept the list picture left of the tabs and asked for a moderate phone size: the 150–230 px picture from #66 read too big against the tab text. On phones it is now a fixed 140 px, beside the tabs when they fit (around 540 px wide) and on its own line just above them otherwise. A design trial that moved it into the list view above the first shelf (#68) was closed unmerged at Jason's call.
+
+Verification: `npm run check` passed; Playwright screenshots of books and albums at 360, 390 and 540 px, with no sideways scroll. Jason merges.
