@@ -16,3 +16,7 @@ The matching books, films and albums illustration set, delivery settings and gen
 ## Digests
 
 The dedicated folio, note card and pencil illustration is documented in [digests/README.md](digests/README.md).
+
+## Lavender thread
+
+The spool and long continuous strand illustration is documented in [thread/README.md](thread/README.md).
