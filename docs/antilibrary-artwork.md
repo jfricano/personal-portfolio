@@ -9,7 +9,7 @@ The page shows one combined still life, `site/antilibrary/art/general.jpg`, besi
 | TV     | `tv.jpg`     |
 | Albums | `albums.jpg` |
 
-- **Size:** the current set is 1536 × 1024 px (3:2). The slot shows the whole image, never cropped, at 3:2: up to 440 px wide beside the headline on desktop and full width on phones; the per-list picture by the tabs is about 175 px wide, so its subject must read at thumbnail size. Its edges are feathered into the paper with a radial mask, so keep the subject inside the middle three-quarters of the frame.
+- **Size:** the current set is 1536 × 1024 px (3:2). The slot shows the whole image, never cropped, at 3:2: up to 440 px wide beside the headline on desktop and full width on phones; the per-list picture by the tabs is about 175 px wide on desktop and up to 230 px on phones (beside the tabs when they leave room, otherwise on its own line under them), so its subject must read at thumbnail size. Its edges are feathered into the paper with a radial mask, so keep the subject inside the middle three-quarters of the frame.
 - **Format:** JPEG, sRGB. The page's paper color is `#f5f0e7`, and the image is multiplied onto it, so a cream background blends in.
 - **No text in the image**, since the list name is already in the tab above it.
 
