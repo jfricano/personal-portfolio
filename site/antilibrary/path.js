@@ -61,7 +61,7 @@
     // The frame keeps the photo's own shape, within reason: a portrait stands narrow, a band shot runs wide.
     const ratio = ph.w > 0 && ph.h > 0 ? ph.w / ph.h : 4 / 3;
     frame.style.setProperty('--ar', Math.min(Math.max(ratio, 0.7), 2).toFixed(3));
-    frame.style.setProperty('--ar-phone', Math.min(Math.max(ratio, 0.85), 1.6).toFixed(3));
+    frame.style.setProperty('--ar-phone', Math.min(Math.max(ratio, 1.2), 1.6).toFixed(3));
     // Credited the way Commons suggests: "Author, License, via Wikimedia Commons" (a painting's painter is its author).
     const credit = [ph.by, ph.lic, 'via Wikimedia Commons'].filter(Boolean).map(esc).join(', ');
     frame.querySelector('figcaption').innerHTML = web(ph.u)
