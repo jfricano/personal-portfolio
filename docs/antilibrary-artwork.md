@@ -21,6 +21,7 @@ Originals and generation prompts are in `artwork/antilibrary/`. To replace an im
 |-------|----------------|---------------------|
 | `site/antilibrary/art/general.jpg` | Beside the `/antilibrary` headline on every tab; under the headline on phones | [artwork/antilibrary/general-prompt.md](../artwork/antilibrary/general-prompt.md) |
 | `site/digests/art/digests.jpg` | Beside the `/digests` headline, including the locked view | [artwork/digests/README.md](../artwork/digests/README.md) |
+| `site/antilibrary/art/thread.jpg` | Beside the heading of an open thread on `/antilibrary` (Paths menu or the Threads block); above the heading on phones | [artwork/antilibrary/README.md](../artwork/antilibrary/README.md) |
 | `site/antilibrary/art/{books,films,tv,albums}.jpg` | Small at the end of the tab row on `/antilibrary`, and by the Books and Films tabs on `/digests`; also `books.jpg` as the anti-library's social preview image | [artwork/antilibrary/README.md](../artwork/antilibrary/README.md) |
 
 Each image has one copy in the repo. The two headline images came from the Codex art PRs (#55 and #56); Jason chose them and #57 placed them. Keep a new image's generation prompt next to its original in `artwork/`.
