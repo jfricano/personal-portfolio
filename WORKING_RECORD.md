@@ -138,3 +138,7 @@ Jason asked for one combined still life beside the anti-library headline on ever
 The two headline images Jason supplied are byte-for-byte the Codex originals from #55 (`artwork/antilibrary/general.png`) and #56 (`artwork/digests/digests.png`). To keep one copy of each, the pages use those files (`site/antilibrary/art/general.jpg`, `site/digests/art/digests.jpg`), and #56 was merged into this branch with this branch's digests script kept, so its prompt, provenance and record entry land unchanged. Where every image shows is tabulated in `docs/antilibrary-artwork.md`.
 
 Verification: `npm run check` passed 262 checks across 17 pages; `node --check site/digests/digests.js` and `git diff --check` passed. Playwright screenshots of the built site confirmed both headline images load at desktop and phone widths. Jason merges.
+
+## Lavender thread illustration — October 12, 2026
+
+Created the requested dusty lavender spool with one long continuous thread, matching the gouache set at 1536×1024 (3:2). Original and exact built-in generation prompt: `artwork/thread/`; optimized delivery: `site/assets/lavender-thread.jpg`. Standalone asset; page placement is not assigned. Visually checked the spool, single continuous strand, palette and margins; verified dimensions. `npm run check` and `git diff --check` passed. Prepared a signed asset PR for Jason; no rendered-page behavior changed.
