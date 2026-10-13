@@ -1,6 +1,6 @@
 # Anti-library header art
 
-The page shows one combined still life, `site/antilibrary/art/anti-library.jpg`, beside the headline on every tab, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. Each list's own illustration shows small at the end of the tab row, next to the medium selector; it changes with the selected tab and swaps in without motion once its file exists in `site/antilibrary/art/`. A list without a file shows no small picture. The `/digests` page follows the same pattern with `digests.jpg` beside its headline and the per-list files by its tabs, so those file names stay fixed.
+The page shows one combined still life, `site/antilibrary/art/general.jpg`, beside the headline on every tab, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. Each list's own illustration shows small at the end of the tab row, next to the medium selector; it changes with the selected tab and swaps in without motion once its file exists in `site/antilibrary/art/`. A list without a file shows no small picture. The `/digests` page follows the same pattern with its own `site/digests/art/digests.jpg` beside its headline and the per-list files by its tabs, so those file names stay fixed.
 
 | List   | File         |
 |--------|--------------|
@@ -15,6 +15,6 @@ The page shows one combined still life, `site/antilibrary/art/anti-library.jpg`,
 
 Originals and generation prompts are in `artwork/antilibrary/`. To replace an image, put the new file in `site/antilibrary/art/` and open a PR; nothing else needs to change.
 
-## General landing illustration
+## Headline illustration
 
-`site/antilibrary/art/general.jpg` is the 1536 × 1024 (3:2) combined-media illustration for the general anti-library landing view. It is supplied as an asset for page-team integration; the existing tab-specific loader continues to use the four medium-specific images. Original and prompt: [artwork/antilibrary/general-prompt.md](../artwork/antilibrary/general-prompt.md).
+`general.jpg` is the combined-media still life beside the headline. Original and prompt: [artwork/antilibrary/general-prompt.md](../artwork/antilibrary/general-prompt.md). The digests headline image's original and prompt are in [artwork/digests/README.md](../artwork/digests/README.md).

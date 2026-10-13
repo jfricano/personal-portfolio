@@ -2,7 +2,7 @@
 
 Original symbolic editorial gouache illustration made with the built-in image-generation tool, using `../antilibrary/books.png` as a style reference. An ochre folio, briefing sheets, note card and pencil represent reading a work and retaining one thought. It does not depict Jason’s possessions.
 
-`digests.png` is the 1536 × 1024 (3:2) original; `site/digests/art/digests.jpg` is the web derivative, encoded with macOS sips at JPEG quality 84. The digests header uses this single illustration across all media, including the locked view. The empty alt text marks it as decorative; the surrounding heading explains the page. Failed image loads hide the art slot. Originals and this document stay out of the production build.
+`digests.png` is the 1536 × 1024 (3:2) original; `site/digests/art/digests.jpg` is the web derivative, encoded with macOS sips at JPEG quality 84. The digests headline uses this single illustration across all media, including the locked view; each list's small anti-library picture sits by the tabs. The empty alt text marks it as decorative; the surrounding heading explains the page. Failed image loads hide the art slot. Originals and this document stay out of the production build.
 
 ## Generation prompt
 
