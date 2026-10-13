@@ -150,3 +150,9 @@ Jason supplied a spool-of-thread illustration for the within-list thread view. D
 Verification: `npm run check` passed; Playwright screenshots of a films thread at 1440 px and 390 px confirmed placement. Jason merges.
 
 The spool image is byte-for-byte the Codex original from #60, so the page now uses that copy (`site/assets/lavender-thread.jpg`, prompt in `artwork/thread/README.md`), and the duplicate that #64 added is gone.
+
+## List art moves into the list view — October 13, 2026
+
+Jason felt the per-list picture still looked wrong beside the tabs, at either end of the row. Design compared it beside the tabs, at the end of the count line, and centred above the first shelf. Beside the tabs it sat right under the headline still life, so two pictures stacked within a screen and the small one cramped the tabs; at the end of the count line it pushed the actions around. Centred above the first shelf it reads as the list's vignette, the way a chapter opens, and the tab row is just tabs again. It is 280 px wide on desktop and 220 px on phones, and it steps aside while a search, filter or thread is on, the same moments the paths and threads asides hide, so results start right under the count. `/digests` keeps its picture at the start of its tab row.
+
+Verification: `npm run check` passed; Playwright screenshots of books and albums at 1440, 1100 and 390 px, and of a search at 1440 px, with no sideways scroll. Jason merges.

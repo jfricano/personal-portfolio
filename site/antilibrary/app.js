@@ -355,6 +355,8 @@
     foldedNow = new Set();
     renderOwnerBar();
     els.fold.hidden = !visible.length || state.sort !== 'shelf' || state.shelves.length === 1 || Boolean(state.thread);
+    // The list picture opens the unfiltered list like a chapter's vignette; a search, filter or thread steps it aside.
+    $('al-medium').classList.toggle('is-quiet', filtering());
     if (!visible.length) {
       els.results.innerHTML = `<div class="al-empty"><p>Nothing on these shelves matches. Try fewer words, or start over.</p><button type="button" class="al-button al-quiet" data-clear="all">Clear all filters</button></div>`;
       return;
@@ -453,8 +455,8 @@
     updateFold();
   });
 
-  // Each list's illustration lives at art/<list id>.jpg and sits small at the end of the tab row; a list without one
-  // shows no picture there. The combined still life beside the headline is static markup.
+  // Each list's illustration lives at art/<list id>.jpg and sits centred between the status line and the first shelf;
+  // a list without one shows no picture there. The combined still life beside the headline is static markup.
   function showArt() {
     const figure = $('al-medium'), image = $('al-medium-img');
     figure.classList.remove('is-shown');

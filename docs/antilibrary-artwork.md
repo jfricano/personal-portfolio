@@ -1,6 +1,6 @@
 # Anti-library header art
 
-The page shows one combined still life, `site/antilibrary/art/general.jpg`, beside the headline on every tab, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. Each list's own illustration shows at the start of the tab row, to the left of the medium selector; it changes with the selected tab and swaps in without motion once its file exists in `site/antilibrary/art/`. A list without a file shows no small picture. The `/digests` page follows the same pattern with its own `site/digests/art/digests.jpg` beside its headline and the per-list files by its tabs, so those file names stay fixed.
+The page shows one combined still life, `site/antilibrary/art/general.jpg`, beside the headline on every tab, with the two intro paragraphs underneath. On phones it sits under the headline, with all the text below it. Each list's own illustration sits centred in the list view, between the count line and the first shelf, like a chapter's vignette, and steps aside while a search, filter or thread is on; it changes with the selected tab and swaps in without motion once its file exists in `site/antilibrary/art/`. A list without a file shows no small picture. The `/digests` page follows the same pattern with its own `site/digests/art/digests.jpg` beside its headline and the per-list files at the start of its tab row, so those file names stay fixed.
 
 | List   | File         |
 |--------|--------------|
@@ -22,6 +22,6 @@ Originals and generation prompts are in `artwork/antilibrary/`. To replace an im
 | `site/antilibrary/art/general.jpg` | Beside the `/antilibrary` headline on every tab; under the headline on phones | [artwork/antilibrary/general-prompt.md](../artwork/antilibrary/general-prompt.md) |
 | `site/digests/art/digests.jpg` | Beside the `/digests` headline, including the locked view | [artwork/digests/README.md](../artwork/digests/README.md) |
 | `site/assets/lavender-thread.jpg` | Beside the heading of an open thread on `/antilibrary` (Paths menu or the Threads block); above the heading on phones | [artwork/thread/README.md](../artwork/thread/README.md) |
-| `site/antilibrary/art/{books,films,tv,albums}.jpg` | At the start of the tab row, left of the tabs, on `/antilibrary`, and by the Books and Films tabs on `/digests`; also `books.jpg` as the anti-library's social preview image | [artwork/antilibrary/README.md](../artwork/antilibrary/README.md) |
+| `site/antilibrary/art/{books,films,tv,albums}.jpg` | Centred in the list view above the first shelf on `/antilibrary`, and at the start of the tab row on the Books and Films tabs on `/digests`; also `books.jpg` as the anti-library's social preview image | [artwork/antilibrary/README.md](../artwork/antilibrary/README.md) |
 
 Each image has one copy in the repo. The two headline images came from the Codex art PRs (#55 and #56); Jason chose them and #57 placed them. Keep a new image's generation prompt next to its original in `artwork/`.
