@@ -35,7 +35,7 @@
 .al-medium img{opacity:0}.al-medium.is-shown img{opacity:1}
 .al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:var(--sticky-top,0px);z-index:3;background:var(--paper);border-bottom:1px solid var(--line)}
 .al-controls .label,.al-flags legend{display:block;color:var(--muted);margin-bottom:6px}
-.al-controls input[type=search],.al-controls select,.al-menu summary{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fbf8f2;border:1px solid var(--line);border-radius:0;padding:10px 12px;height:47px;box-sizing:border-box}
+.al-controls input[type=search],.al-controls select,.al-menu summary{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:0;padding:10px 12px;height:47px;box-sizing:border-box}
 .al-controls select,.al-menu summary{appearance:none;padding-right:34px;text-overflow:ellipsis;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
 .al-controls input[type=search]{border-color:var(--ink)}
 .al-field[hidden]{display:none}
@@ -47,13 +47,13 @@
 .al-menu summary{display:block;list-style:none;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:25px;padding-top:10px;padding-bottom:10px}
 .al-menu summary::-webkit-details-marker{display:none}
 .al-menu[open] summary{border-color:var(--ink)}
-.al-menu-panel{position:absolute;top:calc(100% + 4px);left:0;z-index:5;min-width:100%;width:max-content;max-width:min(460px,calc(100vw - 40px));max-height:min(62vh,560px);overflow:auto;background:#fbf8f2;border:1px solid var(--ink);box-shadow:0 10px 30px #302b2826;padding:6px 0 10px}
+.al-menu-panel{position:absolute;top:calc(100% + 4px);left:0;z-index:5;min-width:100%;width:max-content;max-width:min(460px,calc(100vw - 40px));max-height:min(62vh,560px);overflow:auto;background:var(--surface);border:1px solid var(--ink);box-shadow:0 10px 30px #302b2826;padding:6px 0 10px}
 #al-show-menu .al-menu-panel{min-width:220px}
 .al-menu-head{display:flex;justify-content:flex-end;padding:4px 14px 6px;font-size:13px}
 .al-menu-head .al-link{margin:0}
 .al-menu-head .al-link:disabled{opacity:.45;cursor:default;text-decoration:none}
 .al-menu-item{display:flex;align-items:center;gap:10px;padding:6px 14px;min-height:36px;font-size:15px;cursor:pointer}
-.al-menu-item:hover{background:#efe3cf}
+.al-menu-item:hover{background:var(--highlight)}
 .al-menu-item input{width:16px;height:16px;margin:0;flex:none;accent-color:var(--ink)}
 .al-menu-item:has(input:disabled){opacity:.45;cursor:default}
 .al-menu-item:has(input:disabled):hover{background:none}
@@ -69,7 +69,7 @@
 /* Filters in use sit beside the count as chips that take themselves off; nothing shows when nothing is narrowed. */
 .al-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-width:0}
 .al-applied{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.al-chip{font:inherit;font-size:13px;color:var(--ink);background:#fbf8f2;border:1px solid var(--ink);border-radius:999px;padding:5px 8px 5px 13px;min-height:32px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;max-width:100%}
+.al-chip{font:inherit;font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--ink);border-radius:999px;padding:5px 8px 5px 13px;min-height:32px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;max-width:100%}
 .al-chip span{font-size:16px;line-height:1;color:var(--muted)}
 .al-chip:hover{border-color:var(--rust);color:var(--rust)}
 .al-chip:hover span{color:var(--rust)}
@@ -112,10 +112,10 @@
 .al-list{display:grid}
 .al-item{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"cover head body tags";gap:6px 28px;padding:18px 0;border-bottom:1px solid var(--line);scroll-margin:160px;align-items:start}
 .al-item-head{grid-area:head;min-width:0}.al-item-body{grid-area:body;min-width:0}.al-tags{grid-area:tags}
-.al-cover{grid-area:cover;position:relative;display:block;width:64px;aspect-ratio:2/3;background:#e6dccb;overflow:hidden;text-decoration:none;box-shadow:0 3px 10px #302b2818}
+.al-cover{grid-area:cover;position:relative;display:block;width:64px;aspect-ratio:2/3;background:var(--cover-paper);overflow:hidden;text-decoration:none;box-shadow:0 3px 10px #302b2818}
 [data-cover=square] .al-cover{aspect-ratio:1}
 .al-cover span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--serif);font-size:28px;color:var(--muted)}
-.al-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#e6dccb}
+.al-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--cover-paper)}
 .al-item h3 a{text-decoration:none}
 .al-item h3 a:hover{text-decoration:underline}
 .al-ext{font-family:var(--sans);font-size:13px;color:var(--rust);opacity:0}
@@ -154,7 +154,7 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-tag-deeper{color:var(--rust);border-color:var(--rust)}
 .al-tag-deeper:before{content:'✓ '}
 /* The picked title is simply highlighted; the site does not animate, so neither does this. */
-.al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf}
+.al-picked{background:var(--highlight);box-shadow:-14px 0 0 var(--highlight),14px 0 0 var(--highlight)}
 .al-picked .al-item-head:before{content:'Picked for you';display:block;font-family:var(--sans);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-bottom:4px}
 .al-credit{font-size:12px;color:var(--muted);padding-top:40px}
 .al-link{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer;margin-left:6px}

@@ -12,6 +12,14 @@ Open http://127.0.0.1:4175. The identity board is at http://127.0.0.1:4175/brand
 
 `npm run check` builds and validates local links, anchors and image alternatives. `npm run build` writes a standalone static site to `dist/`. Node is the only runtime dependency. Rebuild and refresh after edits.
 
+## Color themes
+
+Every public site layout has an accessible Theme menu: Auto follows the device's light/dark setting, while Light and Dark persist in this browser under `portfolio-theme`. The choice is applied before paint and synchronized between tabs. Storage restrictions still permit switching for the current page. Without JavaScript, the original light theme remains available.
+
+`site/theme.css` defines the warm charcoal, cream, copper and lavender palette. Original illustrations remain on cream paper; screenshots retain their colors. Digest printing uses a light paper palette. The historical identity board is preserved as its original design artifact.
+
+Use `node --test scripts/theme.test.mjs` for preference/OS/storage regressions, alongside `npm run check`. New site pages should load `theme.js` early in the head and `theme.css` after their other styles, using the appropriate relative paths.
+
 ## Source and direction
 
 - `site/`: homepage, eight retained case studies, additional-project gallery, project screenshots and shared CSS.
