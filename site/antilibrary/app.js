@@ -655,9 +655,9 @@
     else if (!direct && count + marks >= MAX_LINK_CHANGES * 0.8) text.push(`${number(count + marks)} of max ${number(MAX_LINK_CHANGES)} changes.`);
     if (!direct && (sends.length > 1 || markSends.length > 1)) text.push('That’s too much for one GitHub issue, so it’s split into parts: send each one.');
     els.ownerText.textContent = text.join(' ');
-    els.save.hidden = !direct || (!count && !marks && !saving);
+    els.save.hidden = !token() || (!count && !marks && !saving);
     els.save.disabled = saving;
-    els.save.textContent = saving ? 'Saving…' : 'Save changes';
+    els.save.textContent = saving ? 'Saving…' : direct ? 'Save changes' : 'Try saving again';
     setLinks(els.send, direct ? [] : sends, 'Send changes to the site');
     setLinks(els.sendMarks, direct ? [] : markSends, 'Send digest marks');
     els.discard.hidden = saving || (!pendingCount() && !nested(digestPending()));
@@ -694,7 +694,7 @@
   // Save: one click opens every issue needed (site and digest marks) and then watches them.
   async function save() {
     if (saving) return;
-    saving = true; saveNote = '';
+    saving = true; saveNote = ''; canSave = true;
     renderOwnerBar();
     try { await saveParts(); } catch (error) { saveNote = `The save didn’t go through (${error.message || error}). Try again.`; }
     saving = false;
@@ -714,10 +714,7 @@
     for (const part of parts) {
       const response = await github(`${part.repo}/issues`, { method: 'POST', body: JSON.stringify({ title: part.title, body: part.body }) }).catch(() => null);
       if (!response?.ok) {
-        if (response && [401, 403, 404].includes(response.status)) {
-          canSave = false;
-          saveNote = 'Saving needs the digests key to have Issues set to Read and write on anti-lib and reading-list. Until then, send the changes with the links below.';
-        } else saveNote = 'The save didn’t go through. Check the connection and try again.';
+        saveNote = await saveFailure(response, part.repo.split('/')[1]);
         break;
       }
       const issue = await response.json();
@@ -725,6 +722,21 @@
       markSent(part.ids);
       store.set(SAVING_KEY, watched);
     }
+  }
+  // Says why GitHub turned a save away, in its own words. A rate limit (GitHub answers some of those with 403 too)
+  // only needs a wait; a refused key falls back to the links until Save is tried again.
+  async function saveFailure(response, repo) {
+    if (!response) return 'The save didn’t go through. Check the connection and try again.';
+    const said = await response.json().then(b => b?.message || '').catch(() => '');
+    const why = `GitHub said ${response.status}${said ? `: ${said}` : ''}`;
+    const limited = response.status === 429 || response.headers.get('x-ratelimit-remaining') === '0'
+      || response.headers.get('retry-after') || /rate limit|abuse/i.test(said);
+    if (limited) return `GitHub asked the page to slow down (${why}). Wait a minute, then press Save again.`;
+    if (![401, 403, 404].includes(response.status)) return `The save didn’t go through (${why}). Try again.`;
+    canSave = false;
+    return response.status === 401
+      ? `GitHub turned the digests key away (${why}); it may have expired. Send the changes with the links below, or press Try saving again with a new key.`
+      : `GitHub wouldn’t let the digests key open an issue on ${repo} (${why}). The key needs Issues set to Read and write there. Until then, send the changes with the links below, or press Try saving again.`;
   }
   // Polls the saved issues: the workflow closes one once it's applied, or comments on it and leaves it open if not.
   let watchTimer = 0;
