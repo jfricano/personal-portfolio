@@ -47,15 +47,15 @@ input::placeholder { color: var(--muted); opacity: 1; }
 [data-theme="dark"] .statbatt-art { background: #30372f; }
 [data-theme="dark"] .getfit-art { background: var(--lavender); }
 
-/* Keep the original pigments on their cream paper, like prints mounted on a dark wall. */
-[data-theme="dark"] .hero-art img,
-[data-theme="dark"] .al-art,
-[data-theme="dark"] .al-medium,
-[data-theme="dark"] .al-thread-art { background: #f5f0e7; }
+/* The illustrations have dark cut-outs (theme-art.js swaps them in), drawn straight onto the charcoal page.
+   A light picture waits hidden until it is swapped, so it never shows for a frame. */
 [data-theme="dark"] .hero-art img,
 [data-theme="dark"] .al-art img,
 [data-theme="dark"] .al-medium img,
-[data-theme="dark"] .al-thread-art img { mix-blend-mode: normal; }
+[data-theme="dark"] .al-thread-art img,
+[data-theme="dark"] .ap-art img { mix-blend-mode: normal; -webkit-mask-image: none; mask-image: none; }
+[data-theme="dark"] img:is([src*="art/general"], [src*="art/books"], [src*="art/films"], [src*="art/tv"], [src*="art/albums"],
+  [src*="art/digests"], [src*="lavender-thread"], [src*="attention-still-life"]) { visibility: hidden; }
 [data-theme="dark"] .orca-case-art { color: #302b28; }
 
 @media (max-width: 700px) {

@@ -15,6 +15,10 @@ The page shows one combined still life, `site/antilibrary/art/general.jpg`, besi
 
 Originals and generation prompts are in `artwork/antilibrary/`. To replace an image, put the new file in `site/antilibrary/art/`, run `python3 scripts/art-sizes.py` (needs Pillow) to remake its smaller copies, and open a PR. The page loads those copies (`<name>-480.jpg` by the tabs, `general-960.jpg` and `general-1536.jpg` beside the headline, `lavender-thread-600.jpg` by a thread), which are a tenth to half the size of the originals; `npm run check` fails until they match the new original.
 
+## Dark theme
+
+In the dark theme every illustration swaps to a dark cut-out on a transparent background, drawn straight onto the charcoal page; `site/theme-art.js` matches the light file names above, so nothing else needs to change when a light picture is replaced. The originals, the delivered WebP files and their sizes are listed in [artwork/dark/README.md](../artwork/dark/README.md).
+
 ## Where each image is used
 
 | Image | Where it shows | Original and prompt |
