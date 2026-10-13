@@ -187,9 +187,10 @@
     if (image.dataset.list === state.list) return;
     figure.classList.remove('is-shown');
     image.onload = () => { if (image.dataset.list === state.list) { figure.hidden = false; figure.classList.add('is-shown'); } };
-    image.onerror = () => { figure.hidden = true; };
+    const full = `../antilibrary/art/${encodeURIComponent(state.list)}.jpg`;
+    image.onerror = () => { if (image.getAttribute('src') !== full) image.src = full; else figure.hidden = true; };
     image.dataset.list = state.list;
-    image.src = `../antilibrary/art/${encodeURIComponent(state.list)}.jpg`;
+    image.src = `../antilibrary/art/${encodeURIComponent(state.list)}-480.jpg`;
   }
 
   // One digest.

@@ -116,17 +116,16 @@
 
   function stepHtml(p, r) {
     const cover = web(r.i) ? `<img src="${esc(r.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
-    // Albums show Heard as a tag; a book or film that's crossed off is struck through, as on the list.
-    const door = r.p === 1 && !threadView, struck = (threadView || !kind.boxes) && done(r);
-    const tags = [door && '<li class="al-tag ap-tag-door">The door</li>', !struck && kind.boxes && done(r) && '<li class="al-tag al-tag-done">Heard</li>'].filter(Boolean);
+    // A step that's heard, read or watched is struck through, as on the list. The door is the lavender band; steps
+    // carry no tags (jason, 2026-10-13: "The door" and "Heard" were tags here until then).
+    const door = r.p === 1 && !threadView, struck = done(r);
     const listen = kind.listen ? `<p class="al-more"><a class="al-listen" href="${esc(kind.listen + query(p, r))}" data-app="spotify:search:${esc(query(p, r))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a></p>` : '';
     return `<li class="al-item ap-step${door ? ' ap-door' : ''}${struck ? ' al-done' : ''}" id="step-${r.p}">` +
       `<a class="al-cover" href="${esc(pageLink(p, r))}" target="_blank" rel="noopener noreferrer" tabindex="-1" aria-hidden="true"><span>${esc(r.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><p class="ap-num index" aria-hidden="true">${r.p}</p><div class="al-ident"><h3><a href="${esc(pageLink(p, r))}" target="_blank" rel="noopener noreferrer"${web(r.l) ? '' : ` title="Search for this ${kind.noun[0]}"`}>${esc(r.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>` +
       `<p class="al-by">${credit(r)}</p></div>` +
       `${listen}${boxes ? `<span class="al-owner-actions">${heardBox(r)}</span>` : ''}</div>` +
-      `<div class="al-item-body">${r.n ? `<p class="al-note">${esc(r.n)}</p>` : ''}${r.s ? `<p class="al-where">${esc(r.s.replace(/^\d+\.\s*/, ''))}</p>` : ''}</div>` +
-      `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</li>`;
+      `<div class="al-item-body">${r.n ? `<p class="al-note">${esc(r.n)}</p>` : ''}${r.s ? `<p class="al-where">${esc(r.s.replace(/^\d+\.\s*/, ''))}</p>` : ''}</div></li>`;
   }
 
   function timelineHtml(p) {

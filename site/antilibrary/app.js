@@ -20,9 +20,7 @@
   const OWNER_KEY = 'antilibrary-owner-mode', PENDING_KEY = 'antilibrary-pending-marks', TAGS_KEY = 'antilibrary-pending-tags', OPENED_KEY = 'antilibrary-opened';
   const $ = id => document.getElementById(id);
   const els = {
-    tabs: $('al-tabs'), q: $('al-q'), controls: $('al-controls'), filtersToggle: $('al-filters-toggle'),
-    shelfMenu: $('al-shelf-menu'), shelf: $('al-shelf-panel'), show: $('al-show-panel'), showMenu: $('al-show-menu'), showField: $('al-show-field'),
-    thread: $('al-thread'), threadField: $('al-thread-field'), sort: $('al-sort'), count: $('al-count'), applied: $('al-applied'), results: $('al-results'), random: $('al-random'),
+    tabs: $('al-tabs'), q: $('al-q'), sort: $('al-sort'), count: $('al-count'), applied: $('al-applied'), results: $('al-results'), random: $('al-random'),
     hide: $('al-hide'), hideLabel: $('al-hide-label'), fold: $('al-fold'),
     owner: $('al-owner'), ownerBar: $('al-owner-bar'), ownerText: $('al-owner-text'), save: $('al-save'), send: $('al-send'), sendMarks: $('al-send-marks'), discard: $('al-discard'),
     exportButton: $('al-export'),
@@ -57,8 +55,10 @@
   let opened = {}, foldedNow = new Set();
   const filtering = () => Boolean(state.q || state.only.length || state.thread || state.shelves.length || (owner && state.hide));
   const isOpen = shelf => (filtering() ? !foldedNow.has(shelf) : Boolean(opened[list.id]?.has(shelf)));
-  // Shelves and tags are sets of choices: none chosen means all. A title shows when it is on any chosen shelf and has
-  // any chosen tag.
+  // The page itself offers only Search and Sort (jason, 2026-10-13); shelves fold, and paths and threads have their own
+  // pages. A link can still narrow the list by shelf (?shelf=, ?part=), tag (?only=, as the core shelf link in the
+  // intro does) or thread (?thread=, older links). Shelves and tags are sets: none means all, and a title shows when
+  // it is on any chosen shelf and has any chosen tag.
   const blank = () => ({ q: '', shelves: [], sort: 'shelf', only: [], thread: '', hide: false });
   const state = { list: '', ...blank() };
 
@@ -76,8 +76,8 @@
   const pendingFor = i => pending[list.id]?.[itemKey(i)];
   const REMOVE = 'remove';
   const isRemoving = i => pendingFor(i) === REMOVE;
-  // Owner-toggle flags (list.toggles, such as On my shelf) switched in this browser apply over the published flags
-  // in i._f until they are sent, so the tags, Tags menu and counts all read the same i.f.
+  // Owner-toggle flags (list.toggles, Formative on books) switched in this browser apply over the published flags
+  // in i._f until they are sent, so the owner checkboxes and any ?only= link read the same i.f.
   function applyTags(id) {
     const meta = lists.find(l => l.id === id), tagged = pendingTags[id] || {};
     for (const i of cache[id] || []) {
@@ -104,10 +104,10 @@
     const mark = pendingFor(i);
     return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
   };
-  // Flags such as "Start here" are Jason's own and only show in owner mode. Of the flags a visitor sees, the ones
-  // that are not private filters make up the Tags menu, and their tags on each title apply the same filter.
-  const shownFlags = () => Object.entries(list.flags).filter(([key]) => owner || !(list.privateFlags || []).includes(key));
-  const filterFlags = () => shownFlags().filter(([key]) => owner || !(list.privateFilters || []).includes(key));
+  // Titles no longer show tags, and the Tags menu is gone (jason, 2026-10-13; docs/antilibrary-page.md says how to bring
+  // them back). The flags stay in the data, and a link can still narrow by one (?only=core); a private filter
+  // (privateFilters, Start here) never narrows, and a private flag only for the owner.
+  const filterFlags = () => Object.keys(list.flags).filter(key => !(list.privateFilters || []).includes(key) && (owner || !(list.privateFlags || []).includes(key)));
   // Dates: y is first publication or release (for ancient works, when written; BCE is negative) and w, on a few books,
   // the year written where that is far off. A title without a date sorts after the dated ones either way.
   const NO_DATE = 1e5;
@@ -157,7 +157,7 @@
     if (part) p.set('part', part);
     else p.set('shelf', state.shelves.map(shelf => splitShelf(shelf)[0] || shelf).join(','));
   }
-  // Switching lists, shelves or a thread is a step the Back button undoes (push); search, tags and sort just update
+  // Switching lists or leaving a thread or filter is a step the Back button undoes (push); search and sort just update
   // the address in place, so Back doesn't have to walk through every keystroke.
   function writeUrl(push = false) {
     const p = new URLSearchParams();
@@ -174,20 +174,9 @@
     try { push && (query ? `?${query}` : '') !== location.search ? history.pushState(null, '', url) : history.replaceState(null, '', url); } catch {}
   }
 
-  // Threads are named paths through titles on the list; picking one shows its titles in path order.
+  // Threads are named paths through titles on the list; an old ?thread= link shows one's titles in path order.
   const threadOf = id => (list.threads || []).find(t => t.id === id);
   const unique = values => [...new Set(values.filter(Boolean))];
-  const shelfName = shelf => splitShelf(shelf)[1] || 'Unshelved';
-  // Menu choices carry their counts; the chosen one and the "none" choice leave it off, since the count line says it.
-  const option = (value, text, n, current) => value === current || !value
-    ? `<option value="${esc(value)}"${value === current ? ' selected' : ''}>${esc(text)}</option>`
-    : `<option value="${esc(value)}"${n === 0 ? ' disabled' : ''}>${esc(text)}${n === null ? '' : ` (${number(n)})`}</option>`;
-  // A checkbox in the Shelves or Tags menu, with what it would show beside it. One that would show nothing is greyed
-  // out unless it's already on, so it can always be taken off.
-  const box = (attr, value, text, n, on, cls = '') => `<label class="al-menu-item${cls}"><input type="checkbox" ${attr}="${esc(value)}"${on ? ' checked' : ''}${n || on ? '' : ' disabled'}>` +
-    `<span>${esc(text)}</span><span class="al-menu-n">${number(n)}</span></label>`;
-  const toggleIn = (values, value, on) => (on ? unique([...values, value]) : values.filter(v => v !== value));
-
   function renderTabs() {
     els.tabs.innerHTML = lists.map(l => `<button type="button" role="tab" id="al-tab-${esc(l.id)}" data-id="${esc(l.id)}" aria-controls="al-results" aria-selected="${l === list}" tabindex="${l === list ? 0 : -1}">${esc(l.label)} <span>${number(l.count)}</span></button>`).join('');
     els.results.setAttribute('role', 'tabpanel');
@@ -198,7 +187,7 @@
   function renderControls() {
     resolveUrlShelves();
     state.shelves = state.shelves.filter(shelf => items.some(i => i.s === shelf));
-    state.only = state.only.filter(flag => filterFlags().some(([key]) => key === flag));
+    state.only = state.only.filter(flag => filterFlags().includes(flag));
     if (state.thread && !threadOf(state.thread)) state.thread = '';
     if (!owner) state.hide = false;
     const sorts = Object.entries(SORTS).filter(([, s]) => (!s.year || list.hasYear) && (!s.written || list.hasWritten));
@@ -209,61 +198,8 @@
     els.q.value = state.q;
   }
 
-  // The Shelves and Tags menus count what each choice would show alongside the other filters in use, the way the
-  // shelf headings below count their titles. Shelves are grouped by part, and a part's box picks all of its shelves.
-  function renderMenus() {
-    const others = items.filter(i => matches(i, 'shelf')), byFlag = items.filter(i => matches(i, 'only'));
-    const shelves = new Map(), parts = new Map();
-    for (const i of items) {
-      if (!parts.has(i.g || '')) parts.set(i.g || '', []);
-      if (!shelves.has(i.s)) { shelves.set(i.s, 0); parts.get(i.g || '').push(i.s); }
-    }
-    for (const i of others) shelves.set(i.s, shelves.get(i.s) + 1);
-    const chosen = new Set(state.shelves);
-    let html = `<p class="al-menu-head"><button type="button" class="al-link" data-menu-all="shelves"${chosen.size ? '' : ' disabled'}>Clear</button></p>`;
-    for (const [part, names] of parts) {
-      const rows = names.map(name => box('data-shelf', name, shelfName(name), shelves.get(name), chosen.has(name), part ? ' al-menu-sub' : '')).join('');
-      const n = names.reduce((sum, name) => sum + shelves.get(name), 0);
-      html += part ? `<div class="al-menu-group" role="group" aria-label="${esc(part)}">${box('data-part', part, part, n, names.every(name => chosen.has(name)), ' al-menu-part')}${rows}</div>` : rows;
-    }
-    keepFocus(els.shelf, () => { els.shelf.innerHTML = html; });
-    for (const input of els.shelf.querySelectorAll('[data-part]')) {
-      const names = parts.get(input.dataset.part);
-      input.indeterminate = !input.checked && names.some(name => chosen.has(name));
-    }
-    const whole = [...parts].find(([part, names]) => part && names.length === chosen.size && names.every(name => chosen.has(name)));
-    els.shelfMenu.querySelector('summary').textContent = !chosen.size ? 'All shelves' : chosen.size === 1 ? shelfName(state.shelves[0])
-      : whole ? whole[0] : `${chosen.size} shelves`;
-
-    const flags = filterFlags();
-    els.showField.hidden = !flags.length;
-    keepFocus(els.show, () => {
-      els.show.innerHTML = `<p class="al-menu-head"><button type="button" class="al-link" data-menu-all="tags"${state.only.length ? '' : ' disabled'}>Clear</button></p>` +
-        flags.map(([key, label]) => box('data-flag', key, label, byFlag.filter(i => i.f && i.f.includes(key)).length, state.only.includes(key))).join('');
-    });
-    els.showMenu.querySelector('summary').textContent = !state.only.length ? 'All tags' : state.only.length === 1 ? list.flags[state.only[0]] : `${state.only.length} tags`;
-
-    // Paths: the list's threads, which narrow the page to one route in order, and the artist, author or director paths,
-    // which each have a page of their own.
-    const threads = list.threads || [], byThread = items.filter(i => matches(i, 'thread'));
-    const kind = PATHS[list.id], people = (kind && paths[list.id]?.all) || [];
-    els.threadField.hidden = !threads.length && !people.length;
-    els.thread.innerHTML = option('', 'No path', 0, state.thread) +
-      (threads.length ? `<optgroup label="Threads">${threads.map(t => option(t.id, t.name, byThread.filter(i => i.th && i.th[t.id]).length, state.thread)).join('')}</optgroup>` : '') +
-      (people.length ? `<optgroup label="${esc(kind.heading)}">${people.map(p => option(`path:${p.id}`, `${p[kind.who]} →`, null, state.thread)).join('')}</optgroup>` : '');
-    updateFiltersToggle();
-  }
-  // Redrawing a menu while someone is ticking boxes in it keeps focus on the same box.
-  function keepFocus(panel, draw) {
-    const active = panel.contains(document.activeElement) ? document.activeElement : null;
-    const attr = active && ['data-shelf', 'data-part', 'data-flag', 'data-menu-all'].find(a => active.hasAttribute(a));
-    const value = attr && active.getAttribute(attr);
-    draw();
-    if (attr) [...panel.querySelectorAll(`[${attr}]`)].find(el => el.getAttribute(attr) === value)?.focus();
-  }
-
-  // Tags in use show as chips that take themselves off, since several can be on at once and each is easy to lose
-  // track of. Shelves and the path say what is chosen in their own menus. Clear filters takes everything off.
+  // A tag a link narrowed the list by shows as a chip that takes itself off, so the visitor can see why the list is
+  // short (the core shelf link). Clear filters takes off that and any shelf or thread a link chose.
   function renderApplied() {
     const chips = state.only.map(flag => [`only:${flag}`, list.flags[flag]]);
     const any = filtering();
@@ -272,22 +208,16 @@
       `<li><button type="button" class="al-chip" data-clear="${esc(key)}" aria-label="Remove tag: ${esc(text)}">${esc(text)}<span aria-hidden="true">×</span></button></li>`).join('') +
       (any ? '<li><button type="button" class="al-link" data-clear="all">Clear filters</button></li>' : '');
   }
-  // On phones the menus fold behind one Filters button, which says how many are in use.
-  function updateFiltersToggle() {
-    const n = (state.shelves.length ? 1 : 0) + state.only.length + (state.thread ? 1 : 0) + (state.sort !== 'shelf' ? 1 : 0);
-    els.filtersToggle.textContent = n ? `Filters and sort (${n})` : 'Filters and sort';
-  }
-
-  function matches(i, skip) {
+  function matches(i) {
     return !(owner && isRemoving(i)) &&
-      (skip === 'shelf' || !state.shelves.length || state.shelves.includes(i.s)) &&
-      (skip === 'only' || !state.only.length || Boolean(i.f && state.only.some(flag => i.f.includes(flag)))) &&
-      (skip === 'thread' || !state.thread || Boolean(i.th && i.th[state.thread])) &&
+      (!state.shelves.length || state.shelves.includes(i.s)) &&
+      (!state.only.length || Boolean(i.f && state.only.some(flag => i.f.includes(flag)))) &&
+      (!state.thread || Boolean(i.th && i.th[state.thread])) &&
       (!owner || !state.hide || !isDone(i)) && filter.terms.every(t => i._h.includes(t));
   }
   function filter() {
     filter.terms = fold(state.q).split(/\s+/).filter(Boolean);
-    visible = items.filter(i => matches(i));
+    visible = items.filter(matches);
     // A thread keeps its own order, whatever the Sort menu says.
     const sort = state.thread ? { cmp: (a, b) => a.th[state.thread][0] - b.th[state.thread][0] } : SORTS[state.sort];
     if (sort.cmp) visible = [...visible].sort(sort.cmp);
@@ -300,16 +230,12 @@
     if (i.u) where.push(i.u);
     const done = isDone(i);
     const href = i.l || `${list.search}${encodeURIComponent([i.t, i.c, list.searchSuffix].filter(Boolean).join(' '))}`, away = ' target="_blank" rel="noopener noreferrer"';
-    const visibleFlags = new Set(shownFlags().map(([key]) => key)), filters = new Set(filterFlags().map(([key]) => key));
-    // A title by an artist, author or director with a path links to it under the name, where it's easy to find, not with the tags.
+    // A title by an artist, author or director with a path links to it under the name.
     const path = pathFor(i), kind = PATHS[list.id];
     const pathLink = path ? `<p class="al-path-link"><a class="al-tag al-tag-path" href="${esc(`${kind.page}?a=${encodeURIComponent(path.id)}`)}">${esc(kind.label)} →</a></p>` : '';
-    const tags = (i.f || []).filter(f => visibleFlags.has(f)).map(f => filters.has(f)
-      ? `<li><button type="button" class="al-tag al-tag-${esc(f)}" data-only="${esc(f)}" title="Show only ${esc(list.flags[f].toLowerCase())}">${esc(list.flags[f])}</button></li>`
-      : `<li class="al-tag al-tag-${esc(f)}">${esc(list.flags[f])}</li>`);
     const digest = owner ? digestLinks[list.id]?.[itemKey(i)] : null;
-    // Books show Digested as a checkbox; elsewhere a digest doesn't cross a title off, so it stays a note.
-    if (digest && !digestCounts(list.id) && markOf(i, 'read')) tags.push('<li class="al-tag al-tag-digested">Digested</li>');
+    // Books show Digested as a checkbox; elsewhere a digest doesn't cross a title off, so it stays a note to the owner.
+    const digested = digest && !digestCounts(list.id) && markOf(i, 'read') ? '<span class="al-owner-note">Digested</span>' : '';
     const cover = i.i ? `<img src="${esc(i.i)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '';
     const genres = i.k ? `<p class="al-genres">${i.k.map(esc).join(' · ')}</p>` : '';
     const extra = [list.listen && `<a class="al-listen" href="${esc(list.listen + encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" data-app="spotify:search:${esc(encodeURIComponent([i.t, i.c].filter(Boolean).join(' ')))}" target="_blank" rel="noopener noreferrer">Listen on Spotify ↗</a>`,
@@ -325,14 +251,13 @@
     // Progress (Digested, Fully read) comes first; the few tags owner mode can change (list.toggles, Formative on
     // books) follow behind a rule. Every other tag is edited in the source lists.
     const tagBoxes = (list.toggles || []).map(flag => toggle(esc(flag), list.flags[flag], i.f?.includes(flag), flag in tagged)).join('');
-    const mark = owner ? `<div class="al-owner-actions"><span class="al-owner-group" role="group" aria-label="Progress">${marks}</span>` +
+    const mark = owner ? `<div class="al-owner-actions"><span class="al-owner-group" role="group" aria-label="Progress">${marks}${digested}</span>` +
       (tagBoxes ? `<span class="al-owner-group al-owner-tags" role="group" aria-label="Tags">${tagBoxes}</span>` : '') +
       `<button type="button" class="al-remove" data-key="${key}">Remove</button></div>` : '';
     return `<article class="al-item${done ? ' al-done' : ''}" id="item-${i._id}" tabindex="-1">` +
       `<a class="al-cover" href="${esc(href)}"${away} tabindex="-1" aria-hidden="true"><span>${esc(i.t.replace(/^(the|a|an)\s+/i, '').charAt(0))}</span>${cover}</a>` +
       `<div class="al-item-head"><div class="al-ident"><h3><a href="${esc(href)}"${away}${i.l ? '' : ' title="Search for this title"'}>${esc(i.t)}<span class="al-ext" aria-hidden="true"> ↗</span></a></h3>${by ? `<p class="al-by">${by}</p>` : ''}</div>${pathLink}${genres}${more}${mark}</div>` +
-      `<div class="al-item-body">${step ? `<p class="al-step">${esc(step)}</p>` : ''}${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div>` +
-      `${tags.length ? `<ul class="al-tags">${tags.join('')}</ul>` : ''}</article>`;
+      `<div class="al-item-body">${step ? `<p class="al-step">${esc(step)}</p>` : ''}${i.n ? `<p class="al-note">${esc(i.n)}</p>` : ''}${where.length ? `<p class="al-where">${where.map(esc).join(' / ')}</p>` : ''}</div></article>`;
   }
 
   // Titles the owner is removing drop out of the view (and the totals) at once.
@@ -346,14 +271,53 @@
       (finished ? `, ${number(finished)} crossed off.` : '.');
   }
 
+  // Drawing. A list runs to 1,500 titles, and drawing every one on each keystroke or click (folded shelves included)
+  // froze the page for seconds on a phone. So a folded shelf's titles are drawn only when it opens, and an open view
+  // draws its first screenful at once and the rest in small batches between frames, so typing and clicking never
+  // wait on titles far down the page. Each list of rows is kept by its container's id until it's drawn.
+  const FIRST = 40, BATCH = 80;
+  const rowsFor = new Map();
+  let queue = [], queueTimer = 0, budget = FIRST;
+  // By creator, each new name starts under a heavier rule; there are too many one-title creators for headings.
+  const rowHtml = (i, n, rows) => (owner && isRemoving(i) ? '' : state.sort === 'creator' && !state.thread && n && rows[n - 1]._c !== i._c
+    ? itemHtml(i).replace('<article class="al-item', '<article class="al-item al-creator-start') : itemHtml(i));
+  function drawRows(container) {
+    const rows = rowsFor.get(container.id);
+    if (!rows || container.dataset.drawn) return;
+    container.dataset.drawn = '1';
+    const now = Math.min(rows.length, budget);
+    budget -= now;
+    container.innerHTML = rows.slice(0, now).map((i, n) => rowHtml(i, n, rows)).join('');
+    if (now < rows.length) { queue.push({ container, rows, at: now }); queueTimer ||= setTimeout(drain, 0); }
+  }
+  function drain(limit = BATCH) {
+    queueTimer = 0;
+    while (queue.length && limit > 0) {
+      const job = queue[0], n = Math.min(limit, job.rows.length - job.at);
+      if (job.container.isConnected) job.container.insertAdjacentHTML('beforeend', job.rows.slice(job.at, job.at + n).map((i, k) => rowHtml(i, job.at + k, job.rows)).join(''));
+      job.at += n; limit -= n;
+      if (job.at >= job.rows.length || !job.container.isConnected) queue.shift();
+    }
+    if (queue.length) queueTimer = setTimeout(drain, 0);
+  }
+  // Draws whatever is still waiting until the title is on the page (Pick one for me lands on it).
+  function drawUntil(i) {
+    while (queue.length && !$(`item-${i._id}`)) drain();
+  }
+  function startDrawing() {
+    clearTimeout(queueTimer);
+    queue = []; queueTimer = 0; budget = FIRST;
+    rowsFor.clear();
+  }
+
   function render() {
     filter();
     updateCount();
-    renderMenus();
     renderApplied();
     els.random.disabled = !visible.length;
     foldedNow = new Set();
     renderOwnerBar();
+    startDrawing();
     els.fold.hidden = !visible.length || state.sort !== 'shelf' || state.shelves.length === 1 || Boolean(state.thread);
     if (!visible.length) {
       els.results.innerHTML = `<div class="al-empty"><p>Nothing on these shelves matches. Try fewer words, or start over.</p><button type="button" class="al-button al-quiet" data-clear="all">Clear all filters</button></div>`;
@@ -363,14 +327,15 @@
       const thread = threadOf(state.thread);
       els.results.innerHTML = `<header class="al-thread-head"><div class="al-thread-text"><p class="label">Thread · ${number(thread.count)} stops</p><h2>${esc(thread.name)}</h2>` +
         `${thread.why ? `<p>${esc(thread.why)}</p>` : ''}<p class="al-thread-out"><button type="button" class="al-link" data-clear="thread">Leave this thread</button></p></div>` +
-        `<figure class="al-thread-art"><img src="../assets/lavender-thread.jpg" alt="" width="1536" height="1024" decoding="async" onerror="this.parentNode.hidden=true"></figure></header><div class="al-list al-thread-list">${visible.map(itemHtml).join('')}</div>`;
+        `<figure class="al-thread-art"><img src="../assets/lavender-thread-600.jpg" srcset="../assets/lavender-thread-600.jpg 600w, ../assets/lavender-thread.jpg 1536w" sizes="(max-width: 700px) 200px, 300px" alt="" width="1536" height="1024" decoding="async" onerror="this.parentNode.hidden=true"></figure></header><div class="al-list al-thread-list" id="al-rows"></div>`;
+      rowsFor.set('al-rows', visible);
+      drawRows($('al-rows'));
       return;
     }
     if (state.sort !== 'shelf') {
-      // By creator, each new name starts under a heavier rule; there are too many one-title creators for headings.
-      const rows = visible.map((i, n) => (state.sort === 'creator' && n && visible[n - 1]._c !== i._c
-        ? itemHtml(i).replace('<article class="al-item', '<article class="al-item al-creator-start') : itemHtml(i)));
-      els.results.innerHTML = `<div class="al-list${state.sort === 'creator' ? ' al-by-creator' : ''}">${rows.join('')}</div>`;
+      els.results.innerHTML = `<div class="al-list${state.sort === 'creator' ? ' al-by-creator' : ''}" id="al-rows"></div>`;
+      rowsFor.set('al-rows', visible);
+      drawRows($('al-rows'));
       return;
     }
     const groups = new Map();
@@ -384,11 +349,13 @@
       if (g && g !== part) { html += `<p class="al-part label">${esc(g)}</p>`; part = g; }
       const [num, name] = splitShelf(shelf);
       const n = shelfIndex.get(shelf), open = isOpen(shelf);
+      rowsFor.set(`al-shelf-${n}`, rows);
       html += `<section class="al-shelf"><h2><button type="button" class="al-shelf-toggle" aria-expanded="${open}" aria-controls="al-shelf-${n}" data-shelf="${esc(shelf)}">` +
         `<span class="index">${esc(num)}</span><span class="al-shelf-name">${esc(name || 'Unshelved')}</span><span class="al-shelf-count">${number(rows.length)}</span><span class="al-fold-mark" aria-hidden="true"></span></button></h2>` +
-        `<div class="al-list" id="al-shelf-${n}"${open ? '' : ' hidden'}>${rows.map(itemHtml).join('')}</div></section>`;
+        `<div class="al-list" id="al-shelf-${n}"${open ? '' : ' hidden'}></div></section>`;
     }
     els.results.innerHTML = html;
+    for (const container of els.results.querySelectorAll('.al-shelf > .al-list:not([hidden])')) drawRows(container);
     updateFold();
   }
 
@@ -428,7 +395,9 @@
   const shelfIndex = new Map();
   function setFold(toggle, open) {
     toggle.setAttribute('aria-expanded', open);
-    $(toggle.getAttribute('aria-controls')).hidden = !open;
+    const body = $(toggle.getAttribute('aria-controls'));
+    body.hidden = !open;
+    if (open) drawRows(body);
     const shelf = toggle.dataset.shelf;
     if (filtering()) open ? foldedNow.delete(shelf) : foldedNow.add(shelf);
     else { const set = (opened[list.id] ??= new Set()); open ? set.add(shelf) : set.delete(shelf); }
@@ -443,12 +412,14 @@
   els.results.addEventListener('click', event => {
     const toggle = event.target.closest('.al-shelf-toggle');
     if (!toggle) return;
+    budget = FIRST;
     setFold(toggle, toggle.getAttribute('aria-expanded') !== 'true');
     if (!filtering()) saveFolds();
     updateFold();
   });
   els.fold.addEventListener('click', () => {
     const open = els.fold.textContent === 'Expand all';
+    budget = FIRST;
     els.results.querySelectorAll('.al-shelf-toggle').forEach(t => setFold(t, open));
     if (!filtering()) saveFolds();
     updateFold();
@@ -460,9 +431,12 @@
     const figure = $('al-medium'), image = $('al-medium-img');
     figure.classList.remove('is-shown');
     image.onload = () => { if (image.dataset.list === list.id) { figure.hidden = false; figure.classList.add('is-shown'); } };
-    image.onerror = () => { figure.hidden = true; };
+    // The small copy (art/<id>-480.jpg, made by scripts/art-sizes.py) fits the slot; a list with only the full
+    // picture shows that instead.
+    const full = `art/${encodeURIComponent(list.id)}.jpg`;
+    image.onerror = () => { if (image.getAttribute('src') !== full) image.src = full; else figure.hidden = true; };
     image.dataset.list = list.id;
-    image.src = `art/${encodeURIComponent(list.id)}.jpg`;
+    image.src = `art/${encodeURIComponent(list.id)}-480.jpg`;
   }
 
   // In owner mode with a key, the published data is read through the GitHub API, which is current the moment a save
@@ -472,13 +446,18 @@
       const response = await github(`${REPO}/contents/data/${name}`, { headers: { Accept: 'application/vnd.github.raw+json' } }).catch(() => null);
       if (response?.ok) return response.json();
     }
-    const response = await fetch(`${DATA}${name}`, { cache: 'no-store' });
+    // no-cache still asks every time, but an unchanged file comes back as a short "not modified" instead of in full.
+    const response = await fetch(`${DATA}${name}`, { cache: 'no-cache' });
     if (!response.ok) throw Error(`${name} could not be loaded`);
     return response.json();
   }
+  // The list named in the address starts loading alongside lists.json rather than after it.
+  const early = {};
   async function loadItems(id) {
     if (!cache[id]) {
-      const data = await getData(`${encodeURIComponent(id)}.json`);
+      const head = early[id];
+      delete early[id];
+      const data = (await head) || await getData(`${encodeURIComponent(id)}.json`);
       data.forEach((i, n) => {
         // The data comes from another repository, so only web links are kept.
         for (const key of ['l', 'i']) if (i[key] && !/^https:\/\//.test(i[key])) delete i[key];
@@ -509,8 +488,7 @@
     showArt();
     els.results.dataset.cover = list.cover || 'tall';
     els.count.textContent = 'Loading the shelves…';
-    items = await loadItems(list.id);
-    if (PATHS[list.id] && !paths[list.id]) await loadPaths(list.id);
+    [items] = await Promise.all([loadItems(list.id), PATHS[list.id] && !paths[list.id] && loadPaths(list.id)]);
     renderControls();
     render();
     writeUrl(!fromUrl);
@@ -519,11 +497,28 @@
 
   // Coming back from an artist, author or director page (or any page) lands where the visitor left the list, once the shelves are drawn.
   const SCROLL_KEY = 'antilibrary-scroll';
-  addEventListener('pagehide', () => { try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ href: location.href, y: scrollY })); } catch {} });
+  // Titles far above haven't been laid out on the way back, so the page returns to the title that was at the top
+  // (at the same height on screen) rather than to a pixel offset.
+  addEventListener('pagehide', () => {
+    const at = document.elementFromPoint(els.results.getBoundingClientRect().left + 1, innerHeight / 3)?.closest('.al-item');
+    try { sessionStorage.setItem(SCROLL_KEY, JSON.stringify({ href: location.href, y: scrollY, id: at?.id, top: at?.getBoundingClientRect().top })); } catch {}
+  });
   function restoreScroll() {
     let saved = null;
     try { saved = JSON.parse(sessionStorage.getItem(SCROLL_KEY)); sessionStorage.removeItem(SCROLL_KEY); } catch {}
-    if (saved?.href === location.href && saved.y > 0) scrollTo(0, saved.y);
+    if (!(saved?.href === location.href && saved.y > 0)) return;
+    const id = /^item-\d+$/.test(saved.id || '') ? saved.id : '';
+    while (queue.length && (id ? !$(id) : document.documentElement.scrollHeight < saved.y + innerHeight)) drain();
+    const at = id && $(id);
+    if (!at || at.closest('[hidden]')) { scrollTo({ top: saved.y, behavior: 'instant' }); return; }
+    // Titles around it are measured as they come into view, so it's held in place for the first few frames.
+    let frames = 0;
+    const hold = () => {
+      const off = at.getBoundingClientRect().top - saved.top;
+      if (Math.abs(off) > 1) scrollBy({ top: off, behavior: 'instant' });
+      if (++frames < 8) requestAnimationFrame(hold);
+    };
+    hold();
   }
 
   // Owner mode.
@@ -869,10 +864,12 @@
     prunePending();
     // The title leaves the page now; Discard brings it back until the changes are sent.
     const shelf = article.closest('.al-shelf'), next = article.nextElementSibling || article.previousElementSibling;
+    // Counted from the shelf's titles, since some may not be drawn yet.
+    const rows = rowsFor.get(article.parentNode.id) || [];
     visible = visible.filter(i => i !== item);
     article.remove();
     if (shelf) {
-      const left = shelf.querySelectorAll('.al-item').length;
+      const left = rows.filter(i => !isRemoving(i)).length;
       if (left) shelf.querySelector('.al-shelf-count').textContent = number(left); else shelf.remove();
     }
     (next?.isConnected ? next : els.results).focus?.();
@@ -895,12 +892,13 @@
     } else if (flag) {
       ((pendingTags[list.id] ??= {})[key] ??= {})[flag] = box.checked;
       applyTags(list.id);
-      renderMenus();
     } else {
       (pending[list.id] ??= {})[key] = box.checked ? new Date().toISOString().slice(0, 10) : null;
       prunePending();
     }
+    const start = $(`item-${item._id}`).classList.contains('al-creator-start');
     $(`item-${item._id}`).outerHTML = itemHtml(item);
+    if (start) $(`item-${item._id}`).classList.add('al-creator-start');
     $(`item-${item._id}`).querySelector(`input[data-flag="${flag || ''}"]`).focus();
     updateCount();
     renderOwnerBar();
@@ -1012,55 +1010,15 @@
 
   let timer;
   els.q.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { state.q = els.q.value.trim(); render(); writeUrl(); }, 120); });
-  els.shelf.addEventListener('change', event => {
-    const input = event.target;
-    if (input.dataset.part !== undefined) {
-      const names = unique(items.filter(i => (i.g || '') === input.dataset.part).map(i => i.s));
-      state.shelves = input.checked ? unique([...state.shelves, ...names]) : state.shelves.filter(name => !names.includes(name));
-    } else state.shelves = toggleIn(state.shelves, input.dataset.shelf, input.checked);
-    render(); writeUrl(true);
-  });
-  els.show.addEventListener('change', event => { state.only = toggleIn(state.only, event.target.dataset.flag, event.target.checked); render(); writeUrl(); });
-  for (const panel of [els.shelf, els.show]) panel.addEventListener('click', event => {
-    const all = event.target.closest('[data-menu-all]');
-    if (!all) return;
-    if (all.dataset.menuAll === 'shelves') state.shelves = []; else state.only = [];
-    render(); writeUrl(all.dataset.menuAll === 'shelves');
-    panel.querySelector('input:not(:disabled)')?.focus();
-  });
-  // A thread or an artist, author or director path opens its own page. No path clears a thread an old link narrowed
-  // the list to.
-  els.thread.addEventListener('change', () => {
-    const value = els.thread.value;
-    if (value) {
-      location.href = value.startsWith('path:') ? `${PATHS[list.id].page}?a=${encodeURIComponent(value.slice(5))}` : threadPage(value);
-      return;
-    }
-    state.thread = ''; render(); writeUrl(true);
-  });
-  // The Shelves and Tags menus close when another opens, on a click outside them, and on Escape.
-  const menus = [els.shelfMenu, els.showMenu];
-  for (const menu of menus) menu.addEventListener('toggle', () => { if (menu.open) menus.forEach(m => { if (m !== menu) m.open = false; }); });
-  // The path is read from the event, since ticking a box redraws the menu and detaches the box that was clicked.
-  document.addEventListener('click', event => menus.forEach(m => { if (m.open && !event.composedPath().includes(m)) m.open = false; }));
+  // "/" jumps to the search box, as on most sites with one.
   document.addEventListener('keydown', event => {
     const typing = event.target.closest?.('input, select, textarea, [contenteditable]');
-    if (event.key === 'Escape') {
-      const menu = menus.find(m => m.open);
-      if (menu) { menu.open = false; menu.querySelector('summary').focus(); event.preventDefault(); }
-    } else if (event.key === '/' && !typing && !event.metaKey && !event.ctrlKey && !event.altKey) {
-      // "/" jumps to the search box, as on most sites with one.
-      event.preventDefault();
-      els.q.focus();
-      els.q.select();
-    }
+    if (event.key !== '/' || typing || event.metaKey || event.ctrlKey || event.altKey) return;
+    event.preventDefault();
+    els.q.focus();
+    els.q.select();
   });
-  els.filtersToggle.addEventListener('click', () => {
-    const open = !els.controls.classList.contains('is-open');
-    els.controls.classList.toggle('is-open', open);
-    els.filtersToggle.setAttribute('aria-expanded', open);
-  });
-  // Back and Forward step between lists, shelves and threads.
+  // Back and Forward step between lists, and in and out of a filtered link.
   addEventListener('popstate', () => {
     const before = list?.id;
     readUrl();
@@ -1069,27 +1027,17 @@
   });
   els.sort.addEventListener('change', () => { state.sort = els.sort.value; render(); writeUrl(); });
   els.hide.addEventListener('change', () => { state.hide = els.hide.checked; render(); writeUrl(); });
-  // Chips beside the count and the empty-shelf message take filters off; a tag on a title puts its filter on.
+  // Chips beside the count and the empty-shelf message take filters off.
   document.querySelector('.al-browser').addEventListener('click', event => {
-    const clear = event.target.closest('[data-clear]'), tag = event.target.closest('[data-only]');
-    if (clear) {
-      const key = clear.dataset.clear;
-      if (key === 'all') Object.assign(state, blank(), { sort: state.sort });
-      else if (key === 'thread') state.thread = '';
-      else if (key.startsWith('only:')) state.only = state.only.filter(flag => flag !== key.slice(5));
-      renderControls(); render(); writeUrl(key === 'all' || key === 'thread');
-      // Focus moves to the next chip, or to the search box once none are left.
-      (els.applied.querySelector('button') || els.q).focus();
-    } else if (tag) {
-      state.only = unique([...state.only, tag.dataset.only]);
-      render(); writeUrl();
-      // Back to the top of the results, just under the filter bar when it is pinned, so the new chip is in view.
-      const controls = $('al-controls'), status = els.count.closest('.al-status');
-      const style = getComputedStyle(controls);
-      const pinned = style.position === 'sticky' ? controls.offsetHeight + (parseFloat(style.top) || 0) : 0;
-      scrollTo({ top: status.getBoundingClientRect().top + scrollY - pinned, behavior: 'instant' });
-      els.applied.querySelector(`[data-clear="only:${tag.dataset.only}"]`)?.focus({ preventScroll: true });
-    }
+    const clear = event.target.closest('[data-clear]');
+    if (!clear) return;
+    const key = clear.dataset.clear;
+    if (key === 'all') Object.assign(state, blank(), { sort: state.sort });
+    else if (key === 'thread') state.thread = '';
+    else if (key.startsWith('only:')) state.only = state.only.filter(flag => flag !== key.slice(5));
+    renderControls(); render(); writeUrl(true);
+    // Focus moves to the next chip, or to the search box once none are left.
+    (els.applied.querySelector('button') || els.q).focus();
   });
   els.random.addEventListener('click', () => {
     // Finished titles are skipped unless nothing else is left in view.
@@ -1097,9 +1045,12 @@
     if (!pool.length) return;
     const pick = pool[Math.floor(Math.random() * pool.length)];
     document.querySelectorAll('.al-picked').forEach(el => el.classList.remove('al-picked'));
+    // Its shelf opens if folded, and the titles above it are drawn so it lands in place.
+    const shelf = [...rowsFor].find(([, rows]) => rows.includes(pick))?.[0];
+    if ($(shelf)?.hidden) { budget = FIRST; setFold(els.results.querySelector(`[aria-controls="${shelf}"]`), true); if (!filtering()) saveFolds(); updateFold(); }
+    drawUntil(pick);
     const el = $(`item-${pick._id}`);
-    const shelf = el.closest('.al-list');
-    if (shelf?.hidden) { setFold(els.results.querySelector(`[aria-controls="${shelf.id}"]`), true); if (!filtering()) saveFolds(); updateFold(); }
+    if (!el) return;
     el.classList.add('al-picked');
     el.focus({ preventScroll: true });
     el.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
@@ -1124,6 +1075,7 @@
   pending = store.get(PENDING_KEY, {});
   pendingTags = store.get(TAGS_KEY, {}) || {};
   opened = Object.fromEntries(Object.entries(store.get(OPENED_KEY, {}) || {}).filter(([, v]) => Array.isArray(v)).map(([id, v]) => [id, new Set(v)]));
+  if (state.list) early[state.list] = getData(`${encodeURIComponent(state.list)}.json`).catch(() => null);
   Promise.all([
     fetch(`${DATA}lists.json`).then(r => r.json()),
     getData('progress.json').catch(() => ({})),
