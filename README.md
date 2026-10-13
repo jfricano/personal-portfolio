@@ -14,7 +14,7 @@ Open http://127.0.0.1:4175. The identity board is at http://127.0.0.1:4175/brand
 
 ## Color themes
 
-Every public site layout has an accessible Theme menu: Auto follows the device's light/dark setting, while Light and Dark persist in this browser under `portfolio-theme`. The choice is applied before paint and synchronized between tabs. Storage restrictions still permit switching for the current page. Without JavaScript, the original light theme remains available.
+Every public site layout has a theme switch in the masthead: a small half-filled disc just before the links, set off by a hairline (on narrow phones it sits at the right of the name's line, with the links below). It follows the device's light/dark setting until someone presses it; pressing flips to the other theme and remembers it in this browser under `portfolio-theme`, and flipping back to the device's own setting forgets the choice so the page follows the device again. It is a real button (labelled "Dark theme", with `aria-pressed`), applied before paint and synchronized between tabs. Storage restrictions still permit switching for the current page. Without JavaScript, the original light theme remains available.
 
 `site/theme.css` defines the warm charcoal, cream, copper and lavender palette. Original illustrations remain on cream paper; screenshots retain their colors. Digest printing uses a light paper palette. The historical identity board is preserved as its original design artifact.
 
