@@ -62,9 +62,10 @@
     const ratio = ph.w > 0 && ph.h > 0 ? ph.w / ph.h : 4 / 3;
     frame.style.setProperty('--ar', Math.min(Math.max(ratio, 0.7), 2).toFixed(3));
     frame.style.setProperty('--ar-phone', Math.min(Math.max(ratio, 0.85), 1.6).toFixed(3));
-    const credit = [ph.by && `Photo: ${esc(ph.by)}`, ph.lic && esc(ph.lic)].filter(Boolean).join(', ') || 'Photo';
+    // Credited the way Commons suggests: "Author, License, via Wikimedia Commons" (a painting's painter is its author).
+    const credit = [ph.by, ph.lic, 'via Wikimedia Commons'].filter(Boolean).map(esc).join(', ');
     frame.querySelector('figcaption').innerHTML = web(ph.u)
-      ? `<a href="${esc(ph.u)}" target="_blank" rel="noopener noreferrer">${credit}, via Wikimedia Commons<span class="al-ext" aria-hidden="true"> ↗</span></a>`
+      ? `<a href="${esc(ph.u)}" target="_blank" rel="noopener noreferrer">${credit}<span class="al-ext" aria-hidden="true"> ↗</span></a>`
       : credit;
   }
   head.photo?.querySelector('img').addEventListener('error', () => { head.photo.hidden = true; head.photo.parentElement.classList.remove('ap-has-photo'); });
