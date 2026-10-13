@@ -104,10 +104,11 @@
     const mark = pendingFor(i);
     return Boolean(i.d || (mark !== undefined && mark !== REMOVE ? mark : progress[list.id]?.[itemKey(i)]));
   };
-  // Flags such as "Start here" are Jason's own and only show in owner mode. Of the flags a visitor sees, the ones
-  // that are not private filters make up the Tags menu, and their tags on each title apply the same filter.
+  // Flags such as "Start here" are Jason's own and only show in owner mode. Of the flags shown, the ones that are not
+  // private filters make up the Tags menu, and their tags on each title apply the same filter. A private filter is
+  // never a filter, even for Jason: its tag is plain text.
   const shownFlags = () => Object.entries(list.flags).filter(([key]) => owner || !(list.privateFlags || []).includes(key));
-  const filterFlags = () => shownFlags().filter(([key]) => owner || !(list.privateFilters || []).includes(key));
+  const filterFlags = () => shownFlags().filter(([key]) => !(list.privateFilters || []).includes(key));
   // Dates: y is first publication or release (for ancient works, when written; BCE is negative) and w, on a few books,
   // the year written where that is far off. A title without a date sorts after the dated ones either way.
   const NO_DATE = 1e5;
