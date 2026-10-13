@@ -166,7 +166,7 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:700px){
 .antilibrary{padding-bottom:60px}.al-intro{padding:35px 0 36px}.al-intro h1{font-size:clamp(46px,12vw,59px)}
 .al-intro{display:block}.al-intro h1{margin-bottom:0}.al-intro-body{grid-template-columns:1fr;gap:26px;margin-top:28px}.al-intro-body .case-deck{font-size:17px}.al-intro-note{font-size:15px}.al-art{grid-area:auto;width:auto;margin:0 -8px}
-.al-tabrow{gap:10px}.al-medium{width:66px;margin:10px 0 0}.al-tabs{gap:16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 0 0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:23px;white-space:nowrap;flex:none}
+.al-tabrow{gap:10px}.al-medium{width:66px;margin:10px 0 0}.al-tabs{gap:16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 0 0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:23px;white-space:nowrap;flex:none}.al-tabs button span{display:none}
 .al-controls{grid-template-columns:1fr 1fr;gap:12px;padding:16px 0 14px;position:static}
 .al-search,.al-field-shelf{grid-column:1/-1}
 .al-status{flex-wrap:wrap;gap:12px}.al-summary{display:contents}#al-count{flex:1}.al-applied{order:1;flex:1 1 100%}
