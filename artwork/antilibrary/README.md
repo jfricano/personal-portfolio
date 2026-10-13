@@ -8,7 +8,7 @@ Five original AI-generated gouache illustrations, made with the built-in image-g
 - `albums.png`: record, sleeves and a rhythmic ribbon.
 - `tv.png`: ochre television, lavender screen, sage remote and rust ribbon. Delivery: `site/antilibrary/art/tv.jpg`, 1536 × 1024 (3:2), for the `tv` list ID.
 
-The corresponding `site/antilibrary/art/*.jpg` files are delivery derivatives encoded with macOS sips at JPEG quality 84. The list IDs select the files for the small picture at the end of the tab row; Albums uses `albums.jpg`. The `/digests` page reuses the same per-list files by its tabs, so their names stay fixed. Its headline illustration is documented in [../digests/README.md](../digests/README.md). The compositions use a shared 3:2 ratio and are contained, not cropped, in the page’s artwork slot. Artwork is decorative (`alt=""`); the selected tab supplies the medium’s accessible name. The original PNGs and this provenance document are excluded from the production build.
+The corresponding `site/antilibrary/art/*.jpg` files are delivery derivatives encoded with macOS sips at JPEG quality 84. The list IDs select the files for the picture at the start of the tab row, left of the tabs; Albums uses `albums.jpg`. The `/digests` page reuses the same per-list files by its tabs, so their names stay fixed. Its headline illustration is documented in [../digests/README.md](../digests/README.md). The compositions use a shared 3:2 ratio and are contained, not cropped, in the page’s artwork slot. Artwork is decorative (`alt=""`); the selected tab supplies the medium’s accessible name. The original PNGs and this provenance document are excluded from the production build.
 
 ## Generation prompts
 
