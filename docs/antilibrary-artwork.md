@@ -14,3 +14,7 @@ The page shows one combined still life, `site/antilibrary/art/anti-library.jpg`,
 - **No text in the image**, since the list name is already in the tab above it.
 
 Originals and generation prompts are in `artwork/antilibrary/`. To replace an image, put the new file in `site/antilibrary/art/` and open a PR; nothing else needs to change.
+
+## General landing illustration
+
+`site/antilibrary/art/general.jpg` is the 1536 × 1024 (3:2) combined-media illustration for the general anti-library landing view. It is supplied as an asset for page-team integration; the existing tab-specific loader continues to use the four medium-specific images. Original and prompt: [artwork/antilibrary/general-prompt.md](../artwork/antilibrary/general-prompt.md).

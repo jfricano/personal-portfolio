@@ -66,7 +66,6 @@
 .al-shelf h2{display:flex;align-items:baseline;gap:16px;font-size:clamp(30px,3.4vw,44px);margin:44px 0 6px;padding-bottom:14px;border-bottom:1px solid var(--line)}
 .al-part+.al-shelf h2{margin-top:26px}
 .al-shelf h2 .index{font-size:20px;letter-spacing:0}
-.al-paths h2 .index{font-family:var(--sans);font-style:normal;font-size:11px;letter-spacing:.09em;text-transform:uppercase;align-self:center;padding:3px 8px;border:1px solid var(--rust)}
 .al-paths h2 .al-shelf-name{font-style:italic}
 .al-paths-body{padding:16px 0 8px}
 .al-paths-lede{color:var(--muted);font-size:15px;margin:0 0 16px;max-width:720px}
@@ -75,7 +74,6 @@
 .al-paths-names a{display:inline-block;font-family:var(--serif);font-size:18px;letter-spacing:-.01em;padding:4px 12px;border:1px solid var(--line);text-decoration:none}
 .al-paths-names a:hover,.al-paths-names a:focus-visible{border-color:var(--rust);color:var(--rust)}
 .al-paths-names .al-done a{text-decoration:line-through;text-decoration-thickness:1px;color:var(--muted)}
-.al-paths-start{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-left:4px}
 .al-shelf-count{margin-left:auto;font-family:var(--sans);font-size:12px;letter-spacing:.08em;color:var(--muted)}
 /* The heading is the button that folds its shelf. The mark flips between open and closed without moving. */
 .al-shelf-toggle{all:unset;box-sizing:border-box;display:flex;align-items:baseline;gap:inherit;width:100%;cursor:pointer}
