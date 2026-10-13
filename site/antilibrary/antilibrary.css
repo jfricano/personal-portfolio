@@ -37,7 +37,7 @@
 .al-medium img{opacity:0}.al-medium.is-shown img{opacity:1}
 .al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:var(--sticky-top,0px);z-index:3;background:var(--paper);border-bottom:1px solid var(--line)}
 .al-controls .label,.al-flags legend{display:block;color:var(--muted);margin-bottom:6px}
-.al-controls input[type=search],.al-controls select,.al-menu summary{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fbf8f2;border:1px solid var(--line);border-radius:0;padding:10px 12px;height:47px;box-sizing:border-box}
+.al-controls input[type=search],.al-controls select,.al-menu summary{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:0;padding:10px 12px;height:47px;box-sizing:border-box}
 .al-controls select,.al-menu summary{appearance:none;padding-right:34px;text-overflow:ellipsis;background-image:linear-gradient(45deg,transparent 50%,var(--ink) 50%),linear-gradient(135deg,var(--ink) 50%,transparent 50%);background-position:calc(100% - 18px) 50%,calc(100% - 13px) 50%;background-size:5px 5px;background-repeat:no-repeat}
 .al-controls input[type=search]{border-color:var(--ink)}
 .al-field[hidden]{display:none}
@@ -49,13 +49,13 @@
 .al-menu summary{display:block;list-style:none;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:25px;padding-top:10px;padding-bottom:10px}
 .al-menu summary::-webkit-details-marker{display:none}
 .al-menu[open] summary{border-color:var(--ink)}
-.al-menu-panel{position:absolute;top:calc(100% + 4px);left:0;z-index:5;min-width:100%;width:max-content;max-width:min(460px,calc(100vw - 40px));max-height:min(62vh,560px);overflow:auto;background:#fbf8f2;border:1px solid var(--ink);box-shadow:0 10px 30px #302b2826;padding:6px 0 10px}
+.al-menu-panel{position:absolute;top:calc(100% + 4px);left:0;z-index:5;min-width:100%;width:max-content;max-width:min(460px,calc(100vw - 40px));max-height:min(62vh,560px);overflow:auto;background:var(--surface);border:1px solid var(--ink);box-shadow:0 10px 30px #302b2826;padding:6px 0 10px}
 #al-show-menu .al-menu-panel{min-width:220px}
 .al-menu-head{display:flex;justify-content:flex-end;padding:4px 14px 6px;font-size:13px}
 .al-menu-head .al-link{margin:0}
 .al-menu-head .al-link:disabled{opacity:.45;cursor:default;text-decoration:none}
 .al-menu-item{display:flex;align-items:center;gap:10px;padding:6px 14px;min-height:36px;font-size:15px;cursor:pointer}
-.al-menu-item:hover{background:#efe3cf}
+.al-menu-item:hover{background:var(--highlight)}
 .al-menu-item input{width:16px;height:16px;margin:0;flex:none;accent-color:var(--ink)}
 .al-menu-item:has(input:disabled){opacity:.45;cursor:default}
 .al-menu-item:has(input:disabled):hover{background:none}
@@ -71,7 +71,7 @@
 /* Filters in use sit beside the count as chips that take themselves off; nothing shows when nothing is narrowed. */
 .al-summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;min-width:0}
 .al-applied{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.al-chip{font:inherit;font-size:13px;color:var(--ink);background:#fbf8f2;border:1px solid var(--ink);border-radius:999px;padding:5px 8px 5px 13px;min-height:32px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;max-width:100%}
+.al-chip{font:inherit;font-size:13px;color:var(--ink);background:var(--surface);border:1px solid var(--ink);border-radius:999px;padding:5px 8px 5px 13px;min-height:32px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;max-width:100%}
 .al-chip span{font-size:16px;line-height:1;color:var(--muted)}
 .al-chip:hover{border-color:var(--rust);color:var(--rust)}
 .al-chip:hover span{color:var(--rust)}
@@ -114,10 +114,10 @@
 .al-list{display:grid}
 .al-item{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,1.5fr) 150px;grid-template-areas:"cover head body tags";gap:6px 28px;padding:18px 0;border-bottom:1px solid var(--line);scroll-margin:160px;align-items:start}
 .al-item-head{grid-area:head;min-width:0}.al-item-body{grid-area:body;min-width:0}.al-tags{grid-area:tags}
-.al-cover{grid-area:cover;position:relative;display:block;width:64px;aspect-ratio:2/3;background:#e6dccb;overflow:hidden;text-decoration:none;box-shadow:0 3px 10px #302b2818}
+.al-cover{grid-area:cover;position:relative;display:block;width:64px;aspect-ratio:2/3;background:var(--cover-paper);overflow:hidden;text-decoration:none;box-shadow:0 3px 10px #302b2818}
 [data-cover=square] .al-cover{aspect-ratio:1}
 .al-cover span{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--serif);font-size:28px;color:var(--muted)}
-.al-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#e6dccb}
+.al-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:var(--cover-paper)}
 .al-item h3 a{text-decoration:none}
 .al-item h3 a:hover{text-decoration:underline}
 .al-ext{font-family:var(--sans);font-size:13px;color:var(--rust);opacity:0}
@@ -156,7 +156,7 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-tag-deeper{color:var(--rust);border-color:var(--rust)}
 .al-tag-deeper:before{content:'✓ '}
 /* The picked title is simply highlighted; the site does not animate, so neither does this. */
-.al-picked{background:#efe3cf;box-shadow:-14px 0 0 #efe3cf,14px 0 0 #efe3cf}
+.al-picked{background:var(--highlight);box-shadow:-14px 0 0 var(--highlight),14px 0 0 var(--highlight)}
 .al-picked .al-item-head:before{content:'Picked for you';display:block;font-family:var(--sans);font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);margin-bottom:4px}
 .al-credit{font-size:12px;color:var(--muted);padding-top:40px}
 .al-link{font:inherit;color:inherit;background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:4px;cursor:pointer;margin-left:6px}
@@ -216,10 +216,8 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-thread-head p:not(.label){font-size:16px;line-height:1.55;color:var(--ink)}
 .al-thread-head .al-thread-out{font-size:13px;margin-top:10px}
 .al-thread-out .al-link{margin:0}
-/* Threads aside: each thread is a button that opens it in place, with its stop count. */
-.al-threads .al-paths-names button{font:inherit;font-family:var(--serif);font-size:18px;letter-spacing:-.01em;color:var(--ink);background:none;padding:4px 12px;border:1px solid var(--line);cursor:pointer}
-.al-threads .al-paths-names button span{font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:var(--muted);margin-left:4px}
-.al-threads .al-paths-names button:hover,.al-threads .al-paths-names button:focus-visible{border-color:var(--rust);color:var(--rust)}
+/* Threads aside: each thread links to its own page, like a path, with its stop count. */
+.al-threads .al-paths-names a span{font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:var(--muted);margin-left:4px}
 .al-paths + .al-threads h2{margin-top:22px}
 /* Sorted by creator: a heavier rule where the next creator starts. */
 .al-by-creator .al-creator-start{border-top:3px solid var(--ink);margin-top:-1px}
@@ -259,6 +257,11 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .ap-photo figcaption{margin-top:9px;font-size:11px;line-height:1.45;color:var(--muted);text-align:right;width:0;min-width:100%}
 .ap-photo figcaption a{text-decoration:none}.ap-photo figcaption a:hover{color:var(--rust)}
 .ap-photo .al-ext{font-size:11px;opacity:1}
+/* A thread's spool sits where a path's photo would, smaller and on the paper itself (no frame, no credit), as it does
+   over a thread on the list. On phones it stays small above the name instead of running full width. */
+.ap-photo.ap-art{--ar:1.5}
+.ap-art img{width:clamp(170px,22vw,300px);height:auto;object-fit:contain;background:none;filter:none;mix-blend-mode:multiply;
+  -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 62%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 62%,transparent 100%)}
 .ap-section{border-top:1px solid var(--ink);padding-bottom:40px}
 .ap-section+.ap-section{border-top:0}
 .ap-section:has(> [hidden]){padding-bottom:0}
@@ -271,8 +274,8 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .ap-steps .al-item h3{font-size:25px}
 .ap-num{font-size:44px;line-height:.9;margin-bottom:12px}
 .ap-step{scroll-margin:calc(var(--masthead-h) + 30px)}
-.ap-step#step-1{background:var(--lavender);box-shadow:-28px 0 0 var(--lavender),28px 0 0 var(--lavender);border-bottom-color:transparent}
-.ap-step#step-1 .al-note{color:var(--ink)}
+.ap-step.ap-door{background:var(--lavender);box-shadow:-28px 0 0 var(--lavender),28px 0 0 var(--lavender);border-bottom-color:transparent}
+.ap-step.ap-door .al-note{color:var(--ink)}
 .ap-tag-door{color:var(--rust);border-color:var(--rust);font-weight:600}
 .ap-lede{color:var(--muted);font-size:15px;margin:14px 0 22px;max-width:640px}
 /* The whole run: one vertical rail, a filled rust dot for each record on the path, a hollow one for the rest. */
@@ -293,14 +296,6 @@ a.ap-mark:hover{border-color:var(--rust);color:var(--rust)}
 .ap-skipped .ap-year,.ap-skipped .ap-title{color:var(--muted)}
 .ap-skipped .ap-mark{border-color:var(--line);color:var(--muted)}
 .ap-heard .ap-title a{color:var(--muted)}
-/* The index: every artist numbered down two columns, like the work rows on the home page. */
-.ap-index{list-style:none;margin:0;padding:0;border-top:1px solid var(--ink);columns:2 360px;column-gap:64px;counter-reset:ap}
-.ap-index li{break-inside:avoid;border-bottom:1px solid var(--line);counter-increment:ap}
-.ap-index a{display:grid;grid-template-columns:44px minmax(0,1fr);align-items:baseline;column-gap:12px;padding:18px 0;text-decoration:none}
-.ap-index a:before{content:counter(ap,decimal-leading-zero);grid-row:1/3;font-family:var(--serif);font-style:italic;font-size:18px;color:var(--rust)}
-.ap-index-name{display:block;font-family:var(--serif);font-size:27px;letter-spacing:-.03em;line-height:1.15}
-.ap-index-door{display:block;font-size:13px;color:var(--muted);margin-top:4px}
-.ap-index a:hover .ap-index-name{color:var(--rust)}
 /* On the list, an artist's path is a link rather than a filter. */
 a.al-tag-path{text-decoration:none}
 .al-path-link{margin:10px 0 4px}.al-path-link .al-tag{display:inline-block;font-size:11px;padding:5px 11px}
@@ -308,15 +303,15 @@ a.al-tag-path:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:1000px){.ap-steps .ap-step{grid-template-columns:88px minmax(0,1fr) minmax(0,1.2fr)}.ap-steps .al-cover{width:88px}}
 @media(max-width:700px){.ap-head{padding:35px 0 36px}.ap-head h1{font-size:clamp(46px,12vw,59px)}.ap-head .case-deck{font-size:17px}
 .ap-steps .ap-step{grid-template-columns:72px minmax(0,1fr);gap:6px 18px;padding:20px 0}.ap-steps .al-cover{width:72px}.ap-steps .al-item h3{font-size:22px}.ap-num{font-size:34px;margin-bottom:8px}
-.ap-step#step-1{box-shadow:-20px 0 0 var(--lavender),20px 0 0 var(--lavender)}
-.ap-timeline:before{left:66px}.ap-row{grid-template-columns:48px minmax(0,1fr);gap:4px 14px}.ap-what{padding-left:24px}.ap-mark{grid-column:2;justify-self:start;margin-left:24px}.ap-title{font-size:18px}
-.ap-index{column-gap:32px}.ap-index a{grid-template-columns:36px minmax(0,1fr);padding:14px 0}.ap-index-name{font-size:23px}}
+.ap-step.ap-door{box-shadow:-20px 0 0 var(--lavender),20px 0 0 var(--lavender)}
+.ap-timeline:before{left:66px}.ap-row{grid-template-columns:48px minmax(0,1fr);gap:4px 14px}.ap-what{padding-left:24px}.ap-mark{grid-column:2;justify-self:start;margin-left:24px}.ap-title{font-size:18px}}
 .ap .al-owner-bar{margin:0 0 26px}
 .ap .al-owner-bar a{color:var(--ink)}
 .ap-what .al-owner-actions{margin-top:6px}
 @media(max-width:1000px){.ap-head .case-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.ap-head .case-facts{grid-template-columns:1fr}}
 @media(max-width:700px){.ap-head.ap-has-photo{display:block}.ap-photo{margin:0 0 26px}.ap-photo img{width:100%;aspect-ratio:var(--ar-phone,var(--ar))}.ap-photo figcaption{text-align:left}}
+@media(max-width:700px){.ap-art{margin:0 0 6px}.ap-art img{width:200px;aspect-ratio:3/2}}
 /* Phones: one menu per row in the desktop order (Shelves, Tags, Paths, Sort), and the count gets its own line
    above the buttons. */
 @media(max-width:700px){

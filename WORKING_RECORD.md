@@ -157,6 +157,14 @@ Jason kept the list picture left of the tabs and asked for a moderate phone size
 
 Verification: `npm run check` passed; Playwright screenshots of books and albums at 360, 390 and 540 px, with no sideways scroll. Jason merges.
 
+## Site-wide dark theme — October 12, 2026
+
+Jason requested a full dark color theme while keeping the images. Implemented on `codex/dark-mode` from main `11dbdb0`: shared early theme bootstrap and stylesheet included in all 16 site HTML pages, including nested anti-library paths, digests, gallery, case studies and 404. Auto/Light/Dark native select has an accessible label, keyboard support, persistent explicit preferences, live OS following in Auto, cross-tab synchronization and graceful storage denial. The masthead measures its height so sticky filters and anchor offsets follow the mobile wrapping. The historical identity board remains an unchanged brand artifact.
+
+Dark direction: warm charcoal #24211f, cream #f1e9dd, copper #edaa89, muted lavender panels #40384d. Input/menu/highlight/code colors use shared tokens. Original images stay unmodified and are presented on cream paper; the navigation mark becomes white through CSS. Digest print palette resets to light. No authentication, data or hosting behavior changed.
+
+Verification: `npm run check` passed 294 references/anchors/image checks across 17 pages. Four Node regression tests passed for OS changes, explicit preference/Auto, blocked storage and cross-tab changes. JavaScript syntax and whitespace checks passed. Browser verified desktop homepage, anti-library header and filters, Orca case-study header, and 320px homepage/light return and locked digests, with no horizontal overflow in measured mobile views. Preference survives reload and cross-page navigation. Dark ink/muted/copper contrast against paper, surface, lavender and highlight backgrounds ranges from 5.59:1 to 13.29:1. Screenshot: `verification/previews/dark-home.jpg`. Private digest content, native print preview and screen-reader execution were not tested; print rules were inspected. Author verification sufficient for this reversible presentation change. Jason retains merge; existing deployment runs on merge.
+
 ## Headline picture balanced in its space — October 13, 2026
 
 Jason asked for the still life beside the headline to sit balanced in the white space, like the path-page photos (#72). It hugged the right edge and sat about 18 px above the headline's middle. The headline column now sizes to the headline (capped at 7.4em so it breaks after "haven't"), the picture is centred in the rest of the row at up to 400 px, and it drops 36 px so its middle lines up with the headline's. `/digests` shares these styles and gets the same treatment. Phones are unchanged.

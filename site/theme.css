@@ -1,0 +1,81 @@
+/* Daylight paper and evening charcoal share the same editorial hierarchy. */
+:root {
+  --surface: #fbf8f2;
+  --highlight: #efe3cf;
+  --cover-paper: #e6dccb;
+  --code-paper: #ebe3d5;
+}
+
+:root[data-theme="dark"] {
+  --paper: #24211f;
+  --ink: #f1e9dd;
+  --muted: #c3b6a8;
+  --rust: #edaa89;
+  --lavender: #40384d;
+  --line: #928376;
+  --surface: #302b28;
+  --highlight: #45382d;
+  --cover-paper: #39312a;
+  --code-paper: #3b332d;
+}
+
+.nav { align-items: center; flex-wrap: wrap; }
+.theme-control { display: inline-flex; align-items: center; gap: 7px; font-size: 11px; color: var(--muted); }
+.theme-control select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  min-height: 36px;
+  padding: 5px;
+  cursor: pointer;
+}
+.theme-control select:focus-visible { outline: 3px solid var(--rust); outline-offset: 3px; }
+input::placeholder { color: var(--muted); opacity: 1; }
+.nav a[href$="#contact"] { border-bottom: 1px solid var(--ink); }
+
+[data-theme="dark"] .brand img { filter: brightness(0) invert(1); }
+[data-theme="dark"] .elsewhere { background: #302922; }
+[data-theme="dark"] .elsewhere-item { border-color: var(--line); }
+[data-theme="dark"] .treasury-art,
+[data-theme="dark"] .orca-art { background: #39322b; }
+[data-theme="dark"] .stream-art,
+[data-theme="dark"] .iyosi-art,
+[data-theme="dark"] .statbatt-art { background: #30372f; }
+[data-theme="dark"] .getfit-art { background: var(--lavender); }
+
+/* Keep the original pigments on their cream paper, like prints mounted on a dark wall. */
+[data-theme="dark"] .hero-art img,
+[data-theme="dark"] .al-art,
+[data-theme="dark"] .al-medium,
+[data-theme="dark"] .al-thread-art { background: #f5f0e7; }
+[data-theme="dark"] .hero-art img,
+[data-theme="dark"] .al-art img,
+[data-theme="dark"] .al-medium img,
+[data-theme="dark"] .al-thread-art img { mix-blend-mode: normal; }
+[data-theme="dark"] .orca-case-art { color: #302b28; }
+
+@media (max-width: 700px) {
+  .masthead { flex-wrap: wrap; gap: 14px; }
+  .masthead .nav { width: 100%; gap: 12px; justify-content: space-between; }
+  .theme-control { margin-left: auto; gap: 4px; }
+}
+
+/* Printed briefs use the original paper palette even when the screen is dark. */
+@media print {
+  :root[data-theme] {
+    color-scheme: light !important;
+    --paper: #fff;
+    --ink: #302b28;
+    --muted: #655b53;
+    --rust: #9a442c;
+    --lavender: #d8d0e4;
+    --line: #c6bdb0;
+    --surface: #fff;
+    --highlight: #efe3cf;
+    --cover-paper: #e6dccb;
+    --code-paper: #ebe3d5;
+  }
+  .theme-control { display: none; }
+}
