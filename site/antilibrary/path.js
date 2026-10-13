@@ -4,7 +4,7 @@
 // lists/director-paths.json, built into data/paths.json, data/author-paths.json and data/director-paths.json), like
 // the lists themselves. The page says which with data-kind on <main>. With no one named, the page lists every path.
 // Artist paths: in owner mode each record gets a Heard box. Ticks wait in the same browser store as the list's marks
-// (albums list, "title|artist"), so they go out with the list's Send changes issue and land in progress.json.
+// (albums list, "title|artist"), so they go out with the list's Save changes issue and land in progress.json.
 // Author and director paths have no boxes: a book or film is marked on its list, and a step counts once it's crossed
 // off there.
 (() => {
