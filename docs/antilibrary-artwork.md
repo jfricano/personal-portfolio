@@ -15,6 +15,12 @@ The page shows one combined still life, `site/antilibrary/art/general.jpg`, besi
 
 Originals and generation prompts are in `artwork/antilibrary/`. To replace an image, put the new file in `site/antilibrary/art/` and open a PR; nothing else needs to change.
 
-## Headline illustration
+## Where each image is used
 
-`general.jpg` is the combined-media still life beside the headline. Original and prompt: [artwork/antilibrary/general-prompt.md](../artwork/antilibrary/general-prompt.md). The digests headline image's original and prompt are in [artwork/digests/README.md](../artwork/digests/README.md).
+| Image | Where it shows | Original and prompt |
+|-------|----------------|---------------------|
+| `site/antilibrary/art/general.jpg` | Beside the `/antilibrary` headline on every tab; under the headline on phones | [artwork/antilibrary/general-prompt.md](../artwork/antilibrary/general-prompt.md) |
+| `site/digests/art/digests.jpg` | Beside the `/digests` headline, including the locked view | [artwork/digests/README.md](../artwork/digests/README.md) |
+| `site/antilibrary/art/{books,films,tv,albums}.jpg` | Small at the end of the tab row on `/antilibrary`, and by the Books and Films tabs on `/digests`; also `books.jpg` as the anti-library's social preview image | [artwork/antilibrary/README.md](../artwork/antilibrary/README.md) |
+
+Each image has one copy in the repo. The two headline images came from the Codex art PRs (#55 and #56); Jason chose them and #57 placed them. Keep a new image's generation prompt next to its original in `artwork/`.
