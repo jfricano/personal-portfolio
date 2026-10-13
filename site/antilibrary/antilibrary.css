@@ -3,9 +3,9 @@
 .antilibrary{padding-bottom:90px;min-height:70vh}
 /* The headline takes the left of the top section and the open list's small illustration fills the space beside
    it; the two text columns sit underneath, with the headline centred on the picture so the gap stays even. */
-.al-intro{padding:55px 0 50px;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-template-areas:"head art" "body body";gap:0 48px;align-items:center}
+.al-intro{padding:55px 0 50px;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"head art" "body body";gap:0 24px;align-items:center}
 .al-intro-head{grid-area:head}
-.al-intro h1{font-size:clamp(50px,6.8vw,96px);margin:22px 0 0}
+.al-intro h1{font-size:clamp(50px,6.8vw,96px);margin:22px 0 0;max-width:7.4em}
 .al-intro h1 em{color:var(--rust)}
 .al-intro-body{grid-area:body;display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:start;margin-top:34px}
 .al-intro-body .case-deck{font-size:19px;line-height:1.55;max-width:none}
@@ -25,7 +25,9 @@
 /* The combined still life (record, books, television, reel) sits beside the headline on every tab, edges feathered
    into the paper. The medium's own picture is the small one at the end of the tab row; like everything on the site
    it changes without motion, staying hidden until the new file has loaded, then swapping in. */
-.al-art{grid-area:art;margin:0;width:min(100%,440px);justify-self:end;aspect-ratio:3/2;overflow:hidden}
+/* The still life sits centred in the space right of the headline and level with it (the label above the headline
+   is why it drops 36px), like the path-page photos. */
+.al-art{grid-area:art;margin:36px 0 0;width:min(100%,400px);justify-self:center;aspect-ratio:3/2;overflow:hidden}
 .al-art img,.al-medium img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;
   -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%)}
 .al-tabrow{display:flex;align-items:center;gap:40px}
@@ -184,9 +186,9 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .al-empty{padding:50px 0;font-family:var(--serif);font-size:24px;color:var(--muted)}
 .al-empty .al-button{margin-top:18px;font-family:var(--sans)}
 
-@media(max-width:1000px){.al-intro{gap:0 32px}.al-art{width:100%}.al-controls{grid-template-columns:1fr 1fr 1fr}.al-search{grid-column:1/-1}.al-item{grid-template-columns:64px minmax(0,1fr) minmax(0,1.4fr);grid-template-areas:"cover head body" "cover . tags";gap:8px 24px}.al-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start}}
+@media(max-width:1000px){.al-intro{gap:0 24px}.al-controls{grid-template-columns:1fr 1fr 1fr}.al-search{grid-column:1/-1}.al-item{grid-template-columns:64px minmax(0,1fr) minmax(0,1.4fr);grid-template-areas:"cover head body" "cover . tags";gap:8px 24px}.al-tags{flex-direction:row;flex-wrap:wrap;align-items:flex-start}}
 @media(max-width:700px){
-.antilibrary{padding-bottom:60px}.al-intro{padding:35px 0 36px}.al-intro h1{font-size:clamp(46px,12vw,59px)}
+.antilibrary{padding-bottom:60px}.al-intro{padding:35px 0 36px}.al-intro h1{font-size:clamp(46px,12vw,59px);max-width:none}
 .al-intro{display:block}.al-intro h1{margin-bottom:0}.al-intro-body{grid-template-columns:1fr;gap:26px;margin-top:28px}.al-intro-body .case-deck{font-size:17px}.al-intro-note{font-size:15px}.al-art{grid-area:auto;width:auto;margin:0 -8px}
 .al-tabrow{gap:0 18px;flex-wrap:wrap}.al-medium{width:140px;margin:10px 0 0}.al-tabs{flex:none;max-width:100%;gap:16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 0 0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:23px;white-space:nowrap;flex:none}.al-tabs button span{display:none}
 .al-controls{grid-template-columns:1fr 1fr;gap:12px;padding:16px 0 14px;position:static}
