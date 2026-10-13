@@ -242,6 +242,21 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 .ap-head .case-deck a{color:var(--rust)}
 .ap-head .case-facts{grid-template-columns:repeat(4,minmax(0,1fr));border-top-color:var(--ink)}
 .ap-head .case-facts dd{font-family:var(--serif);font-size:18px;letter-spacing:-.02em}
+/* A path's photo (artist, author or director) fills the space right of the name, from the Back button to the end of
+   the note, in its own shape: about as tall as the name and note beside it (270px), narrower for a portrait, wider
+   for a group, so it fills the space without taking over. On phones it sits right under the name, full width, with a
+   portrait trimmed to a wide frame so it doesn't push the note off the screen. The text keeps its usual width and the
+   photo sits centred in the space left over, so it is as far from the text as from the page's right edge. Colours are
+   toned down a little so a bright stage shot sits quietly on the paper. */
+.ap-head.ap-has-photo{display:grid;grid-template-columns:minmax(0,720px) minmax(auto,1fr);grid-template-rows:auto auto auto 1fr auto;column-gap:48px;
+  grid-template-areas:"back photo" "crumb photo" "title photo" "deck photo" "facts facts"}
+.ap-has-photo .ap-back{grid-area:back}.ap-has-photo>.label{grid-area:crumb}.ap-has-photo h1{grid-area:title}.ap-has-photo .case-deck{grid-area:deck}.ap-has-photo .case-facts{grid-area:facts}
+.ap-photo{grid-area:photo;margin:0;align-self:center;justify-self:center;--ar:1.333}
+.ap-photo img{width:clamp(170px,calc(min(270px,21vw) * var(--ar)),min(420px,32vw));aspect-ratio:var(--ar);object-fit:cover;object-position:50% 25%;background:#e9dfce;
+  filter:saturate(.75) sepia(.08) contrast(.95)}
+.ap-photo figcaption{margin-top:9px;font-size:11px;line-height:1.45;color:var(--muted);text-align:right;width:0;min-width:100%}
+.ap-photo figcaption a{text-decoration:none}.ap-photo figcaption a:hover{color:var(--rust)}
+.ap-photo .al-ext{font-size:11px;opacity:1}
 .ap-section{border-top:1px solid var(--ink);padding-bottom:40px}
 .ap-section+.ap-section{border-top:0}
 .ap-section:has(> [hidden]){padding-bottom:0}
@@ -299,6 +314,7 @@ a.al-tag-path:hover{border-color:var(--rust);color:var(--rust)}
 .ap-what .al-owner-actions{margin-top:6px}
 @media(max-width:1000px){.ap-head .case-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.ap-head .case-facts{grid-template-columns:1fr}}
+@media(max-width:700px){.ap-head.ap-has-photo{display:block}.ap-photo{margin:0 0 26px}.ap-photo img{width:100%;aspect-ratio:var(--ar-phone,var(--ar))}.ap-photo figcaption{text-align:left}}
 /* Phones: one menu per row in the desktop order (Shelves, Tags, Paths, Sort), and the count gets its own line
    above the buttons. */
 @media(max-width:700px){

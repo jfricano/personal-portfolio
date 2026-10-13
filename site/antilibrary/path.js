@@ -38,12 +38,37 @@
   const LIST = KINDS[main.dataset.kind] ? main.dataset.kind : 'albums', kind = KINDS[LIST];
   const listLink = `<a href="./?list=${LIST}">Anti-library ${LIST}</a>`;
   const root = document.getElementById('ap');
-  const head = { crumb: document.getElementById('ap-crumb'), title: document.getElementById('ap-title'), deck: document.getElementById('ap-deck'), facts: document.getElementById('ap-facts') };
+  const head = { crumb: document.getElementById('ap-crumb'), title: document.getElementById('ap-title'), deck: document.getElementById('ap-deck'), facts: document.getElementById('ap-facts'),
+    photo: document.getElementById('ap-photo') };
   // The heading is in the page itself; each view fills in its words.
   function setHead(crumb, title, deck, facts = '') {
     head.crumb.innerHTML = crumb; head.title.innerHTML = title; head.deck.innerHTML = deck;
     head.deck.hidden = !deck; head.facts.innerHTML = facts; head.facts.hidden = !facts;
   }
+  // The artist's, author's or director's photo sits beside the name: an openly licensed picture from Wikimedia
+  // Commons, saved with the data (data/photos) so the page doesn't load it from Commons, and credited under it as its
+  // license asks. A path without one keeps the plain heading.
+  function setPhoto(p) {
+    const ph = p?.ph, frame = head.photo;
+    if (!frame) return;
+    frame.hidden = !(ph && /^photos\/(artists|authors|directors)\/[a-z0-9-]+\.(jpg|png)$/.test(ph.f));
+    frame.parentElement.classList.toggle('ap-has-photo', !frame.hidden);
+    if (frame.hidden) return;
+    const img = frame.querySelector('img');
+    img.src = DATA + ph.f;
+    img.alt = nameOf(p);
+    img.style.objectPosition = /^[\d.]+% [\d.]+%$/.test(ph.pos || '') ? ph.pos : '';
+    // The frame keeps the photo's own shape, within reason: a portrait stands narrow, a band shot runs wide.
+    const ratio = ph.w > 0 && ph.h > 0 ? ph.w / ph.h : 4 / 3;
+    frame.style.setProperty('--ar', Math.min(Math.max(ratio, 0.7), 2).toFixed(3));
+    frame.style.setProperty('--ar-phone', Math.min(Math.max(ratio, 1.2), 1.6).toFixed(3));
+    // Credited the way Commons suggests: "Author, License, via Wikimedia Commons" (a painting's painter is its author).
+    const credit = [ph.by, ph.lic, 'via Wikimedia Commons'].filter(Boolean).map(esc).join(', ');
+    frame.querySelector('figcaption').innerHTML = web(ph.u)
+      ? `<a href="${esc(ph.u)}" target="_blank" rel="noopener noreferrer">${credit}<span class="al-ext" aria-hidden="true"> ↗</span></a>`
+      : credit;
+  }
+  head.photo?.querySelector('img').addEventListener('error', () => { head.photo.hidden = true; head.photo.parentElement.classList.remove('ap-has-photo'); });
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   const web = url => (/^https:\/\//.test(url || '') ? url : '');
   const id = new URLSearchParams(location.search).get('a') || '';
@@ -133,6 +158,7 @@
     const progressText = kind.boxes
       ? (all ? `Fully heard: all ${order.length} on the path` : `${finished} of ${order.length} on the path`)
       : (all ? `Fully ${kind.done}: all ${order.length} on the path` : `${finished} of ${order.length} on the path crossed off`);
+    setPhoto(p);
     setHead(`${listLink} / <a href="${kind.page}">${kind.crumb}</a>`, nameHtml(p), p.about ? esc(p.about) : '',
       `<div><dt>The door</dt><dd><a href="#step-1">${esc(order[0].t)}</a> (${esc(order[0].y)})</dd></div>` +
       `<div><dt>The path</dt><dd>${count(order.length)}, in this order</dd></div>` +
