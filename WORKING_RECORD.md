@@ -124,3 +124,17 @@ Verification: compared each statement with the current `site/antilibrary/` and `
 Created the requested combined-media gouache still life for the anti-library landing view, matching the existing set's 1536×1024 (3:2) dimensions, palette and texture. Books, vinyl record, television and film reel share one composition; a rust ribbon continues toward the edge to suggest undiscovered knowledge. Built-in image generation used `books.png` as its style reference. Original: `artwork/antilibrary/general.png`; web derivative: `site/antilibrary/art/general.jpg` at JPEG quality 84. Exact prompt/provenance linked from the artwork README and header-art guide.
 
 Asset-only delivery on `codex/antilibrary-general-art` from main `cb65b36`; PR #21 was already merged. Page integration remains with the page team, preserving medium-specific views. Author visually inspected the output and checked dimensions, build inclusion and whitespace. `npm run check` passed; no page rendering change or deployed acceptance claimed. Signed commit and review PR prepared for Jason; merge uses existing deployment workflow.
+
+## Digests header illustration — October 12, 2026
+
+Replaced the reused medium-specific header imagery with one dedicated gouache folio, note card and pencil illustration representing a concise brief and the thought worth keeping. Original and exact prompt: `artwork/digests/`; delivery: `site/digests/art/digests.jpg`, 1536×1024 (3:2), JPEG quality 84. The header initializes before the private-data load, displays on the locked view, stays stable across medium changes, and retains image-error hiding. No credential or private-data logic changed.
+
+Author verification: `npm run check` passed 258 checks across 17 pages; `node --check site/digests/digests.js` and `git diff --check` passed. CUA confirmed the new image loads at desktop and 390px mobile with no horizontal overflow and fits the existing feathered mask. Screenshot: `verification/previews/digests-art-desktop.jpg`. Private digest content and authenticated tab interaction were not exercised; visual verification used the locked page. Signed review PR on `codex/digests-art`; Jason retains merge, which triggers existing deployment.
+
+## Headline art and medium art by the tabs — October 12–13, 2026
+
+Jason asked for one combined still life beside the anti-library headline on every tab, the notebook still life beside the digests headline, and each list's own illustration moved small to the end of the tab row next to the medium selector. The headline figures became static markup; the tab rows gained a wrapper holding a small figure that swaps with the selected tab, with no motion. Phones keep the picture directly under the headline with the text together, and hide tab counts so all four tabs fit beside the small picture.
+
+The two headline images Jason supplied are byte-for-byte the Codex originals from #55 (`artwork/antilibrary/general.png`) and #56 (`artwork/digests/digests.png`). To keep one copy of each, the pages use those files (`site/antilibrary/art/general.jpg`, `site/digests/art/digests.jpg`), and #56 was merged into this branch with this branch's digests script kept, so its prompt, provenance and record entry land unchanged. Where every image shows is tabulated in `docs/antilibrary-artwork.md`.
+
+Verification: `npm run check` passed 262 checks across 17 pages; `node --check site/digests/digests.js` and `git diff --check` passed. Playwright screenshots of the built site confirmed both headline images load at desktop and phone widths. Jason merges.

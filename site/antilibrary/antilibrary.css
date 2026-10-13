@@ -22,13 +22,17 @@
 .al-tabs button:hover{color:var(--rust)}
 .al-tabs button:focus-visible,.al-button:focus-visible,.al-controls input:focus-visible,.al-controls select:focus-visible,.al-item:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
 
-/* The illustration's edges feather into the paper. Like everything on the site it changes without motion: the
-   picture stays hidden until the new file has loaded, then swaps in. On phones the script moves it down
-   between the two intro paragraphs. */
+/* The combined still life (record, books, television, reel) sits beside the headline on every tab, edges feathered
+   into the paper. The medium's own picture is the small one at the end of the tab row; like everything on the site
+   it changes without motion, staying hidden until the new file has loaded, then swapping in. */
 .al-art{grid-area:art;margin:0;width:min(100%,440px);justify-self:end;aspect-ratio:3/2;overflow:hidden}
-.al-art img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;opacity:0;
+.al-art img,.al-medium img{width:100%;height:100%;object-fit:contain;mix-blend-mode:multiply;
   -webkit-mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%);mask-image:radial-gradient(ellipse farthest-side at 50% 50%,#000 72%,transparent 100%)}
-.al-art.is-shown img{opacity:1}
+.al-tabrow{display:flex;align-items:center;gap:36px}
+.al-tabs{min-width:0}
+.al-medium{margin:16px 0 0;width:132px;aspect-ratio:3/2;flex:none;overflow:hidden}
+.al-medium[hidden]{display:none}
+.al-medium img{opacity:0}.al-medium.is-shown img{opacity:1}
 .al-controls{display:grid;grid-template-columns:minmax(0,2fr) repeat(3,minmax(0,1fr));gap:14px 20px;padding:26px 0 18px;align-items:end;position:sticky;top:var(--sticky-top,0px);z-index:3;background:var(--paper);border-bottom:1px solid var(--line)}
 .al-controls label.label,.al-flags legend{display:block;color:var(--muted);margin-bottom:6px}
 .al-controls input[type=search],.al-controls select{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fbf8f2;border:1px solid var(--line);border-radius:0;padding:10px 12px;min-height:44px}
@@ -160,7 +164,7 @@ button.al-tag:hover{border-color:var(--rust);color:var(--rust)}
 @media(max-width:700px){
 .antilibrary{padding-bottom:60px}.al-intro{padding:35px 0 36px}.al-intro h1{font-size:clamp(46px,12vw,59px)}
 .al-intro{display:block}.al-intro h1{margin-bottom:0}.al-intro-body{grid-template-columns:1fr;gap:26px;margin-top:28px}.al-intro-body .case-deck{font-size:17px}.al-intro-note{font-size:15px}.al-art{grid-area:auto;width:auto;margin:0 -8px}
-.al-tabs{gap:18px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:24px;white-space:nowrap;flex:none}
+.al-tabrow{gap:10px}.al-medium{width:66px;margin:10px 0 0}.al-tabs{gap:16px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 0 0 -20px;padding:18px 20px 0}.al-tabs::-webkit-scrollbar{display:none}.al-tabs button{font-size:23px;white-space:nowrap;flex:none}.al-tabs button span{display:none}
 .al-controls{grid-template-columns:1fr 1fr;gap:12px;padding:16px 0 14px;position:static}
 .al-search,.al-field-shelf{grid-column:1/-1}
 .al-status{flex-wrap:wrap;gap:12px}.al-summary{display:contents}#al-count{flex:1}.al-applied{order:1;flex:1 1 100%}

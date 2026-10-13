@@ -375,10 +375,10 @@
     updateFold();
   });
 
-  // Each list's illustration lives at art/<list id>.jpg and sits beside the headline, or under it on phones; a list
-  // without one shows no picture.
+  // Each list's illustration lives at art/<list id>.jpg and sits small at the end of the tab row; a list without one
+  // shows no picture there. The combined still life beside the headline is static markup.
   function showArt() {
-    const figure = $('al-art'), image = $('al-art-img');
+    const figure = $('al-medium'), image = $('al-medium-img');
     figure.classList.remove('is-shown');
     image.onload = () => { if (image.dataset.list === list.id) { figure.hidden = false; figure.classList.add('is-shown'); } };
     image.onerror = () => { figure.hidden = true; };

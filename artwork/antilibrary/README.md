@@ -2,13 +2,13 @@
 
 Five original AI-generated gouache illustrations, made with the built-in image-generation tool. The initial set used `artwork/attention-still-life.png` as the style reference; the TV addition used `films.png` from this set. The compositions are symbolic rather than depictions of Jason’s actual possessions.
 
-- `general.png`: combined books, record, television and film reel for the general landing view. See [prompt and provenance](general-prompt.md); delivery is `site/antilibrary/art/general.jpg`.
+- `general.png`: combined books, record, television and film reel. It sits beside the headline on every tab. See [prompt and provenance](general-prompt.md); delivery is `site/antilibrary/art/general.jpg`.
 - `books.png`: unread books and a ribbon bookmark.
 - `films.png`: reel, canister, film strip and lavender light.
 - `albums.png`: record, sleeves and a rhythmic ribbon.
 - `tv.png`: ochre television, lavender screen, sage remote and rust ribbon. Delivery: `site/antilibrary/art/tv.jpg`, 1536 × 1024 (3:2), for the `tv` list ID.
 
-The corresponding `site/antilibrary/art/*.jpg` files are delivery derivatives encoded with macOS sips at JPEG quality 84. The existing list IDs select the files; Albums uses `albums.jpg`. The compositions use a shared 3:2 ratio and are contained, not cropped, in the page’s artwork slot. Artwork is decorative (`alt=""`); the selected tab supplies the medium’s accessible name. The original PNGs and this provenance document are excluded from the production build.
+The corresponding `site/antilibrary/art/*.jpg` files are delivery derivatives encoded with macOS sips at JPEG quality 84. The list IDs select the files for the small picture at the end of the tab row; Albums uses `albums.jpg`. The `/digests` page reuses the same per-list files by its tabs, so their names stay fixed. Its headline illustration is documented in [../digests/README.md](../digests/README.md). The compositions use a shared 3:2 ratio and are contained, not cropped, in the page’s artwork slot. Artwork is decorative (`alt=""`); the selected tab supplies the medium’s accessible name. The original PNGs and this provenance document are excluded from the production build.
 
 ## Generation prompts
 
