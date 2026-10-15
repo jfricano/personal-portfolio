@@ -9,3 +9,6 @@ dist/
 /HANDOFF_TEMPLATES.md
 /software ownershipguide.md
 /handoff templates.md
+
+# Local Claude Code settings and state.
+/.claude/
