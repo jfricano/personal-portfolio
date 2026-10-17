@@ -88,7 +88,7 @@ Case-study opening retains the personal origin, then adds: “And then I adapted
 
 Links: Case study (`getfit.html`) / bellos.app (https://bellos.app/). Remove direct GetFit v1 app links; retain the open-source destination in the case study. Use a plain bellos.app link without a coming-soon label, per the owner’s near-term launch direction.
 
-Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live GetFit v1 views—generated workout plan, training calendar, and movement guide—with no workout history shown. Present them as static images together on the homepage, larger in the case study, and stacked on phones. Label them as v1 references until a running bellos interface is available. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
+Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live bellos views captured in Safari at 390 × 844 CSS pixels—planned workout, training block, and movement guidance—with no workout history shown. Present them as static images together on the homepage, larger in the case study, and stacked on phones. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
 
 ### StatBatt — archived project
 
