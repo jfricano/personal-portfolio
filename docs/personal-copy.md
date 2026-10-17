@@ -92,19 +92,19 @@ Capture and present the app at phone width because it is used beside the person 
 
 ### StatBatt — archived project
 
-Status: Archived · No release planned
+Status: Abandoned · Never finalized as a product
 
 StatBatt is removed from selected work and retained as a records entry at `/moreprojects/#statbatt`. Its existing case study remains at `statbatt.html`, with archive status and links back to the gallery. Its landing screenshot uses illustrative readings. The archived case retains noindex and stays out of the sitemap. The curated gallery is linked publicly and is included in the sitemap after production preparation.
 
-### iYosi — additional portfolio
+### iYosi — abandoned project
 
 Category: iOS & Android
 
-Status: Pilot / in development
+Status: Abandoned · Never finalized as a product
 
 Description:
 
-> A pair of mobile apps for finding and correcting information about designated and reported smoking areas in Metro Manila.
+> An abandoned mobile-guide project for designated smoking areas in Metro Manila. It never became a finalized product.
 
 Marginal observation:
 
@@ -112,7 +112,7 @@ Marginal observation:
 
 Role: Product concept, platform design & implementation
 
-Link: Explore the landing preview
+Link: Read the archived project record (`iyosi.html`); the retained landing design is historical evidence.
 
 ### Garnet Guard
 
@@ -128,7 +128,7 @@ Links: Case study (`garnet-guard.html`) / Explore the source (`https://github.co
 
 The homepage features Personal Treasury, StreamOtter, GetFit → bellos and Garnet Guard. Move the Orca website case to the website-studies section of `/moreprojects/`, preserving its URL. Keep the founder link in the introduction and footer, pointed at `https://orcasolutions.dev/`, and add a commissioned-project route beside contact.
 
-More work separates additional software, emerging applications, website studies and archived work. Antilibrary Builder is an application for other people; the personal antilibrary belongs with interests and reading. Household Administrator describes design direction and incomplete implementation, not a working automation promise. Vespa remains explicitly fictional; StatBatt has no release planned.
+More work separates emerging applications, website studies and abandoned projects. iYosi and StatBatt never became finalized products; preserve their case URLs as records, with no active-pilot or future-release framing. Antilibrary Builder is an application for other people; the personal antilibrary belongs with interests and reading. Household Administrator describes design direction and incomplete implementation, not a working automation promise. Spessartine is an experimental Python diagnostic for differences between serial and worker execution; show it in development, with no public release or performance claim. Garnet Guard retains the featured slot and nearer-term priority. Vespa remains explicitly fictional; iYosi and StatBatt are abandoned, with no release planned.
 
 ## About
 

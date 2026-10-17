@@ -5,7 +5,7 @@ const base = 'https://jfricano.github.io/personal-portfolio/';
 const directory = path.join(root, 'dist');
 const urls = [];
 // Archived case studies retain noindex; the curated More work collection is public.
-const archivedPages = new Set(['statbatt.html']);
+const archivedPages = new Set(['statbatt.html', 'iyosi.html']);
 for (const name of await readdir(directory)) {
   if (!name.endsWith('.html')) continue;
   const file = path.join(directory, name);

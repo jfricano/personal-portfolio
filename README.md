@@ -93,9 +93,9 @@ The Pages workflow validates PRs and deploys main after successful checks. It bu
 
 ## Additional portfolio
 
-`/moreprojects/` is linked from navigation and below selected work. It groups additional software (iYosi), in-development applications (Antilibrary Builder and Household Administrator), website studies (Orca Solutions and the explicitly fictional Vespa Law concept), and the StatBatt archive. The applications in development have no public demo; the personal antilibrary is linked as a distinct collection, not presented as Builder.
+`/moreprojects/` is linked from navigation and below selected work. It groups in-development work (Spessartine, Antilibrary Builder and Household Administrator), website studies (Orca Solutions and the explicitly fictional Vespa Law concept), and abandoned-project records (iYosi and StatBatt). The work in development has no public demo; Spessartine is an experimental Python diagnostic, with Garnet Guard remaining the nearer-term priority. the personal antilibrary is linked as a distinct collection, not presented as Builder.
 
-Production preparation adds the curated gallery to canonical metadata and the sitemap. StatBatt retains noindex and stays out of the sitemap; personal reading and digest pages retain their existing exclusions. All local preview pages stay noindex. The collection uses two columns on larger screens and one on phones. Add entries to `site/moreprojects/index.html` with their actual availability and evidence.
+Production preparation adds the curated gallery to canonical metadata and the sitemap. Both abandoned-project case studies retain noindex and stay out of the sitemap; personal reading and digest pages retain their existing exclusions. All local preview pages stay noindex. The collection uses two columns on larger screens and one on phones. Add entries to `site/moreprojects/index.html` with their actual availability and evidence.
 
 The October 17 proposal also names future candidates. LLM Bridge remains design-only with no specific public invitation yet; the Otto-inspired project lacks an established public name and purpose. Roost is a future personal feature candidate. None is promoted merely to fill a slot. Orca’s website changes belong to its own team; this branch changes only the personal site. The shared editorial inventory is `business-management/WEBSITE_PROJECT_INVENTORY.md` in Jason’s Orca Solutions management folder.
 
@@ -103,7 +103,7 @@ The October 17 proposal also names future candidates. LLM Bridge remains design-
 
 Selected-work C follows open-source GetFit into bellos, the commercial phone-first version now released into private beta. The case study focuses on why the personal app was built, its records and architecture, open-source customization, and the gym use case behind the phone-first design. It does not explain the training method. GetFit’s public repository remains MIT-licensed. Three portrait screenshots show the running bellos app in Safari at phone width: a planned workout, training block, and movement guide. They appear as static images together on the homepage and larger in the case study, stacking on phones. No workout history is shown. The existing `getfit.html` route is retained.
 
-StatBatt has no release planned. Its implementation record remains at `statbatt.html` through `/moreprojects/`, without homepage promotion. The archived case remains noindex and is reachable from the clearly labeled archive section in More work.
+iYosi and StatBatt were abandoned before becoming finalized products. Their existing case URLs remain as historical implementation records, reached through the Abandoned projects section of More work. Neither is presented as active software, and both case studies retain noindex and sitemap exclusion.
 
 Homepage framing retains the entire Personal Treasury dashboard capture, centered with the shared project-card inset. bellos links directly to https://bellos.app/. Direct GetFit v1 app links are removed; its open-source link remains in the case study.
 
