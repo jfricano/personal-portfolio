@@ -280,3 +280,15 @@ Applied owner’s exact headline “A workout plan with a plan. And a record of 
 Verification: build and whitespace passed; browser confirms exact wording and no horizontal overflow at320/1440px. No behavioral tests needed for headline-only change.
 
 Owner punctuation correction, October17: added the terminal period after “happened.” in the GetFit → bellos headline and copy guide. Inspected the exact edit; no behavior change or new tests required.
+
+## Original GetFit homepage link — October17,2026
+
+Owner clarified that original GetFit belongs in the homepage bellos display too. Added Open original GetFit beside Case study and Visit bellos in the featured GetFit → bellos card, retaining the case-study link and existing three phone images. Reused this session’s HTTP200 destination evidence. README/copy guide synchronized. Same preview PR91; author verification sufficient for a bounded link addition, no merge/deployment.
+
+Verification: static374references/20pages and whitespace passed; browser confirms three distinct homepage-card actions and the exact original URL, with no horizontal overflow at320/1440px.
+
+## Follow-up project links after PR91 merge — October17,2026
+
+Observed PR91 merged at9b3efea into mainf302b18 (mergedAt2026-10-17T13:31:37Z). The homepage original-GetFit addition4338086 was pushed after that merge and is not part of mergedPR91; carried it into codex/portfolio-project-links and integrated origin/main with a configured signed merge, preserving history. This follow-up also adds View landing page actions to all three abandoned cards, separate from records and title controls. iYosi/Pettr HTTPS returned200; StatBatt’s documented statbatt.orcasolutions.dev hostname fails normal TLS hostname validation. No bypass used. Existing DevOps runbook confirms certificate issuance pending; added a visible availability note. Follow-up remains a draft pending StatBatt HTTPS acceptance; no hosting changes or publication. Source/link/layout changes are routine; author verification sufficient.
+
+Verification: static374references/20pages and whitespace passed; browser confirms separate record/landing actions with the exact three destinations and external new-tab behavior, StatBatt availability note, and no horizontal overflow at320/1440px. Homepage GetFit link was verified in the immediately preceding increment and is included in this follow-up. StatBatt TLS remains an external release gap; no certificate or hosting action performed.

@@ -141,3 +141,6 @@
   .project-disclosure > summary h3 { font-size: 25px; }
   .project-details { padding: 22px; }
 }
+
+.archive-actions { display: flex; flex-wrap: wrap; gap: 14px 24px; font-size: 14px; }
+.landing-availability { margin-top: 14px; color: var(--muted); font-size: 13px; }

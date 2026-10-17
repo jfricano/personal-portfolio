@@ -73,3 +73,7 @@ Owner original-GetFit link permission, October17: original GetFit may be linked 
 Owner collection interaction refinement, October17: make every More work card expandable from just its title. Start all nine entries collapsed; retain their existing content and destinations within the expanded entry. Native keyboard-usable disclosures, clear expand/collapse affordance, multiple entries open independently, responsive layout and themes retained. Homepage featured cards unchanged.
 
 Owner headline refinement, October17: GetFit → bellos case-study headline is “A workout plan with a plan. And a record of what happened”. Existing page identity, route and content remain.
+
+Owner original-GetFit homepage clarification, October17: include Open original GetFit on the homepage GetFit → bellos display as well as its case study, beside Case study and Visit bellos. This expands the earlier case-study-only placement.
+
+Owner abandoned-landing links, October17: add direct retained-landing links inside the StatBatt/iYosi/Pettr cards, alongside record links. Preserve abandoned status and title disclosures. PR91 has now been owner-merged; deliver these links and the newer homepage GetFit link in a follow-up preview PR. StatBatt’s HTTPS certificate is still pending; show accurate temporary availability and keep the follow-up draft until the destination is verified. No hosting/certificate actions authorized by this portfolio change.
