@@ -242,3 +242,9 @@ Verification: static370references/19pages and whitespace passed; rendered entry 
 ## Emerald City copy simplification — October17,2026
 
 Owner requests a broad description while project direction is unsettled. Reduced the entry to “A personal investment strategy app.” Retained Personal application / In development; removed all workflow/strategy detail. Copy guide and shared inventory follow the same public description. Same preview PR91; no product work, merge or deployment. Author verification sufficient.
+
+## More work discovery from featured work — October17,2026
+
+Owner requested the collection link live in the homepage work section, not the top bar. Removed More work from every shared masthead, retaining the existing link directly below the four featured projects and all contextual case/archive links. Restored original480px masthead wrapping breakpoint; theme behavior unchanged. README/copy guide updated. Same preview PR91; author verification sufficient for bounded navigation/layout change, no merge/deployment.
+
+Verification: static352references/19pages, six existing theme tests, and whitespace passed. Refreshed browser at320/480/481/640/1440px confirms masthead Home/Anti-Library/Say hello only and no horizontal overflow. Clicking the retained work-section More work link reaches the collection, whose masthead also omits it.

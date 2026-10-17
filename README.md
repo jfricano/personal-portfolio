@@ -14,7 +14,7 @@ Open http://127.0.0.1:4175. The identity board is at http://127.0.0.1:4175/brand
 
 ## Color themes
 
-Every public site layout has a theme switch in the masthead: a small half-filled disc just before the links, set off by a hairline (at 640px and below it sits at the right of the name's line, with the links below). It follows the device's light/dark setting until someone presses it; pressing flips to the other theme and remembers it in this browser under `portfolio-theme`, and flipping back to the device's own setting forgets the choice so the page follows the device again. It is a real button (labelled "Dark theme", with `aria-pressed`), applied before paint and synchronized between tabs. Storage restrictions still permit switching for the current page. Without JavaScript, the original light theme remains available.
+Every public site layout has a theme switch in the masthead: a small half-filled disc just before the links, set off by a hairline (at 480px and below it sits at the right of the name's line, with the links below). It follows the device's light/dark setting until someone presses it; pressing flips to the other theme and remembers it in this browser under `portfolio-theme`, and flipping back to the device's own setting forgets the choice so the page follows the device again. It is a real button (labelled "Dark theme", with `aria-pressed`), applied before paint and synchronized between tabs. Storage restrictions still permit switching for the current page. Without JavaScript, the original light theme remains available.
 
 `site/theme.css` defines the warm charcoal, cream, copper and lavender palette. Original illustrations remain on cream paper; screenshots retain their colors. Digest printing uses a light paper palette. The historical identity board is preserved as its original design artifact.
 
@@ -93,7 +93,7 @@ The Pages workflow validates PRs and deploys main after successful checks. It bu
 
 ## Additional portfolio
 
-`/moreprojects/` is linked from navigation and below selected work. It groups in-development work (Spessartine, Antilibrary Builder, Household Administrator and Emerald City), website studies (Orca Solutions and the explicitly fictional Vespa Law concept), and abandoned-project records (iYosi and StatBatt). The work in development has no public demo; Spessartine is an experimental Python diagnostic, with Garnet Guard remaining the nearer-term priority. the personal antilibrary is linked as a distinct collection, not presented as Builder.
+`/moreprojects/` is linked below the homepage’s selected work, rather than in the top navigation. It groups in-development work (Spessartine, Antilibrary Builder, Household Administrator and Emerald City), website studies (Orca Solutions and the explicitly fictional Vespa Law concept), and abandoned-project records (iYosi and StatBatt). The work in development has no public demo; Spessartine is an experimental Python diagnostic, with Garnet Guard remaining the nearer-term priority. The personal antilibrary is linked as a distinct collection, not presented as Builder.
 
 Production preparation adds the curated gallery to canonical metadata and the sitemap. Both abandoned-project case studies retain noindex and stay out of the sitemap; personal reading and digest pages retain their existing exclusions. All local preview pages stay noindex. The collection uses two columns on larger screens and one on phones. Add entries to `site/moreprojects/index.html` with their actual availability and evidence.
 

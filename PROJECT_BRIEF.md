@@ -61,3 +61,5 @@ Owner addition, October17: Emerald City is another project in development. Add i
 Emerald City clarification, October17: owner supplied an operating-model brief and identifies the project as a personal investment strategy app. Replace the name-only entry with a high-level purpose and planned workflow, retaining in-development status. The document is source material, not authorization to implement investment operations, connect accounts, execute trades, or publish personal financial details.
 
 Owner refinement, October17: keep Emerald City’s public description to “A personal investment strategy app.” Retain in-development status; omit strategy/workflow detail while the project is being worked out. This supersedes the more detailed portfolio description above.
+
+Owner navigation refinement, October17: remove More work from top navigation; discovery belongs under the homepage featured-work grid. Keep the existing section link and contextual case/archive links. Restore the original narrow-phone navigation breakpoint now that the extra top-level link is gone.

@@ -12,7 +12,7 @@ Description: **I'm Jason Fricano: a software builder, attorney, and founder of O
 
 ## Navigation
 
-Jason Fricano / Home / More work / Anti-Library / Say hello
+Jason Fricano / Home / Anti-Library / Say hello
 
 ## Introduction
 
@@ -128,7 +128,7 @@ Links: Case study (`garnet-guard.html`) / Explore the source (`https://github.co
 
 The homepage features Personal Treasury, StreamOtter, GetFit → bellos and Garnet Guard. Move the Orca website case to the website-studies section of `/moreprojects/`, preserving its URL. Keep the founder link in the introduction and footer, pointed at `https://orcasolutions.dev/`, and add a commissioned-project route beside contact.
 
-More work separates emerging applications, website studies and abandoned projects. iYosi and StatBatt never became finalized products; preserve their case URLs as records, with no active-pilot or future-release framing. Antilibrary Builder is an application for other people; the personal antilibrary belongs with interests and reading. Household Administrator describes design direction and incomplete implementation, not a working automation promise. Spessartine is an experimental Python diagnostic for differences between serial and worker execution; show it in development, with no public release or performance claim. Garnet Guard retains the featured slot and nearer-term priority. Emerald City is a personal investment strategy application in development. Public description: “A personal investment strategy app.” The owner requests no strategy or workflow details while the project direction is still being worked out. Do not imply implemented broker integration, live trading, performance results or public availability. Keep personal account details and financial figures out of portfolio copy. Vespa remains explicitly fictional; iYosi and StatBatt are abandoned, with no release planned.
+Link to More work beneath the homepage’s featured projects, not in the masthead. More work separates emerging applications, website studies and abandoned projects. iYosi and StatBatt never became finalized products; preserve their case URLs as records, with no active-pilot or future-release framing. Antilibrary Builder is an application for other people; the personal antilibrary belongs with interests and reading. Household Administrator describes design direction and incomplete implementation, not a working automation promise. Spessartine is an experimental Python diagnostic for differences between serial and worker execution; show it in development, with no public release or performance claim. Garnet Guard retains the featured slot and nearer-term priority. Emerald City is a personal investment strategy application in development. Public description: “A personal investment strategy app.” The owner requests no strategy or workflow details while the project direction is still being worked out. Do not imply implemented broker integration, live trading, performance results or public availability. Keep personal account details and financial figures out of portfolio copy. Vespa remains explicitly fictional; iYosi and StatBatt are abandoned, with no release planned.
 
 ## About
 
