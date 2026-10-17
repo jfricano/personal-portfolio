@@ -272,3 +272,9 @@ Verification: static373references/20pages and whitespace passed. Browser confirm
 Owner requested each collection card expand from just its title. Converted all nine emerging/website/archive cards to native details/summary with titles and plus/minus indicators; status, descriptions, imagery and existing links remain inside. All start collapsed, support keyboard, work without JavaScript, and open independently. Added explicit case/concept actions to the two website entries so destinations remain discoverable separately from the title control; screenshot destinations retained. Kept existing anchored IDs, homepage grid, section grouping and theme behavior. Shared styles scope the compact grid/disclosure treatment to More work. Author verification sufficient for reversible UI change. Same preview PR91; no merge/deployment.
 
 Verification: static374references/20pages and whitespace passed. Refreshed browser confirms9closed entries initially, titles only, no links nested in summary controls, Enter opens/Space closes, and iYosi/StatBatt remain open independently. Expanded layout has no horizontal overflow at320/390/768/1440px. Record navigation and anchored return work; light/dark presentation and Emerald City body verified. Native markup supplies no-JavaScript behavior; no browser JS-disable or screen-reader execution performed. Preview evidence saved as more-work-collapsed.jpg in this task’s visualization folder.
+
+## GetFit → bellos headline — October17,2026
+
+Applied owner’s exact headline “A workout plan with a plan. And a record of what happened”, retaining the existing italic second phrase and responsive case frame. Copy guide synchronized. Same preview PR91; author verification sufficient for a copy-only change. No merge/deployment.
+
+Verification: build and whitespace passed; browser confirms exact wording and no horizontal overflow at320/1440px. No behavioral tests needed for headline-only change.

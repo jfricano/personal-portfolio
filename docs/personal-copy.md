@@ -76,6 +76,8 @@ Links: Free macOS app & sample site (https://pt.orcasolutions.dev/) / View sourc
 
 ### GetFit → bellos
 
+Case-study headline: **A workout plan with a plan. And a record of what happened**
+
 Category: From personal tool to product
 
 Status: GetFit live · bellos private beta

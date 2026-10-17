@@ -71,3 +71,5 @@ Owner addition, October17: Pettr at pettr.orcasolutions.dev is another abandoned
 Owner original-GetFit link permission, October17: original GetFit may be linked at getfit.orcasolutions.dev. Add a clearly labeled case-study destination beside bellos/source links. This supersedes earlier removal of direct v1 app links; no homepage restructuring or application changes.
 
 Owner collection interaction refinement, October17: make every More work card expandable from just its title. Start all nine entries collapsed; retain their existing content and destinations within the expanded entry. Native keyboard-usable disclosures, clear expand/collapse affordance, multiple entries open independently, responsive layout and themes retained. Homepage featured cards unchanged.
+
+Owner headline refinement, October17: GetFit → bellos case-study headline is “A workout plan with a plan. And a record of what happened”. Existing page identity, route and content remain.
