@@ -97,7 +97,7 @@ Local review: http://127.0.0.1:4176/moreprojects/. No homepage or navigation lin
 
 ## GetFit → bellos and archived StatBatt
 
-Selected-work C follows open-source GetFit into bellos, the commercial phone-first version in development. The case study focuses on why the personal app was built, its records and architecture, open-source customization, and the gym use case behind the phone-first design. It does not explain the training method. GetFit’s public repository remains MIT-licensed. Three portrait screenshots show the running bellos app in Safari at phone width: a planned workout, training block, and movement guide. They appear as static images together on the homepage and larger in the case study, stacking on phones. No workout history is shown. The existing `getfit.html` route is retained.
+Selected-work C follows open-source GetFit into bellos, the commercial phone-first version now released into private beta. The case study focuses on why the personal app was built, its records and architecture, open-source customization, and the gym use case behind the phone-first design. It does not explain the training method. GetFit’s public repository remains MIT-licensed. Three portrait screenshots show the running bellos app in Safari at phone width: a planned workout, training block, and movement guide. They appear as static images together on the homepage and larger in the case study, stacking on phones. No workout history is shown. The existing `getfit.html` route is retained.
 
 StatBatt has no release planned. Its implementation record remains at `statbatt.html` through `/moreprojects/`, without homepage promotion. These archive pages are unlisted and accessible by URL.
 
