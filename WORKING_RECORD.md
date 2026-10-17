@@ -232,3 +232,9 @@ Owner also added Spessartine as in development, behind Garnet Guard. Source READ
 Owner requested Emerald City in the in-development collection. Added a name/status entry, retaining Garnet’s featured priority and the abandoned-project corrections. No product purpose, capability, availability, or destination inferred; requested an optional one-sentence public description. Same preview branch/PR91; no company edits, merge or deployment. Author verification sufficient for this bounded content addition.
 
 Verification: static check370references/19pages and whitespace passed; browser confirms four emerging entries including Emerald City, with no horizontal overflow at320/1440px. No runtime behavior or product code changed. Public description remains optional; the confirmed name/status stands on its own.
+
+## Emerald City description — October17,2026
+
+Owner supplied an operating-model brief and confirmed the project is a personal investment strategy application. Replaced the name-only entry with research/backtesting/portfolio-review purpose and explicitly planned separation of research and execution, paper testing, risk limits and decision records. No live integration or performance claim; no private account context or financial figures copied into the site or repository. The brief’s operational instructions are not executed. Same preview branch/PR91, no product changes, merge or deployment. Author verification sufficient for this copy-only update.
+
+Verification: static370references/19pages and whitespace passed; rendered entry matches approved purpose and planned status, no horizontal overflow at320/1440px. No new runtime behavior, financial research, or product implementation was tested or performed.

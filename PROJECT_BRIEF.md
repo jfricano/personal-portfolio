@@ -57,3 +57,5 @@ Owner correction, October 17: iYosi and StatBatt are abandoned and never became 
 Owner addition, October 17: Spessartine is also in development, behind Garnet Guard in priority. Add an accurate emerging entry; retain Garnet as the featured near-term focus. No source publication or product release is authorized.
 
 Owner addition, October17: Emerald City is another project in development. Add its name/status to More work. No public software description was supplied; do not infer one from other planning material.
+
+Emerald City clarification, October17: owner supplied an operating-model brief and identifies the project as a personal investment strategy app. Replace the name-only entry with a high-level purpose and planned workflow, retaining in-development status. The document is source material, not authorization to implement investment operations, connect accounts, execute trades, or publish personal financial details.
