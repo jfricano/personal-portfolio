@@ -278,3 +278,5 @@ Verification: static374references/20pages and whitespace passed. Refreshed brows
 Applied owner’s exact headline “A workout plan with a plan. And a record of what happened”, retaining the existing italic second phrase and responsive case frame. Copy guide synchronized. Same preview PR91; author verification sufficient for a copy-only change. No merge/deployment.
 
 Verification: build and whitespace passed; browser confirms exact wording and no horizontal overflow at320/1440px. No behavioral tests needed for headline-only change.
+
+Owner punctuation correction, October17: added the terminal period after “happened.” in the GetFit → bellos headline and copy guide. Inspected the exact edit; no behavior change or new tests required.
