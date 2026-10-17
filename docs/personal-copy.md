@@ -94,7 +94,7 @@ Capture and present the app at phone width because it is used beside the person 
 
 Status: Abandoned · Never finalized as a product
 
-StatBatt is removed from selected work and retained as a records entry at `/moreprojects/#statbatt`. Its existing case study remains at `statbatt.html`, with archive status and links back to the gallery. Its landing screenshot uses illustrative readings. The archived case retains noindex and stays out of the sitemap. The curated gallery is linked publicly and is included in the sitemap after production preparation.
+StatBatt is removed from selected work and retained as a records entry at `/moreprojects/#statbatt`. Its existing case study remains at `statbatt.html`, with archive status and links back to the gallery. Its landing screenshot uses illustrative readings. Add an explicit Read the project record link on its gallery card, matching iYosi. Explain that a macOS update broke Energiza for Jason, prompting StatBatt; a few days later Energiza’s update restored the existing solution, and StatBatt added nothing meaningfully new. Substantial development and a working prototype preceded the decision to stop. The archived case retains noindex and stays out of the sitemap. The curated gallery is linked publicly and is included in the sitemap after production preparation.
 
 ### iYosi — abandoned project
 
@@ -112,7 +112,7 @@ Marginal observation:
 
 Role: Product concept, platform design & implementation
 
-Link: Read the archived project record (`iyosi.html`); the retained landing design is historical evidence.
+Link: Read the archived project record (`iyosi.html`); the retained landing design is historical evidence. Explain the decision to stop: regulatory constraints and difficulties monetizing the idea prevented a commercially viable path. Preserve the substantial development and working prototype apps as evidence; do not imply customer adoption or invent traction metrics.
 
 ### Garnet Guard
 
