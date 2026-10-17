@@ -280,3 +280,9 @@ Applied owner’s exact headline “A workout plan with a plan. And a record of 
 Verification: build and whitespace passed; browser confirms exact wording and no horizontal overflow at320/1440px. No behavioral tests needed for headline-only change.
 
 Owner punctuation correction, October17: added the terminal period after “happened.” in the GetFit → bellos headline and copy guide. Inspected the exact edit; no behavior change or new tests required.
+
+## Original GetFit homepage link — October17,2026
+
+Owner clarified that original GetFit belongs in the homepage bellos display too. Added Open original GetFit beside Case study and Visit bellos in the featured GetFit → bellos card, retaining the case-study link and existing three phone images. Reused this session’s HTTP200 destination evidence. README/copy guide synchronized. Same preview PR91; author verification sufficient for a bounded link addition, no merge/deployment.
+
+Verification: static374references/20pages and whitespace passed; browser confirms three distinct homepage-card actions and the exact original URL, with no horizontal overflow at320/1440px.

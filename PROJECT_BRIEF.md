@@ -73,3 +73,5 @@ Owner original-GetFit link permission, October17: original GetFit may be linked 
 Owner collection interaction refinement, October17: make every More work card expandable from just its title. Start all nine entries collapsed; retain their existing content and destinations within the expanded entry. Native keyboard-usable disclosures, clear expand/collapse affordance, multiple entries open independently, responsive layout and themes retained. Homepage featured cards unchanged.
 
 Owner headline refinement, October17: GetFit → bellos case-study headline is “A workout plan with a plan. And a record of what happened”. Existing page identity, route and content remain.
+
+Owner original-GetFit homepage clarification, October17: include Open original GetFit on the homepage GetFit → bellos display as well as its case study, beside Case study and Visit bellos. This expands the earlier case-study-only placement.
