@@ -84,3 +84,60 @@
 /* Three nav links still fit on one line at the narrowest phones. */
 .nav a{white-space:nowrap}
 @media(max-width:340px){.nav{gap:8px;font-size:10.5px}}
+
+/* Selected software and the wider collection share the existing editorial frame. */
+.work-followup { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; margin-top: 48px; padding-top: 25px; border-top: 1px solid var(--line); }
+.work-followup p { color: var(--muted); font-size: 15px; }
+.work-followup .text-link { flex-shrink: 0; font-size: 15px; }
+.contact .contact-studio { margin-top: 20px; }
+.garnet-art { background: var(--surface); flex-direction: column; align-items: stretch; gap: 22px; padding: 28px 28px 48px; }
+.garnet-art > img { width: min(280px, 80%); height: auto; padding: 10px; background: #f5f0e7; }
+.garnet-card-report { min-width: 0; }
+.garnet-card-report .label { color: var(--muted); }
+.garnet-card-report pre { margin: 12px 0 0; font-size: clamp(10px, 1.15vw, 15px); line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+.garnet-walkthrough { margin: 0 0 30px; padding: 36px; background: var(--surface); border: 1px solid var(--line); }
+.garnet-walkthrough-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; }
+.garnet-walkthrough-head img { width: min(310px, 100%); height: auto; padding: 12px; background: #f5f0e7; }
+.garnet-walkthrough pre { margin: 30px 0 24px; padding: 25px; background: var(--code-paper); font-size: 14px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.collection-links { display: flex; flex-wrap: wrap; gap: 12px 26px; margin-top: 28px; font-size: 14px; }
+.collection-section { padding: 42px 0 58px; border-top: 1px solid var(--line); }
+.collection-heading { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: baseline; margin-bottom: 34px; }
+.collection-heading h2 { font-size: clamp(32px, 4vw, 48px); }
+.collection-heading p { max-width: 520px; font-size: 15px; color: var(--muted); }
+.archive-description { margin: 16px 0; font-size: 15px; color: var(--muted); }
+.project-details > .text-link { font-size: 14px; }
+.emerging-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; }
+.emerging-project p { font-size: 15px; color: var(--muted); }
+.emerging-project p + p { margin-top: 18px; }
+@media (max-width: 1000px) {
+  .garnet-art { gap: 14px; padding: 20px 20px 55px; }
+  .garnet-art > img { width: 220px; }
+}
+@media (max-width: 700px) {
+  .work-followup { flex-direction: column; gap: 16px; }
+  .garnet-card-report pre { font-size: 12px; }
+  .garnet-walkthrough { padding: 20px; }
+  .garnet-walkthrough pre { padding: 16px; font-size: 12px; }
+  .collection-heading, .emerging-grid { grid-template-columns: 1fr; gap: 20px; }
+  .collection-section { padding: 32px 0 40px; }
+}
+
+/* The wider collection starts with titles; native disclosures reveal the existing evidence. */
+.portfolio-archive .archive-grid,
+.portfolio-archive .emerging-grid { align-items: start; gap: 18px 24px; }
+.project-disclosure { min-width: 0; border: 1px solid var(--line); }
+.project-disclosure > summary { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 24px 28px; list-style: none; cursor: pointer; }
+.project-disclosure > summary::-webkit-details-marker { display: none; }
+.project-disclosure > summary::marker { content: ''; }
+.project-disclosure > summary:hover { color: var(--rust); }
+.project-disclosure > summary h3 { min-width: 0; margin: 0; font-size: 28px; line-height: 1.2; overflow-wrap: anywhere; }
+.disclosure-icon { flex-shrink: 0; color: var(--rust); font-size: 25px; line-height: 1; }
+.disclosure-icon::before { content: '+'; }
+.project-disclosure[open] > summary { border-bottom: 1px solid var(--line); }
+.project-disclosure[open] > summary .disclosure-icon::before { content: '−'; }
+.project-details { padding: 24px 28px 28px; }
+@media (max-width: 700px) {
+  .project-disclosure > summary { padding: 22px; }
+  .project-disclosure > summary h3 { font-size: 25px; }
+  .project-details { padding: 22px; }
+}

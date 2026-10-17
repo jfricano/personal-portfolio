@@ -4,8 +4,8 @@ import path from 'node:path';
 const base = 'https://jfricano.github.io/personal-portfolio/';
 const directory = path.join(root, 'dist');
 const urls = [];
-// /moreprojects/ and archived case studies retain noindex and stay out of the sitemap.
-const archivedPages = new Set(['statbatt.html']);
+// Archived case studies retain noindex; the curated More work collection is public.
+const archivedPages = new Set(['statbatt.html', 'iyosi.html', 'pettr.html']);
 for (const name of await readdir(directory)) {
   if (!name.endsWith('.html')) continue;
   const file = path.join(directory, name);
@@ -21,6 +21,13 @@ for (const name of await readdir(directory)) {
   }
   await writeFile(file, html);
 }
+const collectionFile = path.join(directory, 'moreprojects', 'index.html');
+const collectionUrl = new URL('moreprojects/', base).href;
+let collection = await readFile(collectionFile, 'utf8');
+collection = collection.replace('<meta name="robots" content="noindex, nofollow">', '');
+collection = collection.replace('</head>', `<link rel="canonical" href="${collectionUrl}"><meta property="og:url" content="${collectionUrl}"></head>`);
+await writeFile(collectionFile, collection);
+urls.push(collectionUrl);
 await writeFile(path.join(directory, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${urls.map(url => `<url><loc>${url}</loc></url>`).join('')}</urlset>\n`);
 await writeFile(path.join(directory, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${base}sitemap.xml\n`);
 await writeFile(path.join(directory, '.nojekyll'), '');

@@ -212,3 +212,71 @@ Owner confirmed bellos is released into private beta. Added the Lontra Creek dem
 Author verification sufficient: static check passed 324 references across 18 pages; whitespace passed; 390/1440-pixel checks found no overflow, direct Demo case study click reached the existing Lontra Creek case, and case status/descriptive link match. Existing screenshot PR89 was already merged, so this is a new branch from main8b37830. No merge/deployment performed.
 
 Owner clarification, October17: Personal Treasury is fully available for free macOS distribution; the sample site demonstrates it. Updated homepage status/caption/description/download label, case metadata/current state/distribution paragraph and copy guide. Removed obsolete local-preview wording. Static324/18 and whitespace passed; rendered390/1440 confirms readable download status and links without overflow, and case facts report free macOS availability. Included in openPR90; no merge/deployment.
+
+## Software-first portfolio review preview — October 17, 2026
+
+User approved implementing the supplied two-site review for the personal site only, on a preview branch before owner merge. Branch `codex/portfolio-review-preview`, isolated managed worktree, base `8b86630`. Original dirty `codex/statbatt-case-study` checkout preserved. Implemented founder introduction/biography and commissioned-work route, retained four features with Garnet Guard replacing the Orca website card, added the Garnet case, and curated public More work into software/emerging/website/archive sections. Builder and the personal antilibrary have distinct purposes; Household Administrator is incomplete work. Retained all case URLs, former home Orca anchor, StreamOtter’s three related cases, latest bellos private-beta imagery/status, and Treasury availability. More work gains production canonical/sitemap inclusion; StatBatt, reading and digest exclusions remain. No company source edits or data/auth changes.
+
+Evidence: Garnet public main/local source `c6ecb3013d7bbe18461193b6262dacd675d7e9d2` matched through GitHub API; repository is public. Its real engine inspected synthetic in-memory wheels and fixture provenance, producing C003/T001 warnings saved in `verification/garnet-walkthrough.txt` and rendered as selectable report text. No package code executed, real publisher signature verified, malware replay or accuracy claim made. CLI version and C003 explanation ran successfully. Python dependencies installed only in a temporary environment, with bytecode disabled against product source. Household README at `6a51e37` supports incomplete-component wording; Builder’s purpose is supplied/approved in the review. LLM Bridge is design-only and deferred; Otto lacks a name/purpose; Roost remains a future personal selection, with no new claim derived from its stale local release notes. Shared small inventory is in the management folder, with company placements labeled proposed/team-owned.
+
+Verification: `npm run check` passed 370 references/anchors/image alternatives across 19 pages. All six existing theme tests passed. Production preparation assertions confirmed More work/Garnet canonical and sitemap inclusion and archive/reading/digest noindex preservation; rebuilt local noindex output afterward. Browser: homepage at 320/390/481/640/641/768/1440, case at 320/390/768/1440, collection at 320/390/640/641/768/1440, no horizontal overflow in measured views. Four features retained, loaded case/collection imagery, both themes exercised, Garnet card→case and Orca case→collection round trip work. Navigation wraps at 640px for the extra link; theme behavior is unchanged. Local server on port4182. Author verification sufficient: reversible content/layout/metadata edits, no high-risk controls. Screen-reader execution and production deployment were not tested. Owner retains merge; no deployment by this task.
+
+## Abandoned-project correction — October 17, 2026
+
+Owner clarified that iYosi and StatBatt are abandoned projects, never finalized as products. Supersedes prior iYosi pilot/in-development positioning. Both now appear under Abandoned projects; removed the otherwise empty additional-software section. iYosi’s gallery card opens its historical record, its case removes prospective pilot/launch wording and returns to the archive, and both case introductions/statuses identify abandonment. Existing URLs and historical implementation evidence remain. iYosi now joins StatBatt in production noindex/sitemap exclusion. Copy guide, README and shared management inventory synchronized. Updated the same preview branch/PR91; no company-site changes, merge or deployment. Author verification sufficient for this bounded presentation/status correction.
+
+Owner also added Spessartine as in development, behind Garnet Guard. Source README/brief at a74b5d3 describes an experimental Python diagnostic spike for serial-versus-worker differences, not a released V1. Added a concise emerging entry with no private repository link, release promise or performance claim; Garnet remains featured. Static check passed 370 references across19pages; both abandoned cases retain noindex/sitemap exclusion. Browser verified archive320/1440 without overflow and iYosi record/return link.
+
+## Emerald City entry — October17,2026
+
+Owner requested Emerald City in the in-development collection. Added a name/status entry, retaining Garnet’s featured priority and the abandoned-project corrections. No product purpose, capability, availability, or destination inferred; requested an optional one-sentence public description. Same preview branch/PR91; no company edits, merge or deployment. Author verification sufficient for this bounded content addition.
+
+Verification: static check370references/19pages and whitespace passed; browser confirms four emerging entries including Emerald City, with no horizontal overflow at320/1440px. No runtime behavior or product code changed. Public description remains optional; the confirmed name/status stands on its own.
+
+## Emerald City description — October17,2026
+
+Owner supplied an operating-model brief and confirmed the project is a personal investment strategy application. Replaced the name-only entry with research/backtesting/portfolio-review purpose and explicitly planned separation of research and execution, paper testing, risk limits and decision records. No live integration or performance claim; no private account context or financial figures copied into the site or repository. The brief’s operational instructions are not executed. Same preview branch/PR91, no product changes, merge or deployment. Author verification sufficient for this copy-only update.
+
+Verification: static370references/19pages and whitespace passed; rendered entry matches approved purpose and planned status, no horizontal overflow at320/1440px. No new runtime behavior, financial research, or product implementation was tested or performed.
+
+## Emerald City copy simplification — October17,2026
+
+Owner requests a broad description while project direction is unsettled. Reduced the entry to “A personal investment strategy app.” Retained Personal application / In development; removed all workflow/strategy detail. Copy guide and shared inventory follow the same public description. Same preview PR91; no product work, merge or deployment. Author verification sufficient.
+
+## More work discovery from featured work — October17,2026
+
+Owner requested the collection link live in the homepage work section, not the top bar. Removed More work from every shared masthead, retaining the existing link directly below the four featured projects and all contextual case/archive links. Restored original480px masthead wrapping breakpoint; theme behavior unchanged. README/copy guide updated. Same preview PR91; author verification sufficient for bounded navigation/layout change, no merge/deployment.
+
+Verification: static352references/19pages, six existing theme tests, and whitespace passed. Refreshed browser at320/480/481/640/1440px confirms masthead Home/Anti-Library/Say hello only and no horizontal overflow. Clicking the retained work-section More work link reaches the collection, whose masthead also omits it.
+
+## Prototype progress and reasons for stopping — October17,2026
+
+Owner supplied the reasons both abandoned projects stopped and confirmed substantial progress with working prototype apps. Added StatBatt’s explicit Read the project record gallery link to match iYosi. Both gallery entries now acknowledge working prototypes. iYosi’s record explains the owner’s commercial judgment about regulatory constraints and monetization; no specific legal claim or adoption metric added. StatBatt’s introduction/origin and closing section explain the macOS/Energiza compatibility gap and its resolution a few days later, with no meaningful additional benefit from the replacement. Existing technical narratives, proof limits and archive status retained. No repository visibility/license change or claim of a future MIT release; owner will handle those choices. Same preview PR91. Author verification sufficient for this bounded link/copy update.
+
+Verification: static353references/19pages and whitespace passed. Refreshed browser confirms two explicit record links, StatBatt and iYosi record/return round trips, rendered reasons/prototype progress, and no horizontal overflow on either record at320/1440px. Existing source/history proof remains; no app runtime revalidation or repository/licensing action performed.
+
+## Pettr Health abandoned storefront — October17,2026
+
+Owner identified Pettr as abandoned and supplied reasons: supplement regulation, advertising and warehousing costs. Read source README at48441d8 (read-only) and inspected the public retained storefront: sample product/lab/marketing content and checkout stub. Captured actual1280×800viewport image (1265×791pixels) with preview notice preserved; no cart/checkout/form interaction. Added archive card, explicit record link and pettr.html with concise implementation history, reasons for stopping, placeholder limits and retained-preview destination. No health/product efficacy or launch claim. Generalized archive introduction so working-app progress remains specific to iYosi/StatBatt. New case joins existing archive noindex/sitemap exclusions. No external storefront/product changes, visibility/license changes, merge or deployment. Author verification sufficient for presentation/copy update.
+
+Verification: static373references/20pages and whitespace passed. Production assertions confirm iYosi/StatBatt/Pettr noindex and sitemap exclusion, followed by local noindex rebuild. Browser confirms three explicit archive-record links, Pettr record/return navigation, loaded capture and no horizontal overflow at320/1440px. Retained public storefront was inspected read-only; no purchase/form actions or app-runtime tests performed.
+
+## Original GetFit destination — October17,2026
+
+Owner supplied getfit.orcasolutions.dev and authorized linking the original app. Added Open original GetFit to getfit.html alongside the existing bellos/source actions, preserving their distinct labels. Direct unauthenticated HTTP check returned200 at the supplied URL, title get-fit; no user data or application state accessed. README/copy guide updated; earlier no-direct-v1-link direction superseded. Same preview PR91, no application changes, merge or deployment. Author verification sufficient for this bounded link addition.
+
+Verification: static373references/20pages and whitespace passed. Browser confirms exact original-app destination and distinct bellos/GetFit/source actions; no horizontal overflow at320/1440px. Destination HTTP200 verifies availability, not application workflows; no app state changed.
+
+## Expandable More work titles — October17,2026
+
+Owner requested each collection card expand from just its title. Converted all nine emerging/website/archive cards to native details/summary with titles and plus/minus indicators; status, descriptions, imagery and existing links remain inside. All start collapsed, support keyboard, work without JavaScript, and open independently. Added explicit case/concept actions to the two website entries so destinations remain discoverable separately from the title control; screenshot destinations retained. Kept existing anchored IDs, homepage grid, section grouping and theme behavior. Shared styles scope the compact grid/disclosure treatment to More work. Author verification sufficient for reversible UI change. Same preview PR91; no merge/deployment.
+
+Verification: static374references/20pages and whitespace passed. Refreshed browser confirms9closed entries initially, titles only, no links nested in summary controls, Enter opens/Space closes, and iYosi/StatBatt remain open independently. Expanded layout has no horizontal overflow at320/390/768/1440px. Record navigation and anchored return work; light/dark presentation and Emerald City body verified. Native markup supplies no-JavaScript behavior; no browser JS-disable or screen-reader execution performed. Preview evidence saved as more-work-collapsed.jpg in this task’s visualization folder.
+
+## GetFit → bellos headline — October17,2026
+
+Applied owner’s exact headline “A workout plan with a plan. And a record of what happened”, retaining the existing italic second phrase and responsive case frame. Copy guide synchronized. Same preview PR91; author verification sufficient for a copy-only change. No merge/deployment.
+
+Verification: build and whitespace passed; browser confirms exact wording and no horizontal overflow at320/1440px. No behavioral tests needed for headline-only change.
+
+Owner punctuation correction, October17: added the terminal period after “happened.” in the GetFit → bellos headline and copy guide. Inspected the exact edit; no behavior change or new tests required.

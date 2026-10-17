@@ -8,11 +8,11 @@ The voice is warm, observant, and direct. Rhythm comes from sentences of differe
 
 Title: **Jason Fricano — A practice of paying attention**
 
-Description: **I'm Jason Fricano: an attorney, software builder, and curious person. A few things I've made, the questions behind them, and a little about life in between.**
+Description: **I'm Jason Fricano: a software builder, attorney, and founder of Orca Solutions. A few things I've made, the questions behind them, and a little about life in between.**
 
 ## Navigation
 
-Jason Fricano / Work / About / Say hello
+Jason Fricano / Home / Anti-Library / Say hello
 
 ## Introduction
 
@@ -22,7 +22,7 @@ Headline: **There's always more to notice.**
 
 Introduction:
 
-> I'm Jason. An attorney, a software builder, and someone who likes a good question. I find them in people, in a garden, under the hood—and sometimes follow them all the way into something useful.
+> I’m Jason Fricano, a software builder, attorney, and founder of Orca Solutions. I like a good question—in people, in a garden, under the hood—and sometimes follow it all the way into something useful.
 
 Primary action: **A few things I've made ↘**
 
@@ -32,7 +32,7 @@ Optional illustration caption: **Curiosity has a way of branching out.**
 
 ## Selected work
 
-Eyebrow: **01 / Things I've made**
+Eyebrow: **02 / Things I've made**
 
 Headline: **Good questions. Working answers.**
 
@@ -52,7 +52,7 @@ Description:
 
 Role: Product design, architecture & implementation
 
-Links: Toolkit case study / Game case study / Visit StreamOtter (https://streamotter.dev/)
+Links: Toolkit case study / Demo case study / Game case study / Visit StreamOtter (https://streamotter.dev/)
 
 One homepage entry covers the reusable toolkit, its hosted field station, and Pup Patrol, a separate React game. Pair the flowing-stream field-station visualization, with its surrounding light margin, with a local game capture. Link the game case at `pup-patrol.html`; the toolkit and game pages also link to the field-station case. lontracreek.com is planned, not yet live. Label the game capture as recording mode and the React hooks as prerelease. The demo case study retains `lontra-creek.html` for existing links but is presented as **StreamOtter demo site**. Lontra Creek is the fictional watershed within that demonstration, not a separate selected project.
 
@@ -76,35 +76,37 @@ Links: Free macOS app & sample site (https://pt.orcasolutions.dev/) / View sourc
 
 ### GetFit → bellos
 
+Case-study headline: **A workout plan with a plan. And a record of what happened.**
+
 Category: From personal tool to product
 
-Status: GetFit live · bellos in development
+Status: GetFit live · bellos private beta
 
 Description:
 
-> A personal workout planner, now growing into bellos: a commercial phone-first app built around Accordion Training™. The original source remains open.
+> A personal workout planner, now bellos: a commercial phone-first app in private beta, built around Accordion Training™. The original source remains open.
 
-Case-study opening retains the personal origin, then adds: “And then I adapted it. The source is still available.” bellos is always lowercase. Its name keeps the sound of bellows and drops the w to reflect simplicity and good design. Keep the case study focused on what, how, and why Jason built it: durable logs, inspectable plans, modular implementation, open-source adaptation, and phone-first gym use. Omit the training-method section and planning diagram. Keep the working GetFit app distinct from the planned commercial product; accounts, service, and the revised design are in development.
+Case-study opening retains the personal origin, then adds: “And then I adapted it. The source is still available.” bellos is always lowercase. Its name keeps the sound of bellows and drops the w to reflect simplicity and good design. Keep the case study focused on what, how, and why Jason built it: durable logs, inspectable plans, modular implementation, open-source adaptation, and phone-first gym use. Omit the training-method section and planning diagram. Keep the open-source GetFit foundation distinct from bellos, now in private beta. Do not imply open registration.
 
-Links: Case study (`getfit.html`) / Visit bellos (https://bellos.app/). Remove direct GetFit v1 app links; retain the open-source destination in the case study. Use a plain bellos.app link without a coming-soon label, per the owner’s near-term launch direction.
+Links: Case study (`getfit.html`) / Visit bellos (https://bellos.app/). In the case study, also link Open original GetFit to https://getfit.orcasolutions.dev/ beside the bellos and source destinations. Keep the original app and bellos clearly distinguished. Use a plain bellos.app link without a coming-soon label, per the owner’s near-term launch direction.
 
 Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live bellos views captured in Safari at 390 × 844 CSS pixels—planned workout, training block, and movement guidance—with no workout history shown. Present them as static images together on the homepage, larger in the case study, and stacked on phones. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
 
 ### StatBatt — archived project
 
-Status: Archived · No release planned
+Status: Abandoned · Never finalized as a product
 
-StatBatt is removed from selected work and retained as a records entry at `/moreprojects/#statbatt`. Its existing case study remains at `statbatt.html`, with archive status and links back to the gallery. Its landing screenshot uses illustrative readings. Both the gallery and archived case study retain noindex metadata and stay out of the sitemap. They are unlisted, not authenticated.
+StatBatt is removed from selected work and retained as a records entry at `/moreprojects/#statbatt`. Its existing case study remains at `statbatt.html`, with archive status and links back to the gallery. Its landing screenshot uses illustrative readings. Add an explicit Read the project record link on its gallery card, matching iYosi. Explain that a macOS update broke Energiza for Jason, prompting StatBatt; a few days later Energiza’s update restored the existing solution, and StatBatt added nothing meaningfully new. Substantial development and a working prototype preceded the decision to stop. The archived case retains noindex and stays out of the sitemap. The curated gallery is linked publicly and is included in the sitemap after production preparation.
 
-### iYosi — additional portfolio
+### iYosi — abandoned project
 
 Category: iOS & Android
 
-Status: Pilot / in development
+Status: Abandoned · Never finalized as a product
 
 Description:
 
-> A pair of mobile apps for finding and correcting information about designated and reported smoking areas in Metro Manila.
+> An abandoned mobile-guide project for designated smoking areas in Metro Manila. It never became a finalized product.
 
 Marginal observation:
 
@@ -112,23 +114,33 @@ Marginal observation:
 
 Role: Product concept, platform design & implementation
 
-Link: Explore the landing preview
+Link: Read the archived project record (`iyosi.html`); the retained landing design is historical evidence. Explain the decision to stop: regulatory constraints and difficulties monetizing the idea prevented a commercially viable path. Preserve the substantial development and working prototype apps as evidence; do not imply customer adoption or invent traction metrics.
 
-## Orca Solutions note
+### Pettr Health — abandoned storefront concept
 
-Eyebrow: **The studio**
+Status: Abandoned · Storefront preview
 
-Headline: **Some of this curiosity has a company name.**
+An interactive pet-supplement storefront concept, retained as design evidence. The owner stopped because of supplement regulation, advertising hurdles and warehousing costs. Product data, lab reports, story and marketing copy are samples; checkout is not connected. Do not present sample product claims as facts. Link the card and Read the project record action to `pettr.html`, with the retained preview linked from that record. Keep the case noindex and outside the sitemap.
 
-> I founded Orca Solutions to build and publish software. It's the studio behind these projects, with a point of view—and a home—of its own.
+### Garnet Guard
 
-Status: Company website in development
+Category: Dependency review
 
-Use a link only when an actual public destination has been confirmed. This small aside should read as a natural connection, not a second sales pitch.
+Status: Pre-alpha · command-line preview
+
+> What changed between the release you trusted and the next one? A Python-first developer tool that flags changes worth a closer look, with the evidence beside them.
+
+Links: Case study (`garnet-guard.html`) / Explore the source (`https://github.com/Orca-Solutions/garnet-guard`). Show the approved lockup and a shortened excerpt of actual engine output from clearly labeled synthetic releases. Explain the problem, role, warning evidence and limitations; keep technology secondary. Do not equate a warning with malware or no findings with a safety certificate. Broader integrations are in development.
+
+## More work and the studio
+
+The homepage features Personal Treasury, StreamOtter, GetFit → bellos and Garnet Guard. Move the Orca website case to the website-studies section of `/moreprojects/`, preserving its URL. Keep the founder link in the introduction and footer, pointed at `https://orcasolutions.dev/`, and add a commissioned-project route beside contact.
+
+Link to More work beneath the homepage’s featured projects, not in the masthead. More work separates emerging applications, website studies and abandoned projects. Each listing starts collapsed to its title; expanding it reveals the existing status, copy, imagery and links. Keep project destinations inside the expanded entry, separate from its title control. iYosi and StatBatt never became finalized products; preserve their case URLs as records, with no active-pilot or future-release framing. Antilibrary Builder is an application for other people; the personal antilibrary belongs with interests and reading. Household Administrator describes design direction and incomplete implementation, not a working automation promise. Spessartine is an experimental Python diagnostic for differences between serial and worker execution; show it in development, with no public release or performance claim. Garnet Guard retains the featured slot and nearer-term priority. Emerald City is a personal investment strategy application in development. Public description: “A personal investment strategy app.” The owner requests no strategy or workflow details while the project direction is still being worked out. Do not imply implemented broker integration, live trading, performance results or public availability. Keep personal account details and financial figures out of portfolio copy. Vespa remains explicitly fictional; iYosi and StatBatt are abandoned, with no release planned.
 
 ## About
 
-Eyebrow: **02 / A little about me**
+Eyebrow: **01 / The person**
 
 Headline: **A life with a few open tabs.**
 
@@ -152,7 +164,7 @@ Use a short note within About or alongside work, rather than a long separate met
 
 ## Contact
 
-Eyebrow: **03 / Say hello**
+Eyebrow: **04 / Say hello**
 
 Headline: **What's on your mind?**
 
@@ -164,9 +176,7 @@ Destination: `mailto:jasonjpf.dev@gmail.com`
 
 Visible email: **jasonjpf.dev@gmail.com**
 
-Secondary action: GitHub
-
-Destination: `https://github.com/jfricano`
+Secondary action: Bring a project to Orca Solutions (`https://orcasolutions.dev/`). Keep GitHub in the footer.
 
 Omit LinkedIn until the exact profile is confirmed.
 
@@ -187,8 +197,8 @@ Omit LinkedIn until the exact profile is confirmed.
 - Preserve release labels and distinguish concept art from product screens. Verify current product state before publication.
 - No claims of scale, business results, testimonials, or downloadable applications beyond the existing brief's evidence.
 
-Homepage work overview: source repository links belong on the individual case studies; retain case-study, demo, package and live-site destinations in the overview. The introduction now carries section number 00, per the merged design update.
+Homepage work overview: prioritize case studies and product destinations; Garnet’s public source checkout is its current usable destination. The introduction now carries section number 00, per the merged design update.
 
-Footer: link “Orca Solutions” in the founder credit to https://github.com/orca-solutions.
+Footer: link “Orca Solutions” in the founder credit to https://orcasolutions.dev/.
 
 October 17 update: bellos is released into private beta. Identify this status in the homepage and case-study captions. The StreamOtter homepage card links directly to toolkit, demo (`lontra-creek.html`), and game case studies.
