@@ -60,7 +60,7 @@ One homepage entry covers the reusable toolkit, its hosted field station, and Pu
 
 Category: Household finance
 
-Status: Browser demo · fictional data
+Status: Free macOS download
 
 Description:
 
@@ -68,11 +68,11 @@ Description:
 
 Marginal observation:
 
-> Where did it go? There should be a clear answer. Try the sample site or download the free macOS app there.
+> Where did it go? There should be a clear answer. Download the free macOS app, or explore the sample site to see how it works.
 
 Role: Product rules, experience & implementation
 
-Links: Demo & free macOS app (https://pt.orcasolutions.dev/) / View source. The sample site provides the browser demo with fictional data and a free local macOS preview for Apple Silicon, with installation notes.
+Links: Free macOS app & sample site (https://pt.orcasolutions.dev/) / View source. Personal Treasury is available as a free macOS download. The sample site demonstrates it with fictional data and provides the download and installation notes.
 
 ### GetFit → bellos
 
