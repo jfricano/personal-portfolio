@@ -86,7 +86,7 @@ Description:
 
 Case-study opening retains the personal origin, then adds: “And then I adapted it. The source is still available.” bellos is always lowercase. Its name keeps the sound of bellows and drops the w to reflect simplicity and good design. Keep the case study focused on what, how, and why Jason built it: durable logs, inspectable plans, modular implementation, open-source adaptation, and phone-first gym use. Omit the training-method section and planning diagram. Keep the open-source GetFit foundation distinct from bellos, now in private beta. Do not imply open registration.
 
-Links: Case study (`getfit.html`) / Visit bellos (https://bellos.app/). Remove direct GetFit v1 app links; retain the open-source destination in the case study. Use a plain bellos.app link without a coming-soon label, per the owner’s near-term launch direction.
+Links: Case study (`getfit.html`) / Visit bellos (https://bellos.app/). In the case study, also link Open original GetFit to https://getfit.orcasolutions.dev/ beside the bellos and source destinations. Keep the original app and bellos clearly distinguished. Use a plain bellos.app link without a coming-soon label, per the owner’s near-term launch direction.
 
 Capture and present the app at phone width because it is used beside the person in the gym between sets. Current screenshots: three live bellos views captured in Safari at 390 × 844 CSS pixels—planned workout, training block, and movement guidance—with no workout history shown. Present them as static images together on the homepage, larger in the case study, and stacked on phones. Core technologies describe the implemented GetFit foundation: React, TypeScript, Vite/PWA, Dexie/IndexedDB, Hono/Node.js, SQLite.
 

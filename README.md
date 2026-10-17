@@ -105,7 +105,7 @@ Selected-work C follows open-source GetFit into bellos, the commercial phone-fir
 
 iYosi and StatBatt were abandoned before becoming finalized products. Their existing case URLs remain as historical implementation records, reached through the Abandoned projects section of More work. Both reached working prototypes and substantial development. The records explain why Jason stopped: regulatory and monetization constraints for iYosi; Energiza’s compatibility update closing the original gap for StatBatt. Both gallery cards have explicit project-record links. Pettr Health also has an archived storefront record at `pettr.html`, explaining the supplement-regulation, advertising and warehousing hurdles. Its preview has sample product/lab/marketing content and a checkout stub; it was not a launched store. All three archive cards link to their records. Neither is presented as active software, and both case studies retain noindex and sitemap exclusion. Repository visibility and licensing are unchanged; any future public/MIT transition belongs to Jason.
 
-Homepage framing retains the entire Personal Treasury dashboard capture, centered with the shared project-card inset. bellos links directly to https://bellos.app/. Direct GetFit v1 app links are removed; its open-source link remains in the case study.
+Homepage framing retains the entire Personal Treasury dashboard capture, centered with the shared project-card inset. bellos links directly to https://bellos.app/. The case study also links to the original GetFit app at https://getfit.orcasolutions.dev/, clearly distinguished from bellos, alongside its open-source repository.
 
 ## Pup Patrol on Lontra Creek
 
