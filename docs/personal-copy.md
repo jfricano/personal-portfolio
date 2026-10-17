@@ -114,6 +114,12 @@ Role: Product concept, platform design & implementation
 
 Link: Read the archived project record (`iyosi.html`); the retained landing design is historical evidence. Explain the decision to stop: regulatory constraints and difficulties monetizing the idea prevented a commercially viable path. Preserve the substantial development and working prototype apps as evidence; do not imply customer adoption or invent traction metrics.
 
+### Pettr Health — abandoned storefront concept
+
+Status: Abandoned · Storefront preview
+
+An interactive pet-supplement storefront concept, retained as design evidence. The owner stopped because of supplement regulation, advertising hurdles and warehousing costs. Product data, lab reports, story and marketing copy are samples; checkout is not connected. Do not present sample product claims as facts. Link the card and Read the project record action to `pettr.html`, with the retained preview linked from that record. Keep the case noindex and outside the sitemap.
+
 ### Garnet Guard
 
 Category: Dependency review
