@@ -55,3 +55,5 @@ Jason requested implementation of the supplied October 17 two-site review, limit
 Owner correction, October 17: iYosi and StatBatt are abandoned and never became finalized products. Move iYosi out of active software into the abandoned-project archive, identify both clearly in gallery/cases, remove prospective iYosi launch wording, retain historical URLs and noindex/sitemap exclusion, and update the existing preview PR.
 
 Owner addition, October 17: Spessartine is also in development, behind Garnet Guard in priority. Add an accurate emerging entry; retain Garnet as the featured near-term focus. No source publication or product release is authorized.
+
+Owner addition, October17: Emerald City is another project in development. Add its name/status to More work. No public software description was supplied; do not infer one from other planning material.

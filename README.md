@@ -93,7 +93,7 @@ The Pages workflow validates PRs and deploys main after successful checks. It bu
 
 ## Additional portfolio
 
-`/moreprojects/` is linked from navigation and below selected work. It groups in-development work (Spessartine, Antilibrary Builder and Household Administrator), website studies (Orca Solutions and the explicitly fictional Vespa Law concept), and abandoned-project records (iYosi and StatBatt). The work in development has no public demo; Spessartine is an experimental Python diagnostic, with Garnet Guard remaining the nearer-term priority. the personal antilibrary is linked as a distinct collection, not presented as Builder.
+`/moreprojects/` is linked from navigation and below selected work. It groups in-development work (Spessartine, Antilibrary Builder, Household Administrator and Emerald City), website studies (Orca Solutions and the explicitly fictional Vespa Law concept), and abandoned-project records (iYosi and StatBatt). The work in development has no public demo; Spessartine is an experimental Python diagnostic, with Garnet Guard remaining the nearer-term priority. the personal antilibrary is linked as a distinct collection, not presented as Builder.
 
 Production preparation adds the curated gallery to canonical metadata and the sitemap. Both abandoned-project case studies retain noindex and stay out of the sitemap; personal reading and digest pages retain their existing exclusions. All local preview pages stay noindex. The collection uses two columns on larger screens and one on phones. Add entries to `site/moreprojects/index.html` with their actual availability and evidence.
 
