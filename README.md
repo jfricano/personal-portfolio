@@ -14,7 +14,7 @@ Open http://127.0.0.1:4175. The identity board is at http://127.0.0.1:4175/brand
 
 ## Color themes
 
-Every public site layout has a theme switch in the masthead: a small half-filled disc just before the links, set off by a hairline (on narrow phones it sits at the right of the name's line, with the links below). It follows the device's light/dark setting until someone presses it; pressing flips to the other theme and remembers it in this browser under `portfolio-theme`, and flipping back to the device's own setting forgets the choice so the page follows the device again. It is a real button (labelled "Dark theme", with `aria-pressed`), applied before paint and synchronized between tabs. Storage restrictions still permit switching for the current page. Without JavaScript, the original light theme remains available.
+Every public site layout has a theme switch in the masthead: a small half-filled disc just before the links, set off by a hairline (at 640px and below it sits at the right of the name's line, with the links below). It follows the device's light/dark setting until someone presses it; pressing flips to the other theme and remembers it in this browser under `portfolio-theme`, and flipping back to the device's own setting forgets the choice so the page follows the device again. It is a real button (labelled "Dark theme", with `aria-pressed`), applied before paint and synchronized between tabs. Storage restrictions still permit switching for the current page. Without JavaScript, the original light theme remains available.
 
 `site/theme.css` defines the warm charcoal, cream, copper and lavender palette. Original illustrations remain on cream paper; screenshots retain their colors. Digest printing uses a light paper palette. The historical identity board is preserved as its original design artifact.
 
@@ -22,7 +22,7 @@ Use `node --test scripts/theme.test.mjs` for preference/OS/storage regressions, 
 
 ## Source and direction
 
-- `site/`: homepage, eight retained case studies, additional-project gallery, project screenshots and shared CSS.
+- `site/`: homepage, nine case studies, curated More work collection, project screenshots and shared CSS.
 - `branding/personal-v1/`: The Turn F/J mark, wordmark, favicon, board and usage notes.
 - `artwork/`: original generated illustration, compressed delivery image, exact prompt and provenance.
 - `docs/creative-direction-v3.md`: creative rationale and role boundaries.
@@ -32,9 +32,11 @@ Use `node --test scripts/theme.test.mjs` for preference/OS/storage regressions, 
 
 The existing mockups and design brief remain below as historical context. Product release claims need revalidation before a new publication. Local builds are intentionally marked noindex; production metadata uses the base URL configured in `scripts/prepare-pages.mjs`.
 
-## V1 review candidate
+## Current review candidate
 
-The homepage presents four projects in a 2×2 screenshot grid: Personal Treasury, StreamOtter, GetFit → bellos and Orca Solutions. StreamOtter pairs its flowing-stream front-page visualization with a local Pup Patrol game capture and links to toolkit and game case studies; both retain access to the field-station case. iYosi and the archived StatBatt record appear alongside Vespa Law at `/moreprojects/`. Eight case studies remain in the source, including the retained iYosi and StatBatt URLs. The demo retains `lontra-creek.html` for existing links. Each case study lists its core technologies; the public toolkit and demo are at https://streamotter.dev/. The approved v3 design remains the visual baseline; `mockups/` and the earlier brief are historical references.
+The homepage presents four projects in the established 2×2 grid: Personal Treasury, StreamOtter, GetFit → bellos, and Garnet Guard. StreamOtter retains toolkit, field-station, and Pup Patrol case links within one entry. The introduction names Jason as Orca Solutions’ founder; the contact section routes commissioned work to the studio. The original identity, illustrations, interests and light/dark themes remain the baseline.
+
+`garnet-guard.html` explains the pre-alpha comparison tool through actual engine output from synthetic releases. It distinguishes the working Python comparison from planned integrations and links the public source for setup. The homepage uses a shortened report excerpt beside the approved Garnet lockup. Existing case-study URLs are retained; the Orca website case now returns to its card in More work. The former homepage `#orca` anchor lands at the collection link.
 
 `npm run check` validates every shipped HTML page, including the additional-project gallery, identity board and 404 page. The local server returns a styled 404 with a working home link even for nested missing URLs. Choose another port with `PORT=4176 npm run dev` if 4175 is already occupied.
 
@@ -44,7 +46,7 @@ See `PROJECT_BRIEF.md`, `WORKING_RECORD.md` and `verification/review.md` for sco
 
 ## Anti-library
 
-`site/antilibrary/` is a searchable page of the books, films, TV and albums Jason hasn’t gotten to yet (plus what he has already read, watched or heard that shaped him), served at `/antilibrary/` and linked from the site navigation as Anti-Library. Like `/moreprojects/`, it keeps noindex and stays out of the sitemap. This repository holds only the page: markup, styles, search, sort and filter, owner mode, artist, author and director path pages and the header art slot. The lists, threads, artist, author and director paths, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib), whose README is the authoritative description of the data and of what owner mode can change.
+`site/antilibrary/` is a searchable page of the books, films, TV and albums Jason hasn’t gotten to yet (plus what he has already read, watched or heard that shaped him), served at `/antilibrary/` and linked from the site navigation as Anti-Library. It keeps noindex and stays out of the sitemap; the curated `/moreprojects/` collection is now discoverable. This repository holds only the page: markup, styles, search, sort and filter, owner mode, artist, author and director path pages and the header art slot. The lists, threads, artist, author and director paths, the importer, the link and cover lookups and the progress workflow live in [jfricano/anti-lib](https://github.com/jfricano/anti-lib), whose README is the authoritative description of the data and of what owner mode can change.
 
 The page fetches `lists.json`, one `<id>.json` per list, `paths.json`, `author-paths.json`, `director-paths.json` and `progress.json` from `https://raw.githubusercontent.com/jfricano/anti-lib/main/data/` (the `data-source` attribute on `<main>`), so list changes and finished titles show up without redeploying this site. Links from the data are only used if they are `https:`.
 
@@ -91,15 +93,17 @@ The Pages workflow validates PRs and deploys main after successful checks. It bu
 
 ## Additional portfolio
 
-`/moreprojects/` is a direct-share collection for work beyond the homepage, including Vespa Law, iYosi, and the archived StatBatt record. It uses two screenshot cards per row on larger screens and one on phones. A card links to the project site or archived case study; its caption lists principal technologies. Add new entries to `site/moreprojects/index.html` and screenshot assets to `site/assets/`.
+`/moreprojects/` is linked from navigation and below selected work. It groups additional software (iYosi), in-development applications (Antilibrary Builder and Household Administrator), website studies (Orca Solutions and the explicitly fictional Vespa Law concept), and the StatBatt archive. The applications in development have no public demo; the personal antilibrary is linked as a distinct collection, not presented as Builder.
 
-Local review: http://127.0.0.1:4176/moreprojects/. No homepage or navigation link is added. Production preparation retains noindex metadata on the gallery and `statbatt.html`, and excludes both from the sitemap. The page is unlisted, not access-controlled. The iYosi screenshot and case study now reflect the redesigned iyosi.app landing site.
+Production preparation adds the curated gallery to canonical metadata and the sitemap. StatBatt retains noindex and stays out of the sitemap; personal reading and digest pages retain their existing exclusions. All local preview pages stay noindex. The collection uses two columns on larger screens and one on phones. Add entries to `site/moreprojects/index.html` with their actual availability and evidence.
+
+The October 17 proposal also names future candidates. LLM Bridge remains design-only with no specific public invitation yet; the Otto-inspired project lacks an established public name and purpose. Roost is a future personal feature candidate. None is promoted merely to fill a slot. Orca’s website changes belong to its own team; this branch changes only the personal site. The shared editorial inventory is `business-management/WEBSITE_PROJECT_INVENTORY.md` in Jason’s Orca Solutions management folder.
 
 ## GetFit → bellos and archived StatBatt
 
 Selected-work C follows open-source GetFit into bellos, the commercial phone-first version now released into private beta. The case study focuses on why the personal app was built, its records and architecture, open-source customization, and the gym use case behind the phone-first design. It does not explain the training method. GetFit’s public repository remains MIT-licensed. Three portrait screenshots show the running bellos app in Safari at phone width: a planned workout, training block, and movement guide. They appear as static images together on the homepage and larger in the case study, stacking on phones. No workout history is shown. The existing `getfit.html` route is retained.
 
-StatBatt has no release planned. Its implementation record remains at `statbatt.html` through `/moreprojects/`, without homepage promotion. These archive pages are unlisted and accessible by URL.
+StatBatt has no release planned. Its implementation record remains at `statbatt.html` through `/moreprojects/`, without homepage promotion. The archived case remains noindex and is reachable from the clearly labeled archive section in More work.
 
 Homepage framing retains the entire Personal Treasury dashboard capture, centered with the shared project-card inset. bellos links directly to https://bellos.app/. Direct GetFit v1 app links are removed; its open-source link remains in the case study.
 

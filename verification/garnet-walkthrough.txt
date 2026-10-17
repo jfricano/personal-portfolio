@@ -1,0 +1,8 @@
+demo 1.0 → 1.1: WARN
+  WARN  GRN-C003 new-import-time-exec: 1.1 adds import-time calls to sensitive APIs in 1 module(s)
+           - demo/__init__.py:2 calls subprocess.run
+  WARN  GRN-T001 lost-provenance: 1 file(s) in 1.1 have no attestation; every file of 1.0 had one
+           - demo-1.1-py3-none-any.whl: no attestation
+           - 1.0 was attested by github.com/o/r .github/workflows/release.yml
+
+verdict: warn
