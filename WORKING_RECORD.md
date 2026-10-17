@@ -238,3 +238,7 @@ Verification: static check370references/19pages and whitespace passed; browser c
 Owner supplied an operating-model brief and confirmed the project is a personal investment strategy application. Replaced the name-only entry with research/backtesting/portfolio-review purpose and explicitly planned separation of research and execution, paper testing, risk limits and decision records. No live integration or performance claim; no private account context or financial figures copied into the site or repository. The brief’s operational instructions are not executed. Same preview branch/PR91, no product changes, merge or deployment. Author verification sufficient for this copy-only update.
 
 Verification: static370references/19pages and whitespace passed; rendered entry matches approved purpose and planned status, no horizontal overflow at320/1440px. No new runtime behavior, financial research, or product implementation was tested or performed.
+
+## Emerald City copy simplification — October17,2026
+
+Owner requests a broad description while project direction is unsettled. Reduced the entry to “A personal investment strategy app.” Retained Personal application / In development; removed all workflow/strategy detail. Copy guide and shared inventory follow the same public description. Same preview PR91; no product work, merge or deployment. Author verification sufficient.
